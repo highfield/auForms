@@ -284,7 +284,7 @@ $(document).ready(function () {
         collapsed: true,
         fullCollapse: true,
         menuWidth: 150,
-        menuHeight: $(document).height()-40,
+        menuHeight: $(document).height() - 40,
         durationSlideOut: 200,
         durationSlideDown: 200,
         //mode: 'cover',
@@ -356,4 +356,401 @@ $(document).ready(function () {
     $('.mmenu-aux').click(function (e) {
         menur.multilevelpushmenu('expand');
     });
+
+
+
+    var sample, sampleOptions = {}, viewTarget, viewTargetHandlers = {};
+
+    viewTargetHandlers.page = function (fn) {
+        var target = $('#fbody').empty();
+        var footer = $('#ffoot').empty();
+        var info = fn(target);
+        footer.append(AuForms.buttons.create(info.layout, null));
+    }
+
+    viewTargetHandlers.dialog = function (fn) {
+        var target = $('<div>');
+        var info = fn(target);
+
+        var dialog = new BootstrapDialog({
+            message: function (dialogRef) {
+                return target;
+            },
+            closable: true
+        });
+        dialog.realize();
+        var f = dialog.getModalFooter();
+        f.show();
+        f.find('.bootstrap-dialog-footer').append(AuForms.buttons.create(info.layout, dialog));
+        dialog.open();
+        //BootstrapDialog.show({
+        //    title: 'Dialog title',
+        //    message: target,
+        //    buttons: [{
+        //        label: 'Button 1',
+        //        title: 'Mouse over Button 1'
+        //    }, {
+        //            label: 'Button 2',
+        //            // no title as it is optional
+        //            cssClass: 'btn-primary',
+        //            action: function () {
+        //                alert('Hi Orange!');
+        //            }
+        //        }, {
+        //            icon: 'glyphicon glyphicon-ban-circle',
+        //            label: 'Button 3',
+        //            title: 'Mouse over Button 3',
+        //            cssClass: 'btn-warning'
+        //        }, {
+        //            label: 'Close',
+        //            action: function (dialogItself) {
+        //                dialogItself.close();
+        //            }
+        //        }]
+        //});
+    }
+
+
+    $('#btnRemoveForm').click(function () {
+        $('#fbody').empty();
+        $('#ffoot').empty();
+    });
+
+    $('#btnShowForm').click(function () {
+        var h = viewTargetHandlers[viewTarget || 'page'];
+        h && h(function (t) {
+            var fn = sample && samplesFactory[sample];
+            return fn && fn(t, sampleOptions);
+        });
+    });
+
+    $('#sampleSelector').on('change', function () {
+        sample = $(this).val();
+    })
+
+    $('#viewTarget').on('change', function () {
+        viewTarget = $(this).val();
+    })
+
+    //$('#useDialog').on('change', function () {
+    //    sampleOptions.useDialog = $(this).prop('checked');
+    //})
+
+    //$("#alarm").timeDropper();
+    //$("#alarm").dateDropper();
 });
+
+var samplesFactory = {};
+
+
+samplesFactory.buttonDemo = function (target, options) {
+    "use strict";
+
+    var layout = {
+        groups: [{
+            items: [{
+                type: "button",
+                options: {
+                    label: 'Bottone 1',
+                    icon: 'glyphicon glyphicon-eye-open'
+                }
+            }, {
+                    type: "button",
+                    options: {
+                        label: 'Bottone 2',
+                        icon: 'glyphicon glyphicon-thumbs-up'
+                    }
+                }]
+        }, {
+                items: [{
+                    type: "button",
+                    options: {
+                        label: "Close 1",
+                        action: function (b, m, c) {
+                            if (c) {
+                                c.close();
+                            }
+                            else {
+                                alert('close!');
+                            }
+                        }
+                    }
+                }, {
+                        type: "button",
+                        options: {
+                            label: "Close 2",
+                            action: function (b, m, c) {
+                                if (c) {
+                                    c.close();
+                                }
+                                else {
+                                    alert('close!');
+                                }
+                            }
+                        }
+                    }]
+            }]
+    }
+
+    return {
+        layout: layout
+    }
+}
+
+
+samplesFactory.basicText = function (target, options) {
+    "use strict";
+
+    var config = {
+        sections: {
+            main: [{
+                type: "text",
+                label: "Nome",
+                name: "nome"
+            }, {
+                    type: "text",
+                    label: "Cognome",
+                    name: "cognome"
+                }, {
+                    type: "text",
+                    label: "Messaggio",
+                    watch: ["nome", "cognome"],
+                    readonly: true,
+                    conv: function (fctx) {
+                        return {
+                            toTarget: function () {
+                                if (this.target) {
+                                    var f = fctx.form;
+                                    var s = f.getData().saluto + ' ';
+                                    s += f.getData().nome + ' ';
+                                    s += (f.getData().cognome || "") + ' ';
+                                    this.target.val(s);
+                                }
+                            },
+                        }
+                    }
+                }]
+        }
+    };
+
+    var data = {
+        saluto: "ciao",
+        nome: "Tigro"
+    };
+
+    var fact = AuForms.JQFactory.get();
+    var form = AuForms.create(fact);
+    form.setConfig(config);
+    form.setData(data);
+    form.render(target);
+
+    var layout = {
+        groups: [{
+            items: [{
+                type: "button",
+                options: {
+                    label: "Close",
+                    action: function (b, m, c) {
+                        alert('close!');
+                    }
+                }
+            }]
+        }]
+    }
+
+    return {
+        layout: layout
+    }
+}
+
+
+samplesFactory.basicValidation = function (target, options) {
+    "use strict";
+
+    var config = {
+        sections: {
+            main: [{
+                type: "text",
+                label: "Nome",
+                name: "nome",
+                validate: {
+                    required: true,
+                    text: {}
+                }
+            }, {
+                    type: "text",
+                    label: "Cognome",
+                    name: "cognome",
+                    validate: {
+                        text: {
+                            minlength: 3,
+                            maxlength: 10
+                        }
+                    }
+                }, {
+                    type: "text",
+                    label: "E-Mail",
+                    name: "e_mail",
+                    validate: {
+                        required: false,
+                        email: {}
+                    }
+                }, {
+                    type: "number",
+                    label: "Peso (kg)",
+                    name: "peso",
+                    validate: {
+                        required: true,
+                        float: {
+                            min: 0.1,
+                            max: 20.0
+                        }
+                    }
+                }, {
+                    type: "number",
+                    label: "Altezza (cm)",
+                    name: "altezza",
+                    validate: {
+                        required: true,
+                        int: {
+                            min: 10,
+                            max: 200
+                        }
+                    }
+                }, {
+                    type: "checkbox",
+                    label: "Tigro è un porzèl!",
+                    name: "conferma",
+                    validate: {
+                        checked: true
+                    }
+                }, {
+                    type: "radio",
+                    label: "Stato civile",
+                    name: "stato_civile",
+                    enum: [{ key: 'scap', value: 'Scapolo' }, { key: 'spos', value: 'Sposato' }, { key: 'div', value: 'Divorziato' }],
+                    validate: {
+                        checked: true,
+                    }
+                }, {
+                    type: "select",
+                    label: "Razza",
+                    name: "razza",
+                    enum: [{ key: 'sib', value: 'Siberiano' }, { key: 'eur', value: 'Europeo' }, { key: 'nor', value: 'Norvegese' }, { key: 'siam', value: 'Siamese' }, { key: 'abi', value: 'Abissino' }, { key: 'mc', value: 'Maine-coon' }],
+                    validate: {
+                        required: true,
+                    }
+                }, {
+                    type: "multiselect",
+                    label: "Disastri",
+                    name: "disastri",
+                    enum: [{ key: 'bicch', value: 'Bicchieri rotti' }, { key: 'albnat', value: 'Albero di Natale' }, { key: 'cusc', value: 'Cuscini' }, { key: 'div', value: 'Divano' }, { key: 'fiori', value: 'Fiori e piante' }, { key: 'cibo', value: 'Cibo per terra' }],
+                    validate: {
+                        required: true,
+                    }
+                }, {
+                    type: "fg_time",
+                    label: "Orario di nascita",
+                    name: "nato_ora",
+                    conv: "text",
+                    validate: {
+                        required: true,
+                    }
+                }, {
+                    type: "fg_date",
+                    label: "Data di nascita",
+                    name: "nato_data",
+                    conv: "text",
+                    validate: {
+                        required: true,
+                    },
+                    options: {
+                        "large-mode": true,
+                        "max-year": 2030
+                    }
+                }]
+        }
+    };
+
+    var data = {
+        nome: "Tigro",
+        cognome: "Porzèl",
+        e_mail: "tigro@porzel.com",
+        peso: 4.5,
+        altezza: 35,
+        conferma: true,
+        stato_civile: 'scap',
+        razza: 'nor',
+        disastri: ['cusc', 'div']
+    };
+
+    var form = AuForms.create();
+    form.setConfig(config);
+    form.setData(data);
+    form.render(target);
+
+    //var btnres = $("<button>").addClass("btn btn-default").attr({ type: "button" }).css({ width: '100%' }).text("Reset");
+    //btnres.click(function () {
+    //    form.resetData();
+    //    form.render($('#fbody').empty());
+    //});
+
+    //var btnsub = $("<button>").addClass("btn btn-default").attr({ type: "button" }).css({ width: '100%' }).text("Submit");
+    //btnsub.click(function () {
+    //    alert(JSON.stringify(form.getData()));
+    //});
+
+    //var ctr = $("<div>").addClass('row').appendTo($('#ffoot'));
+    //$('<div>').addClass('col-xs-4').append(btnres).appendTo(ctr);
+    //$('<div>').addClass('col-xs-4 col-xs-offset-4').append(btnsub).appendTo(ctr);
+
+    form.validationUpdate = function (e) {
+        console.log("valok=" + e.valok);
+        //btnsub.attr({ disabled: (e.valok ? null : "disabled") });
+        $('#sub1').attr({ disabled: (e.valok ? null : "disabled") });
+    }
+
+    var layout = {
+        groups: [{
+            items: [{
+                type: "button",
+                options: {
+                    label: "Submit",
+                    id: 'sub1',
+                    action: function (b, m, c) {
+                        alert(JSON.stringify(form.getData()));
+                    }
+                }
+            }, {
+                    type: "button",
+                    options: {
+                        label: "Reset",
+                        action: function (b, m, c) {
+                            form.resetData();
+                            form.render(target.empty());
+                        }
+                    }
+                }]
+        }, {
+                items: [{
+                    type: "button",
+                    options: {
+                        label: "Close",
+                        action: function (b, m, c) {
+                            if (c) {
+                                c.close();
+                            }
+                            else {
+                                alert('close!');
+                            }
+                        }
+                    }
+                }]
+            }]
+    }
+
+    return {
+        layout: layout
+    }
+}
+
