@@ -170,7 +170,7 @@ var AuForms = (function () {
     function form(factory) {
         factory = factory || AuForms.JQFactory.get();
 
-        var exp = {}, int = {};
+        var exp = {};
         var db = {}, odb = {}, prefs = {}, oprefs = {};
         var cfg = {}, sections = {}, vmlookup = {};
 
@@ -236,14 +236,14 @@ var AuForms = (function () {
             }
         }
 
-        exp.render = function (scheme) {
+        exp.render = function (target, sctname) {
             if (!target) throw new Error("Must specify a valid rendering target.");
             for (var k in sections) {
                 if (!sctname || sctname === k) sections[k].render(target);
             }
         }
 
-        exp.validate = function () {
+        exp.validate = function (sctname) {
             var valok = true;
             for (var k in sections) {
                 if (!sctname || sctname === k) valok &= sections[k].validate();

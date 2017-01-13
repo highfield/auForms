@@ -939,3 +939,11 @@ div.datedropper .null {
   -ms-transition: none;
   -o-transition: none;
 }
+div.datedropper .picker-title{
+    margin-top: 12px;
+    margin-left: -50px;
+    margin-right: -50px;
+    text-align: center;
+    color: #DFF3FA;
+    font-size: 1.2em;
+}

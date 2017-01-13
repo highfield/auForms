@@ -32,8 +32,10 @@
   <ItemGroup>
     <Compile Include="app.js" />
     <Compile Include="public\fonts\linecons\lte-ie7.js" />
+    <Compile Include="public\js\site_old.js" />
     <Compile Include="public\js\site.js" />
     <Compile Include="public\libs\auDispatcher.js" />
+    <Compile Include="public\libs\auForms_old.js" />
     <Compile Include="public\libs\auForms.js" />
     <Compile Include="public\libs\bootstrap-3.3.7-dist\js\bootstrap.js" />
     <Compile Include="public\libs\bootstrap-3.3.7-dist\js\bootstrap.min.js" />
