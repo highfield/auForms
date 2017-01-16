@@ -362,52 +362,36 @@ $(document).ready(function () {
     var sample, sampleOptions = {}, viewTarget, viewTargetHandlers = {};
 
     viewTargetHandlers.page = function (fn) {
-        var target = $('#fbody').empty();
-        var footer = $('#ffoot').empty();
-        var info = fn(target);
-        footer.append(AuForms.buttons.create(info.layout, null));
+        var targets = {
+            body: $('#fbody').empty(),
+            footer: $('#ffoot').empty(),
+            options: sampleOptions
+        };
+        fn(targets);
+        //footer.append(AuForms.buttons.create(info.layout, null));
     }
 
     viewTargetHandlers.dialog = function (fn) {
-        var target = $('<div>');
-        var info = fn(target);
+        var targets = {
+            body: $('<div>'),
+            footer: $('#ffoot').empty(),
+            options: sampleOptions
+        };
 
         var dialog = new BootstrapDialog({
             message: function (dialogRef) {
-                return target;
+                return targets.body;
             },
             closable: true
         });
         dialog.realize();
+
         var f = dialog.getModalFooter();
         f.show();
-        f.find('.bootstrap-dialog-footer').append(AuForms.buttons.create(info.layout, dialog));
+        targets.footer = f.find('.bootstrap-dialog-footer');
+        //f.find('.bootstrap-dialog-footer').append(AuForms.buttons.create(info.layout, dialog));
+        fn(targets);
         dialog.open();
-        //BootstrapDialog.show({
-        //    title: 'Dialog title',
-        //    message: target,
-        //    buttons: [{
-        //        label: 'Button 1',
-        //        title: 'Mouse over Button 1'
-        //    }, {
-        //            label: 'Button 2',
-        //            // no title as it is optional
-        //            cssClass: 'btn-primary',
-        //            action: function () {
-        //                alert('Hi Orange!');
-        //            }
-        //        }, {
-        //            icon: 'glyphicon glyphicon-ban-circle',
-        //            label: 'Button 3',
-        //            title: 'Mouse over Button 3',
-        //            cssClass: 'btn-warning'
-        //        }, {
-        //            label: 'Close',
-        //            action: function (dialogItself) {
-        //                dialogItself.close();
-        //            }
-        //        }]
-        //});
     }
 
 
@@ -418,9 +402,9 @@ $(document).ready(function () {
 
     $('#btnShowForm').click(function () {
         var h = viewTargetHandlers[viewTarget || 'page'];
-        h && h(function (t) {
+        h && h(function (targets) {
             var fn = sample && samplesFactory[sample];
-            return fn && fn(t, sampleOptions);
+            return fn && fn(targets);
         });
     });
 
@@ -443,58 +427,63 @@ $(document).ready(function () {
 var samplesFactory = {};
 
 
-samplesFactory["buttonDemo_2+2"] = function (target, options) {
+samplesFactory["buttonDemo_2+2"] = function (targets) {
     "use strict";
 
-    var layout = {
-        groups: [{
-            items: [{
-                type: "button",
-                options: {
-                    label: 'Bottone 1',
-                    icon: 'glyphicon glyphicon-eye-open'
-                }
-            }, {
-                    type: "button",
-                    options: {
-                        label: 'Bottone 2',
-                        icon: 'glyphicon glyphicon-thumbs-up'
-                    }
-                }]
-        }, {
-                items: [{
-                    type: "button",
-                    options: {
-                        label: "Close 1",
-                        action: function (b, m, c) {
-                            if (c) {
-                                c.close();
-                            }
-                            else {
-                                alert('close!');
-                            }
-                        }
-                    }
-                }, {
-                        type: "button",
-                        options: {
-                            label: "Close 2",
-                            action: function (b, m, c) {
-                                if (c) {
-                                    c.close();
-                                }
-                                else {
-                                    alert('close!');
-                                }
-                            }
-                        }
-                    }]
-            }]
-    }
+    var layout = { "body": {}, "footer": { "type": "hstack", "nodes": [{ "type": "hstack", "nodes": [{ "type": "button", "label": "Bottone 1", "icon": "glyphicon glyphicon-eye-open" }, { "type": "button", "label": "Bottone 2", "icon": "glyphicon glyphicon-thumbs-up" }] }, { "type": "hstack", "nodes": [{ "type": "button", "label": "Close 1", "icon": null }, { "type": "button", "label": "Close 2", "icon": null }] }] } };
 
-    return {
-        layout: layout
-    }
+    var form = AuForms.create(fact);
+    form.render(layout, targets);
+
+    //var layout = {
+    //    groups: [{
+    //        items: [{
+    //            type: "button",
+    //            options: {
+    //                label: 'Bottone 1',
+    //                icon: 'glyphicon glyphicon-eye-open'
+    //            }
+    //        }, {
+    //                type: "button",
+    //                options: {
+    //                    label: 'Bottone 2',
+    //                    icon: 'glyphicon glyphicon-thumbs-up'
+    //                }
+    //            }]
+    //    }, {
+    //            items: [{
+    //                type: "button",
+    //                options: {
+    //                    label: "Close 1",
+    //                    action: function (b, m, c) {
+    //                        if (c) {
+    //                            c.close();
+    //                        }
+    //                        else {
+    //                            alert('close!');
+    //                        }
+    //                    }
+    //                }
+    //            }, {
+    //                    type: "button",
+    //                    options: {
+    //                        label: "Close 2",
+    //                        action: function (b, m, c) {
+    //                            if (c) {
+    //                                c.close();
+    //                            }
+    //                            else {
+    //                                alert('close!');
+    //                            }
+    //                        }
+    //                    }
+    //                }]
+    //        }]
+    //}
+
+    //return {
+    //    layout: layout
+    //}
 }
 
 

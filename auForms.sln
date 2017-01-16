@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "auForms", "auForms\auForms.njsproj", "{0159E185-16E2-495A-A1B8-D4EA265CAB5C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "auFormsConverter", "auFormsConverter\auFormsConverter.csproj", "{58061CE1-E1E8-436C-823C-F6147ED4023D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{0159E185-16E2-495A-A1B8-D4EA265CAB5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0159E185-16E2-495A-A1B8-D4EA265CAB5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0159E185-16E2-495A-A1B8-D4EA265CAB5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58061CE1-E1E8-436C-823C-F6147ED4023D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58061CE1-E1E8-436C-823C-F6147ED4023D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58061CE1-E1E8-436C-823C-F6147ED4023D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58061CE1-E1E8-436C-823C-F6147ED4023D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

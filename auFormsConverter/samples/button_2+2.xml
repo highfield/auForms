@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<auForm>
+  <section name="body">
+    
+  </section>
+  
+  <section name="footer">
+    <hstack>
+      <hstack>
+        <button label="Bottone 1" icon="glyphicon glyphicon-eye-open" />
+        <button label="Bottone 2" icon="glyphicon glyphicon-thumbs-up" />
+      </hstack>
+      <hstack>
+        <button label="Close 1" />
+        <button label="Close 2" />
+      </hstack>
+    </hstack>
+  </section>
+</auForm>

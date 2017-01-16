@@ -45,23 +45,56 @@ var AuForms = (function () {
     //viewmodel pseudo-class
     function fviewmodel(fctx) {
         var exp = {};
-        var vmx;
-        fctx.id = fctx.cfg.id || uid();
+        fctx.id = fctx.layout.id || uid();
         fctx.vm = exp;
-        fctx.form._addVM(fctx.cfg.name, exp);
+        fctx.form._addVM(exp);
+
+        var ff = fctx.factory.items[fctx.layout.type];
+        var vmx = (ff && ff(fctx)) || {};
+        var children = [];
 
         exp.getId = function () {
             return fctx.id;
         }
 
-        exp.build = function () {
-            var fn = fctx.factory.items[fctx.cfg.type];
-            vmx = (fn && fn(fctx)) || {};
-            vmx && vmx.build && vmx.build();
+        exp.render = function () {
+            var cctr = vmx.render && vmx.render();
+            var nodes = fctx.layout.nodes || [];
+            if (nodes.length && !cctr) {
+                throw new Error("Undefined container to host child nodes: " + fctx.layout.type);
+            }
+
+            for (var i = 0; i < nodes.length; i++) {
+                var vm = fviewmodel({
+                    factory: fctx.factory,
+                    form: fctx.form,
+                    section: fctx.section,
+                    layout: nodes[i],
+                    target: cctr
+                });
+                children.push(vm);
+                vm.render();
+            }
         }
 
-        exp.render = function (target) {
-            vmx && vmx.render && vmx.render(target);
+        exp.updateTarget = function () {
+            //update target usando vloc
+        }
+
+        //exp.build = function () {
+        //    var fn = fctx.factory.items[fctx.cfg.type];
+        //    vmx = (fn && fn(fctx)) || {};
+        //    vmx && vmx.build && vmx.build();
+        //}
+
+        //exp.render = function (target) {
+        //    vmx && vmx.render && vmx.render(target);
+        //}
+
+        exp.set = function (v) {
+            //se v==vloc return
+            //update target
+            //dispatch msg
         }
 
         exp._hchanged = function (sender) {
@@ -79,7 +112,7 @@ var AuForms = (function () {
         exp.dispose = function () {
             vmx && vmx.dispose && vmx.dispose();
             vmx = null;
-            fctx.form._delVM(fctx.cfg.name, exp);
+            fctx.form._delVM(exp);
         }
 
         return exp;
@@ -87,48 +120,60 @@ var AuForms = (function () {
 
 
     //section pseudo-class
-    function fsection(fctx, sctname) {
+    function fsection(fctx) {
         function valUpdate(valok) {
             var dm = {};
-            dm.id = sctname + "_valupdate";
+            dm.id = fctx.name + "_valupdate";
             dm.exec = function () {
                 fctx.form.validationUpdate && fctx.form.validationUpdate({
-                    sctname: sctname,
+                    sctname: fctx.name,
                     valok: valok
                 });
             };
             fctx.form._dispatcher.push(dm);
         }
 
-        var exp = {};
-        var vms = [], valids = {}, ovalok = true;
+        var exp = {}, inp = {};
+        var children = [], valids = {}, ovalok = true;
 
         exp.getName = function () {
-            return sctname;
+            return fctx.name;
         }
 
-        exp.build = function () {
-            //align VMs
-            var list = fctx.cfg;
-            vms.splice(0);
-            for (var i = 0; i < list.length; i++) {
-                var vm = fviewmodel({
-                    factory: fctx.factory,
-                    form: fctx.form,
-                    section: exp,
-                    cfg: list[i]
-                });
-                vm.build();
-                vms.push(vm);
-            }
-        }
-
-        exp.render = function (target) {
-            vms.forEach(function (vm) {
-                vm.render(target);
+        exp.render = function () {
+            var vm = fviewmodel({
+                factory: fctx.factory,
+                form: fctx.form,
+                section: exp,
+                layout: fctx.layout,
+                target: fctx.target
             });
-            valUpdate(ovalok);
+            children.push(vm);
+            vm.render();
         }
+
+        //exp.build = function () {
+        //    //align VMs
+        //    var list = fctx.cfg;
+        //    vms.splice(0);
+        //    for (var i = 0; i < list.length; i++) {
+        //        var vm = fviewmodel({
+        //            factory: fctx.factory,
+        //            form: fctx.form,
+        //            section: exp,
+        //            cfg: list[i]
+        //        });
+        //        vm.build();
+        //        vms.push(vm);
+        //    }
+        //}
+
+        //exp.render = function (target) {
+        //    vms.forEach(function (vm) {
+        //        vm.render(target);
+        //    });
+        //    valUpdate(ovalok);
+        //}
 
         exp.validate = function () {
             return ovalok;
@@ -170,7 +215,7 @@ var AuForms = (function () {
     function form(factory) {
         factory = factory || AuForms.JQFactory.get();
 
-        var exp = {}, int = {};
+        var exp = {}, inp = {};
         var db = {}, odb = {}, prefs = {}, oprefs = {};
         var cfg = {}, sections = {}, vmlookup = {};
 
@@ -202,44 +247,22 @@ var AuForms = (function () {
             return prefs;
         }
 
-        exp.setConfig = function (config, sctname) {
-            if (sctname) {
-                cfg.sections = cfg.sections || {};
-                cfg.sections[sctname] = config || {};
+        exp.render = function (layout, targets) {
+            for (var sct in sections) {
+                sections[sct].dispose();
+                delete sections[sct];
             }
-            else {
-                cfg = config || {};
-                cfg.sections = cfg.sections || {};
-            }
-
-            //align sections
-            for (var k in cfg.sections) {
-                sections[k] = sections[k] || fsection({
+            for (var sct in layout) {
+                var tg = targets[sct];
+                if (!tg) throw new Error("Must specify a valid rendering target for: " + sct);
+                sections[sct] = fsection({
                     factory: factory,
                     form: exp,
-                    cfg: cfg.sections[k]
-                }, k);
-            }
-            for (var k in sections) {
-                if (!cfg.sections[k]) {
-                    sections[k].dispose();
-                    delete sections[k];
-                }
-            }
-
-            //align data
-            exp.setData(db);
-
-            //rebuild involveds
-            for (var k in sections) {
-                if (!sctname || sctname === k) sections[k].build();
-            }
-        }
-
-        exp.render = function (scheme) {
-            if (!target) throw new Error("Must specify a valid rendering target.");
-            for (var k in sections) {
-                if (!sctname || sctname === k) sections[k].render(target);
+                    name: sct,
+                    layout: layout[sct],
+                    target: tg
+                });
+                sections[sct].render();
             }
         }
 
