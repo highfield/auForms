@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<auForm>
+  <section name="body">
+    <vstack>
+      <checkbox text="Abilitazione generale" id="global_enable" />
+      
+      <vstack gl-col-label="4 8" id="global_ctr">
+        <textblock label="Famiglia" text="Felidi" />
+        <textbox label="Nome" path="nome" validate="{ required:true}" />
+        <textbox label="Cognome" path="cognome" validate="{ text:{min:3, max:10}}" />
+        <textbox label="E-Mail" path="e_mail" pre="@" validate="{ required:true, email:{}}" bg="bg-info" />
+        <numbox label="Peso" path="peso" post="kg" validate="{ required:true, float:{min:0.1, max:20.0}}" bg="bg-info" />
+        <numbox label="Lunghezza" path="lungh" post="cm" validate="{ required:true, int:{min:10, max:200}}" bg="bg-info" />
+        <checkbox label="Constatazione" text="Tigro l'é un porzèl" path="conferma" validate="{ checked:true}" />
+        <radio label="Stato civile" path="stato_civile" validate="{required:true}">
+          <option key="scap">Scapolo</option>
+          <option key="spos">Sposato</option>
+          <option key="div">Divorziato</option>
+        </radio>
+        <select label="Razza" path="razza" validate="{required:true}">
+          <option key="sib">Siberiano</option>
+          <option key="eur">Europeo</option>
+          <option key="nor">Norvegese delle foreste</option>
+          <option key="siam">Siamese</option>
+          <option key="mc">Maine-coon</option>
+          <option key="rag">Rag-doll</option>
+          <option key="bir">Birmano</option>
+          <option key="per">Persiano</option>
+        </select>
+        <multiselect label="Disastri commessi" path="disastri" validate="{required:true}">
+          <option key="bicch">Bicchieri rotti</option>
+          <option key="albnat">Albero di Natale svenuto</option>
+          <option key="cusc">Cuscini</option>
+          <option key="div">Divano</option>
+          <option key="fiori">Fiori e piante</option>
+          <option key="cibo">Cibo per terra</option>
+          <option key="box">Scatole rovesciate</option>
+          <option key="h2o">Spruzzi d'acqua in giro</option>
+          <option key="agg">Agguati</option>
+          <option key="betty">Zampate a Betty</option>
+          <option key="toys">Giocattoli sparsi per la casa</option>
+        </multiselect>
+        <fgtime label="Orario di nascita" path="nato_ora" validate="{required:true}" options="{modal:true,title:'Immettere l\'orario di nascita'}" />
+        <fgdate label="Data di nascita" path="nato_data" validate="{required:true}" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di nascita'}" />
+        <fgtime label="Orario di adozione" path="adoz_ora" validate="{required:true}" options="{modal:true,title:'Immettere l\'orario di adozione'}" />
+        <fgdate label="Data di adozione" path="adoz_data" validate="{required:true}" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di adozione'}" />
+        <grid-layout bg="bg-info">
+          <fgdate gl-col="6" label="Data di vaccinazione" path="vacc_data" validate="{required:true}" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di vaccinazione'}" />
+          <fgtime gl-col="6" label="Orario di vaccinazione" path="vacc_ora" validate="{required:true}" options="{modal:true,title:'Immettere l\'orario di vaccinazione'}" />
+        </grid-layout>
+        <grid-layout label="Data/ora castrazione" bg="bg-warning">
+          <fgdate gl-col="6" path="castr_data" validate="{required:true}" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di castrazione'}" />
+          <fgtime gl-col="6" path="castr_ora" validate="{required:true}" options="{modal:true,title:'Immettere l\'orario di castrazione'}" />
+        </grid-layout>
+        <textarea label="Note" path="note" />
+      </vstack>
+    </vstack>
+  </section>
+
+  <section name="footer">
+    <hstack halign="right">
+      <hstack margin="0,32,0,0">
+        <button label="Close" id="close" />
+      </hstack>
+      <hstack>
+        <button label="Reset" id="reset" />
+        <button label="Submit" id="submit" />
+      </hstack>
+    </hstack>
+  </section>
+</auForm>

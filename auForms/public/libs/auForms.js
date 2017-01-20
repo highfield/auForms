@@ -24,13 +24,9 @@
  */
 
 /**
-    config: array | object
-        id: (string)
-        label: (string)
-        type: (string)
-        conv: (string | function)
+
  */
-var AuForms = (function () {
+var AuForms = (function ($) {
     "use strict";
 
     //unique-id generator
@@ -44,166 +40,264 @@ var AuForms = (function () {
 
     //viewmodel pseudo-class
     function fviewmodel(fctx) {
-        var exp = {};
-        fctx.id = fctx.layout.id || uid();
-        fctx.vm = exp;
-        fctx.form._addVM(exp);
+        function dispatch(actname, args) {
+            var dm = {};
+            dm.id = fctx.id + "_" + actname;
+            dm.exec = function () {
+                var hs = fctx.listeners[fctx.id] || [];
+                hs.forEach(function (h) {
+                    h(exp, args);
+                });
+            };
+            fctx.dispatcher.push(dm);
+        }
 
-        var ff = fctx.factory.items[fctx.layout.type];
-        var vmx = (ff && ff(fctx)) || {};
-        var children = [];
+        function setVLoc(v, f) {
+            if (v === vloc) return;
+            vloc = v;
+            if (f && fctx.layout.path) {
+                _.set(fctx.form.getData(), fctx.layout.path, vloc);
+            }
+            if (fctx.vmx && fctx.vmx.updateTarget) {
+                var vout = (conv && conv.toTarget) ? conv.toTarget(vloc) : vloc;
+                fctx.vmx.updateTarget(vloc, vout);
+            }
+            //exp.updateTarget();
+            dispatch('change', null);
+        }
+
+        function validHelp1(key, vctx, vdef) {
+            var fn = fctx.factory.valids[key];
+            return fn && fn(vctx, vdef);
+        }
+
+        function validHelper(vctx) {
+            var valok = true;
+            if (enabEff) {
+                var vdefs = fctx.layout.validate;
+                if (_.isObject(vdefs)) {
+                    for (var k in vdefs) {
+                        if (!validHelp1(k, vctx, vdefs[k])) {
+                            valok = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            fctx.iform.hvalid(fctx.id, valok);
+            fctx.vmx && fctx.vmx.renderValidate && fctx.vmx.renderValidate(valok);
+            return valok;
+        }
+
+        function enabHelper(e) {
+            var p = fctx;
+            while (e && (p = p.parent)) {
+                e &= p.owner.enabled();
+            }
+            fctx.vmx && fctx.vmx.renderEnabled && fctx.vmx.renderEnabled(e);
+            return e;
+        }
+
+        var exp = {}, int = { children: [], props: [] };
+        fctx.id = fctx.layout.id || uid();
+        fctx.owner = exp;
+        fctx.iowner = int;
+
+        var fi = fctx.factory.items[fctx.layout.type];
+        fctx.vmx = (fi && fi(fctx)) || {};
+        var xdfl = (fctx.vmx && fctx.vmx.defaults) || {};
+        var vloc, enab = true, enabEff;
+
+        var fc = fctx.factory.convs[fctx.layout.conv || fctx.layout.type];
+        var conv = fc && fc(fctx);  //TODO cosa passare nella funzione?
 
         exp.getId = function () {
             return fctx.id;
         }
 
+        exp.getParent = function () {
+            return fctx.parent && fctx.parent.owner;
+        }
+
         exp.render = function () {
-            var cctr = vmx.render && vmx.render();
+            var tg = fctx.vmx && fctx.vmx.render && fctx.vmx.render();
+
+            //refine common properties
+            var margin = fctx.layout.margin || xdfl.margin;// || { top: 15, left: 0, bottom: 15, right: 0 };
+            if (margin) {
+                tg.css({
+                    'margin-top': margin.top || 0,
+                    'margin-right': margin.right || 0,
+                    'margin-bottom': margin.bottom || 0,
+                    'margin-left': margin.left || 0
+                });
+            }
+            if (fctx.layout.halign) {
+                tg.css({
+                    'text-align': fctx.layout.halign
+                });
+            }
+
+            //scan children
             var nodes = fctx.layout.nodes || [];
-            if (nodes.length && !cctr) {
+            if (nodes.length && !tg) {
                 throw new Error("Undefined container to host child nodes: " + fctx.layout.type);
             }
 
             for (var i = 0; i < nodes.length; i++) {
-                var vm = fviewmodel({
+                var cfctx = {
                     factory: fctx.factory,
+                    dispatcher: fctx.dispatcher,
+                    listeners: fctx.listeners,
                     form: fctx.form,
+                    iform: fctx.iform,
                     section: fctx.section,
+                    parent: fctx,
                     layout: nodes[i],
-                    target: cctr
-                });
-                children.push(vm);
-                vm.render();
+                    target: tg
+                };
+                var vm = fviewmodel(cfctx);
+                int.children.push(cfctx);
+                var ctg = vm.render();
+                ctg && fctx.vmx && fctx.vmx.renderChild && fctx.vmx.renderChild(cfctx, ctg);
             }
+            return tg;
         }
 
-        exp.updateTarget = function () {
-            //update target usando vloc
+        exp.load = function () {
+            if (fctx.layout.path) {
+                var v = _.get(fctx.form.getData(), fctx.layout.path);
+                setVLoc(v, false);
+            }
+
+            int.props.forEach(function (c) {
+                c.owner.load();
+            });
+
+            int.children.forEach(function (c) {
+                c.owner.load();
+            });
         }
 
-        //exp.build = function () {
-        //    var fn = fctx.factory.items[fctx.cfg.type];
-        //    vmx = (fn && fn(fctx)) || {};
-        //    vmx && vmx.build && vmx.build();
-        //}
+        int.load2 = function () {
+            enabEff = enabHelper(enab);
+            validHelper({ value: vloc });
 
-        //exp.render = function (target) {
-        //    vmx && vmx.render && vmx.render(target);
-        //}
+            int.props.forEach(function (c) {
+                c.iowner.load2();
+            });
+            int.children.forEach(function (c) {
+                c.iowner.load2();
+            });
+        }
+
+        exp.trig = function (args) {
+            dispatch('trig', args);
+        }
+
+        exp.get = function () {
+            return vloc;
+        }
 
         exp.set = function (v) {
-            //se v==vloc return
-            //update target
-            //dispatch msg
+            setVLoc(v, true);
         }
 
-        exp._hchanged = function (sender) {
-            if (sender !== fctx.cfg.name && vmx && vmx.conv && _.isArray(fctx.cfg.watch)) {
-                if (fctx.cfg.watch.indexOf(sender) >= 0) {
-                    vmx.conv.toTarget && vmx.conv.toTarget();
-                }
+        exp.enabled = function (v) {
+            if (arguments.length) {
+                enab = !!v;
+                int.updateEnabled();
+            }
+            else {
+                return enab;
             }
         }
 
-        exp._hvalid = function (valok) {
-            fctx.section._hvalid(fctx.id, valok);
+        exp.enableChildren = function (v) {
+            int.children.forEach(function (c) {
+                c.owner.enabled(v);
+            });
+        }
+
+        int.updateEnabled = function () {
+            enabEff = enabHelper(enab);
+            int.props.forEach(function (c) {
+                c.iowner.updateEnabled();
+            });
+            int.children.forEach(function (c) {
+                c.iowner.updateEnabled();
+            });
+            validHelper({ value: vloc });
         }
 
         exp.dispose = function () {
-            vmx && vmx.dispose && vmx.dispose();
-            vmx = null;
-            fctx.form._delVM(exp);
+            fctx.vmx && fctx.vmx.dispose && fctx.vmx.dispose();
+            fctx.vmx = null;
+            fctx.iform.unreg(fctx);
         }
 
+        int.hevt = function (vctx, e) {
+            var dm = {};
+            dm.id = fctx.id + "_" + e.type;
+            dm.exec = function () {
+                var valok = validHelper(vctx);
+                if (valok) {
+                    var vout = (conv && conv.toSource) ? conv.toSource(vctx.value) : vctx.value;
+                    exp.set(vout);
+                }
+            };
+            fctx.dispatcher.push(dm);
+        }
+
+        //int.scantree = function (fn) {
+        //    fn();
+        //    int.children.forEach(function (c) {
+        //        c.iowner.scantree(fn);
+        //    });
+        //}
+
+        fctx.iform.reg(fctx);
         return exp;
     }
 
 
     //section pseudo-class
     function fsection(fctx) {
-        function valUpdate(valok) {
-            var dm = {};
-            dm.id = fctx.name + "_valupdate";
-            dm.exec = function () {
-                fctx.form.validationUpdate && fctx.form.validationUpdate({
-                    sctname: fctx.name,
-                    valok: valok
-                });
-            };
-            fctx.form._dispatcher.push(dm);
-        }
-
-        var exp = {}, inp = {};
-        var children = [], valids = {}, ovalok = true;
+        var exp = {}, int = { children: [] };
 
         exp.getName = function () {
             return fctx.name;
         }
 
         exp.render = function () {
-            var vm = fviewmodel({
+            var cfctx = {
                 factory: fctx.factory,
+                dispatcher: fctx.dispatcher,
+                listeners: fctx.listeners,
                 form: fctx.form,
+                iform: fctx.iform,
                 section: exp,
                 layout: fctx.layout,
                 target: fctx.target
-            });
-            children.push(vm);
+            };
+            var vm = fviewmodel(cfctx);
+            int.children.push(cfctx);
             vm.render();
         }
 
-        //exp.build = function () {
-        //    //align VMs
-        //    var list = fctx.cfg;
-        //    vms.splice(0);
-        //    for (var i = 0; i < list.length; i++) {
-        //        var vm = fviewmodel({
-        //            factory: fctx.factory,
-        //            form: fctx.form,
-        //            section: exp,
-        //            cfg: list[i]
-        //        });
-        //        vm.build();
-        //        vms.push(vm);
-        //    }
-        //}
-
-        //exp.render = function (target) {
-        //    vms.forEach(function (vm) {
-        //        vm.render(target);
-        //    });
-        //    valUpdate(ovalok);
-        //}
-
-        exp.validate = function () {
-            return ovalok;
-        }
-
-        exp._hchanged = function (sender) {
-            vms.forEach(function (vm) {
-                vm._hchanged(sender);
+        exp.load = function () {
+            int.children.forEach(function (c) {
+                c.owner.load();
+                c.iowner.load2();
             });
         }
 
-        exp._hvalid = function (vmid, valok) {
-            //console.log("id=" + vmid + ": ok=" + valok);
-            valids[vmid] = valok;
-            valok = true;
-            for (var k in valids) {
-                valok &= valids[k];
-            }
-            if (valok !== ovalok) {
-                ovalok = valok;
-                valUpdate(ovalok);
-            }
-        }
-
         exp.dispose = function () {
-            if (vms) {
-                vms.forEach(function (vm) {
-                    vm.dispose();
+            if (int.children) {
+                int.children.forEach(function (c) {
+                    c.owner.dispose();
                 });
-                vms = valids = null;
+                int.children = null;
             }
         }
 
@@ -213,38 +307,46 @@ var AuForms = (function () {
 
     //form pseudo-class
     function form(factory) {
+        function valUpdate(valok) {
+            var dm = {};
+            dm.id = "valupdate";
+            dm.exec = function () {
+                exp.validationUpdate && exp.validationUpdate({
+                    valok: valok
+                });
+            };
+            dispatcher.push(dm);
+        }
+
         factory = factory || AuForms.JQFactory.get();
 
-        var exp = {}, inp = {};
-        var db = {}, odb = {}, prefs = {}, oprefs = {};
-        var cfg = {}, sections = {}, vmlookup = {};
+        var exp = {}, int = { lookup: {} };
+        var db = {}, odb = {};
+        var dataok = false, rendok = false;
+        var sections = {}, listeners = {};
+        var dispatcher = auDispatcher();
+        var valids = {}, ovalok = true;
 
-        exp._dispatcher = auDispatcher();
         exp.validationUpdate = null;
 
+        exp.getFactory = function () {
+            return factory;
+        }
+
         exp.setData = function (data) {
-            if (_.isArray(data)) throw new Error("Cannot pass an array as argument.");
+            if (!_.isObject(data)) throw new Error("Data must be an object.");
             odb = data || {};
+            dataok = true;
             exp.resetData();
         }
 
         exp.resetData = function () {
             db = _.cloneDeep(odb);
-            prefs = _.cloneDeep(oprefs);
+            exp.load();
         }
 
         exp.getData = function () {
             return db;
-        }
-
-        exp.setPrefs = function (data) {
-            if (_.isArray(data)) throw new Error("Cannot pass an array as argument.");
-            oprefs = data || {};
-            exp.resetData();
-        }
-
-        exp.getPrefs = function () {
-            return prefs;
         }
 
         exp.render = function (layout, targets) {
@@ -257,37 +359,50 @@ var AuForms = (function () {
                 if (!tg) throw new Error("Must specify a valid rendering target for: " + sct);
                 sections[sct] = fsection({
                     factory: factory,
+                    dispatcher: dispatcher,
+                    listeners: listeners,
                     form: exp,
+                    iform: int,
                     name: sct,
                     layout: layout[sct],
                     target: tg
                 });
                 sections[sct].render();
             }
+            rendok = true;
+            exp.load();
+        }
+
+        exp.load = function () {
+            if (!dataok || !rendok) return;
+            for (var k in sections) {
+                sections[k].load();
+            }
         }
 
         exp.validate = function () {
             var valok = true;
             for (var k in sections) {
-                if (!sctname || sctname === k) valok &= sections[k].validate();
+                valok &= sections[k].validate();
             }
             return valok;
         }
 
-        exp._addVM = function (name, vm) {
-            if (name) vmlookup[name] = vm;
+        exp.on = function (source, handler) {
+            if (!handler || !_.isString(source)) return;
+            var asrc = source.split(' ');
+            asrc.forEach(function (s) {
+                listeners[s] = listeners[s] || [];
+                listeners[s].push(handler);
+            });
         }
 
-        exp._delVM = function (name, vm) {
-            if (name) delete vmlookup[name];
+        exp.off = function (source, handler) {
+            //TODO
         }
 
-        exp._hchanged = function (sender) {
-            if (sender) {
-                for (var k in sections) {
-                    sections[k]._hchanged(sender);
-                }
-            }
+        exp.getNode = function (id) {
+            return int.lookup[id].owner;
         }
 
         exp.dispose = function () {
@@ -296,133 +411,157 @@ var AuForms = (function () {
             }
         }
 
+        int.reg = function (c) {
+            if (c) int.lookup[c.id] = c;
+        }
+
+        int.unreg = function (c) {
+            if (c) delete int.lookup[c.id];
+        }
+
+        int.select = function (fn) {
+            var a = [];
+            for (var k in int.lookup) {
+                var c = int.lookup[k];
+                if (!fn || fn(c)) a.push(c);
+            }
+            return a;
+        }
+
+        int.hvalid = function (vmid, valok) {
+            //console.log("id=" + vmid + ": ok=" + valok);
+            valids[vmid] = valok;
+            valok = true;
+            for (var k in valids) {
+                valok &= valids[k];
+            }
+            if (valok !== ovalok) {
+                ovalok = valok;
+                valUpdate(ovalok);
+            }
+        }
+
         return exp;
     }
 
 
-    var makeButtons = (function () {
-        /**
-         * utility for allocation/creation of buttons/others, namely for the form footer
-            example layout:
-            {
-                groups: [ (groups) ]
-            }
+    var buildPropViewmodel = function (fctx, target, propname) {
+        var cfctx = {
+            factory: fctx.factory,
+            dispatcher: fctx.dispatcher,
+            listeners: fctx.listeners,
+            form: fctx.form,
+            iform: fctx.iform,
+            section: fctx.section,
+            parent: fctx,
+            layout: fctx.layout[propname],
+            target: target,
+            prophost: true
+        };
+        var vm = fviewmodel(cfctx);
+        fctx.iowner.props.push(cfctx);
+        return vm;
+    }
 
-            group:
-            {
-                items: [ (items) ]
-            }
 
-            item:
-            {
-                type: null | "button"
-                elem: (optional) concrete jQuery element to arrange (specify null as type)
-                options: object with parameters to build the requested type
-            }
+    var buildFormContainer = function (fctx) {
+        var outer = $("<div>").css({
+            overflow: 'hidden',
+            margin: 0
+        }).appendTo(fctx.target);
+        if (fctx.layout.bg) {
+            outer.addClass(fctx.layout.bg);
+        }
 
-            options (button):       (see: https://nakupanda.github.io/bootstrap3-dialog/)
-                id: optional, if id is set, you can use dialogInstance.getButton(id) to get the button later.
-                label: the label to show as the button caption
-                icon: optional, if set, the specified icon will be added to the button.
-                cssClass: optional, additional css class to be added to the button.
-                autospin: optinal, if it's true, after clicked the button a spinning icon appears.
-                action: optional, if provided, the callback will be invoked after the button is clicked, and the dialog instance will be passed to the callback function.
-
-            NOTES:
-            - support from 1 up to 4 groups
-            - groups are indexed from 0 (rightmost) to N-1 (leftmost)
-            - groups are equally spaced to fit all the available width,
-                except for a single group, which is right aligned
-            - simply use a null for a totally empty group
-         */
-        function createItem(item, ctx) {
-            var itype = item && item.type;
-            var options = (item && item.options) || {};
-            if (itype === 'button') {
-                //create a button
-                var btn = $('<button>').attr({
-                    type: 'button',
-                    id: options.id,
-                });
-                btn.addClass(options.cssClass || 'btn btn-default').css({
-                    "margin-left": 3,
-                    "margin-right": 3,
-                    "margin-bottom": 5
-                });
-                if (options.icon) {
-                    btn.append($('<span>').addClass(options.icon));
-                }
-                btn.text(options.label || '');
-                if (_.isFunction(options.action)) {
-                    btn.click(function () {
-                        options.action(btn, item, ctx);
-                    });
-                }
-                return btn;
+        var colh, colc = $('<div>');
+        if (fctx.layout.label) colh = $('<div>').appendTo(outer);
+        colc.appendTo(outer);
+        var inner = $("<div>").attr({ id: fctx.id }).appendTo(colc);
+        //if (!fctx.prophost) inner.addClass('form-group');
+        if (fctx.layout.glcl) {
+            if (colh) {
+                colh.addClass('col-md-' + fctx.layout.glcl[0]).css({ margin: 0, padding: 0 });
+                colc.addClass('col-md-' + fctx.layout.glcl[1]).css({ margin: 0, padding: 0 });
             }
             else {
-                //insert the specified element
-                return item && item.elem;
+                colc.addClass('col-md-' + fctx.layout.glcl[1] + ' col-md-offset-' + fctx.layout.glcl[0]).css({ /*margin: 0,*/ padding: 0 });
             }
         }
 
-
-        function createGroup(group, cls, ctx) {
-            var ctr = $('<div>').addClass(cls);
-            var inner = $('<div>').appendTo(ctr);
-            //inner.append($('<span>&nbsp;</span>'));
-            var items = (group && group.items) || [];
-            var i = items.length;
-            while (--i >= 0) {
-                inner.append(createItem(items[i], ctx));
+        if (fctx.layout.label) {
+            if (_.isString(fctx.layout.label)) {
+                $("<label>").addClass('control-label').attr({ for: fctx.id }).text(fctx.layout.label).css({
+                    'white-space': 'nowrap',
+                    padding: 0
+                }).appendTo(colh);
             }
-            return ctr;
+            else {
+                var vm = buildPropViewmodel(fctx, colh, 'label');
+                var ctg = vm.render();
+            }
+        }
+        return { outer: outer, inner: inner, label: colh };
+    }
+
+
+    var buildFormControl = function (fctx) {
+        var outer = $("<div>").css({
+            'overflow': 'hidden',
+            margin: 0
+        }).appendTo(fctx.target);
+        if (fctx.layout.bg) {
+            outer.addClass(fctx.layout.bg);
         }
 
-
-        var exp = {};
-
-        exp.create = function (layout, ctx) {
-            var ctr = $('<div>').addClass('row');
-            var groups = (layout && layout.groups) || [];
-            switch (groups.length) {
-                case 1:
-                    ctr.append(createGroup(groups[0], 'col-xs-12 text-right', ctx));
-                    break;
-
-                case 2:
-                    ctr.append(createGroup(groups[1], 'col-xs-6 text-left', ctx));
-                    ctr.append(createGroup(groups[0], 'col-xs-6 text-right', ctx));
-                    break;
-
-                case 3:
-                    ctr.append(createGroup(groups[2], 'col-xs-4 text-left', ctx));
-                    ctr.append(createGroup(groups[1], 'col-xs-4 text-center', ctx));
-                    ctr.append(createGroup(groups[0], 'col-xs-4 text-right', ctx));
-                    break;
-
-                case 4:
-                    ctr.append(createGroup(groups[3], 'col-xs-3 text-left', ctx));
-                    ctr.append(createGroup(groups[2], 'col-xs-3 text-center', ctx));
-                    ctr.append(createGroup(groups[1], 'col-xs-3 text-center', ctx));
-                    ctr.append(createGroup(groups[0], 'col-xs-3 text-right', ctx));
-                    break;
-            }
-            return ctr;
+        var colh = $('<div>').appendTo(outer), colc = $('<div>').appendTo(outer);
+        var inner = $("<div>").appendTo(colc);
+        if (!fctx.prophost) inner.addClass('form-group');
+        if (fctx.layout.glcl) {
+            colh.addClass('col-md-' + fctx.layout.glcl[0]).css({ margin: 0, padding: 0 });
+            colc.addClass('col-md-' + fctx.layout.glcl[1]).css({ margin: 0, padding: 0 });
         }
 
-        return exp;
-    })();
+        if (fctx.layout.label) {
+            if (_.isString(fctx.layout.label)) {
+                $("<label>").addClass('control-label').attr({ for: fctx.id }).text(fctx.layout.label).css({
+                    'white-space': 'nowrap',
+                    padding: 0
+                }).appendTo(colh);
+            }
+            else {
+                var cfctx = {
+                    factory: fctx.factory,
+                    dispatcher: fctx.dispatcher,
+                    listeners: fctx.listeners,
+                    form: fctx.form,
+                    iform: fctx.iform,
+                    section: fctx.section,
+                    parent: fctx,
+                    layout: fctx.layout.label,
+                    target: colh,
+                    prophost: true
+                };
+                var vm = fviewmodel(cfctx);
+                fctx.iowner.props.push(cfctx);
+                var ctg = vm.render();
+            }
+        }
+        return { outer: outer, inner: inner, label: colh };
+    }
 
 
     return {
         create: form,
-        buttons: makeButtons
+        helpers: {
+            buildPropViewmodel: buildPropViewmodel,
+            buildFormContainer: buildFormContainer,
+            buildFormControl: buildFormControl
+        }
     }
-})();
+})(jQuery);
 
 
-AuForms.JQFactory = (function () {
+AuForms.JQFactory = (function ($) {
     "use strict";
 
     /**
@@ -439,127 +578,6 @@ AuForms.JQFactory = (function () {
         }
     }
 
-    //simple text-to-field converter
-    fconvs.text = function (fctx) {
-        var cv = fconvs.base(fctx);
-        cv.toTarget = function () {
-            if (fctx.cfg.name && this.target) {
-                var v = fctx.form.getData()[fctx.cfg.name] || '';
-                this.target.val(v);
-            }
-        };
-
-        cv.toSource = function () {
-            if (fctx.cfg.name && this.target) {
-                fctx.form.getData()[fctx.cfg.name] = this.target.val();
-            }
-        };
-
-        return cv;
-    }
-
-    //simple number-to-field converter
-    fconvs.number = function (fctx) {
-        var cv = fconvs.base(fctx);
-        cv.toTarget = function () {
-            if (fctx.cfg.name && this.target) {
-                var v = fctx.form.getData()[fctx.cfg.name] || 0;
-                this.target.val(v);
-            }
-        };
-
-        cv.toSource = function () {
-            if (fctx.cfg.name && this.target) {
-                fctx.form.getData()[fctx.cfg.name] = parseFloat(this.target.val());
-            }
-        };
-
-        return cv;
-    }
-
-    //simple checkbox-to-field converter
-    fconvs.checkbox = function (fctx) {
-        var cv = fconvs.base(fctx);
-        cv.toTarget = function () {
-            if (fctx.cfg.name && this.target) {
-                var v = fctx.form.getData()[fctx.cfg.name];
-                this.target.prop('checked', !!v);
-            }
-        };
-
-        cv.toSource = function () {
-            if (fctx.cfg.name && this.target) {
-                fctx.form.getData()[fctx.cfg.name] = this.target.prop('checked');
-            }
-        };
-
-        return cv;
-    }
-
-    //simple radio-to-field converter
-    fconvs.radio = function (fctx) {
-        var cv = fconvs.base(fctx);
-        cv.toTarget = function () {
-            if (fctx.cfg.name && _.isArray(this.target)) {
-                var v = fctx.form.getData()[fctx.cfg.name];
-                this.target.forEach(function (t) {
-                    t.prop('checked', v == t.val());
-                });
-            }
-        };
-
-        cv.toSource = function () {
-            if (fctx.cfg.name && _.isArray(this.target)) {
-                var v;
-                for (var i = 0; i < this.target.length; i++) {
-                    if (this.target[i].prop('checked')) {
-                        fctx.form.getData()[fctx.cfg.name] = this.target[i].val();
-                        break;
-                    }
-                }
-            }
-        };
-
-        return cv;
-    }
-
-    //simple select-to-field converter
-    fconvs.select = function (fctx) {
-        var cv = fconvs.base(fctx);
-        cv.toTarget = function () {
-            if (fctx.cfg.name && this.target) {
-                var v = fctx.form.getData()[fctx.cfg.name] || '';
-                this.target.val(v);
-            }
-        };
-
-        cv.toSource = function () {
-            if (fctx.cfg.name && this.target) {
-                fctx.form.getData()[fctx.cfg.name] = this.target.val();
-            }
-        };
-
-        return cv;
-    }
-
-    //custom multiselect-to-field converter
-    fconvs.multiselect = function (fctx) {
-        var cv = fconvs.base(fctx);
-        cv.toTarget = function () {
-            if (fctx.cfg.name && this.target) {
-                var v = fctx.form.getData()[fctx.cfg.name] || [];
-                this.target.multiselect('select', v);
-            }
-        };
-
-        cv.toSource = function () {
-            if (fctx.cfg.name && this.target) {
-                fctx.form.getData()[fctx.cfg.name] = this.target.val();
-            }
-        };
-
-        return cv;
-    }
 
 
     /**
@@ -568,36 +586,33 @@ AuForms.JQFactory = (function () {
     var fvalids = {};
 
     //simple "required" validator
-    fvalids.required = function (elem, params) {
+    fvalids.required = function (vctx, params) {
         if (!params) return true;
-        var v = elem.val();
+        var v = vctx.value;
         if (_.isArray(v)) return v.length !== 0;
         return !!(v || "");
     }
 
     //simple generic-text validator
-    fvalids.text = function (elem, params) {
-        var s = elem.val() || "";
-        //if (!!params.required && s.length === 0) return false;
-        var min = params.minlength || 0;
-        var max = params.maxlength || 1000000;
+    fvalids.text = function (vctx, params) {
+        var s = vctx.value || "";
+        var min = params.min || 0;
+        var max = params.max || 1000000;
         if (s.length < min || s.length > max) return false;
         return true;
     }
 
     //simple email validator
-    fvalids.email = function (elem, params) {
+    fvalids.email = function (vctx, params) {
         //see: http://emailregex.com/
         var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        var s = elem.val() || "";
-        //if (!params.required && s.length === 0) return true;
+        var s = vctx.value || "";
         return re.test(s);
     }
 
     //simple numeric integer value validator
-    fvalids.int = function (elem, params) {
-        var s = elem.val() || "";
-        //if (!!params.required && s.length == 0) return false;
+    fvalids.int = function (vctx, params) {
+        var s = vctx.value || "";
         var n = parseFloat(s);
         if (Number.isNaN(n) || !Number.isFinite(n)) return false;
         if (!Number.isInteger(n)) return false;
@@ -607,9 +622,8 @@ AuForms.JQFactory = (function () {
     }
 
     //simple numeric float value validator
-    fvalids.float = function (elem, params) {
-        var s = elem.val() || "";
-        //if (!!params.required && s.length == 0) return false;
+    fvalids.float = function (vctx, params) {
+        var s = vctx.value || "";
         var n = parseFloat(s);
         if (Number.isNaN(n) || !Number.isFinite(n)) return false;
         if (_.isNumber(params.min) && n < params.min) return false;
@@ -618,20 +632,8 @@ AuForms.JQFactory = (function () {
     }
 
     //simple checkbox bool value validator
-    fvalids.checked = function (elem, params) {
-        if (_.isArray(elem)) {
-            var b = false;
-            for (var i = 0; i < elem.length; i++) {
-                if (elem[i].prop('checked')) {
-                    b = true;
-                    break;
-                }
-            }
-            return b === !!params;
-        }
-        else {
-            return !elem.prop('checked') === !params;
-        }
+    fvalids.checked = function (vctx, params) {
+        return !vctx.value === !params;
     }
 
 
@@ -640,202 +642,403 @@ AuForms.JQFactory = (function () {
      */
     var fitems = {};
 
-    //base template for viewmodels
-    fitems.base = function (fctx) {
+    fitems.hstack = function (fctx) {
+        var exp = {}, outer;
 
-        function valHelp1(key, params, target) {
-            if (_.isFunction(params)) {
-                return params(target, null);
-            }
-            else {
-                var fn = fvalids[key];
-                return fn && fn(target, params);
-            }
-        }
-
-        function valHelper(obj, target) {
-            if (!_.isObject(obj.validate)) return true;
-            for (var k in obj.validate) {
-                if (!valHelp1(k, obj.validate[k], target)) return false;
-            }
-            return true;
-        }
-
-        function subscribe(target, evtname) {
-            var arr = _.isArray(target) ? target : [target];
-            arr.forEach(function (t) {
-                t.on(evtname, function () {
-                    var dm = {};
-                    dm.id = fctx.id + "_" + evtname;
-                    dm.exec = function () {
-                        var valok = valHelper(obj, target);
-                        if (valok) {
-                            obj.conv.toSource && obj.conv.toSource();
-                            //console.log(JSON.stringify(form.getData()));
-                            fctx.form._hchanged(fctx.cfg.name);
-                        }
-                        fctx.vm._hvalid(valok);
-                        obj.renderValidate && obj.renderValidate(target, valok);
-                    };
-                    fctx.form._dispatcher.push(dm);
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormContainer(fctx);
+            outer = ctl.outer;
+            if (ctl.label) {
+                ctl.label.css({
+                    display: 'block',
+                    'margin': '0px 0px 5px 0px'
                 });
+            }
+            //var tg = $('<div>').css({
+            //    id: fctx.id,
+            //}).appendTo(fctx.target);
+            return ctl.inner;
+        }
+
+        exp.renderChild = function (cfctx, ctg) {
+            ctg.css({
+                display: 'inline'
+            }).parent().css({
+                display: 'inline'
+            }).parent().css({
+                display: 'inline'
             });
         }
 
-        var obj = {};
+        return exp;
+    }
 
-        obj.build = function () {
-            var cv = fctx.cfg.conv || fctx.cfg.type;
-            if (_.isString(cv)) cv = fconvs[cv];
-            obj.conv = cv && cv(fctx);
 
-            obj.validate = fctx.cfg.validate;
+    fitems.vstack = function (fctx) {
+        var exp = {}, outer;
+
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormContainer(fctx);
+            outer = ctl.outer;
+            if (ctl.label) {
+                ctl.label.css({
+                    display: 'block',
+                    'margin': '0px 0px 5px 0px'
+                });
+            }
+            //var tg = $('<div>').css({
+            //    id: fctx.id,
+            //}).appendTo(fctx.target);
+            return ctl.inner;
         }
 
-        obj.renderCore = null;
-        obj.render = function (target) {
-            var res = obj.renderCore && obj.renderCore(target);
-            if (res) {
-                if (obj.conv) {
-                    obj.conv.target = res.elemInp;
-                    obj.conv.toTarget && obj.conv.toTarget();
-                    var valok = valHelper(obj, res.elemInp);
-                    fctx.vm._hvalid(valok);
-                    obj.renderValidate && obj.renderValidate(res.elemInp, valok);
-                    (res.events || []).forEach(function (evtname) {
-                        subscribe(res.elemInp, evtname);
-                    });
+        exp.renderChild = function (cfctx, ctg) {
+            ctg.css({
+                display: 'block'
+            });
+        }
+
+        return exp;
+    }
+
+
+    fitems['grid-layout'] = function (fctx) {
+        var exp = {}, outer;
+
+        exp.defaults = {};
+        exp.defaults.margin = { top: -15, right: 0, bottom: 0, left: 0 };
+
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormContainer(fctx);
+            outer = ctl.outer;
+            ctl.inner.addClass('row');
+            if (ctl.label) {
+                ctl.label.css({
+                    display: 'block',
+                    'margin': '0px 0px 5px 0px'
+                });
+            }
+            //var tg = $('<div>').addClass('row').css({
+            //    id: fctx.id
+            //}).appendTo(fctx.target);
+            //if (fctx.layout.label) {
+            //    $("<label>").addClass('control-label').attr({ for: fctx.id }).text(fctx.layout.label).css({
+            //        display: 'block',
+            //        'margin-top': 15,
+            //        'margin-bottom': -10
+            //    }).appendTo(tg);
+            //}
+            return ctl.inner;
+        }
+
+        exp.renderChild = function (cfctx, ctg) {
+            ctg.addClass('col-xs-' + cfctx.layout['gl-col']).css({
+                'padding': 0,
+                'margin': '15px 0px 0px 0px'
+            });
+        }
+
+        return exp;
+    }
+
+
+    fitems.panel = function (fctx) {
+        var exp = {}, outer;
+
+        exp.render = function () {
+            outer = $('<div>').addClass('panel').appendTo(fctx.target);
+            outer.addClass(fctx.layout.bg || 'panel-default');
+
+            if (fctx.layout.header) {
+                if (_.isString(fctx.layout.header)) {
+                    var h = $('<div>').addClass('panel-heading').appendTo(outer);
+                    $('<h3>').addClass('panel-title').text(fctx.layout.header).appendTo(h);
                 }
-                fctx.form._hchanged(fctx.cfg.name);
+                else if (fctx.layout.header) {
+                    var h = $('<div>').addClass('panel-heading').appendTo(outer);
+                    var vm = AuForms.helpers.buildPropViewmodel(fctx, h, 'header');
+                    //var cfctx = {
+                    //    factory: fctx.factory,
+                    //    dispatcher: fctx.dispatcher,
+                    //    listeners: fctx.listeners,
+                    //    form: fctx.form,
+                    //    iform: fctx.iform,
+                    //    section: fctx.section,
+                    //    parent: fctx.owner,
+                    //    layout: fctx.layout.header,
+                    //    target: h,
+                    //    prophost: true
+                    //};
+                    //var vm = fviewmodel(cfctx);
+                    //fctx.iowner.propvms.push(vm);
+                    var ctg = vm.render();
+                }
+            }
+            var inner = $('<div>').addClass('panel-body').appendTo(outer);
+            return inner;
+        }
+
+        exp.renderChild = function (cfctx, ctg) {
+            ctg.css({
+                display: 'block'
+            });
+        }
+
+        return exp;
+    }
+
+
+    //simple text-block viewmodel
+    fitems.textblock = function (fctx) {
+        var exp = {}, outer, inp;
+
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormControl(fctx);
+            outer = ctl.outer;
+            inp = $("<p>").attr({ id: fctx.id }).addClass('form-control-static').appendTo(ctl.inner);
+            if (fctx.layout.text) inp.text(fctx.layout.text);
+            return outer;
+        }
+
+        exp.renderEnabled = function (e) {
+            if (e) {
+                inp.css('opacity', '');
+            }
+            else {
+                inp.css('opacity', 0.5);
             }
         }
 
-        obj.validate = null;
-        obj.renderValidate = null;
-        return obj;
+        exp.updateTarget = function (vraw, vusr) {
+            inp.text(vusr);
+        }
+
+        return exp;
     }
+
 
     //simple boxed text-input viewmodel
-    fitems.text = function (fctx) {
-        var obj = fitems.base(fctx);
-        obj.renderCore = function (target) {
-            var ctr = $("<div>").addClass("form-group");
-            if (fctx.cfg.label) {
-                ctr.append($("<label>").addClass('control-label').attr({ for: fctx.id }).text(fctx.cfg.label));
-            }
-            var inp = $("<input>").attr({ type: 'text', id: fctx.id }).addClass('form-control');
-            if (fctx.cfg.readonly) inp.attr("readonly", "");
-            target.append(ctr.append(inp));
+    fitems.textbox = function (fctx) {
+        var exp = {}, outer, inp, grp;
 
-            return {
-                elemInp: inp,
-                events: ["change", /*"keypress",*/ "blur", "keyup"]
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormControl(fctx);
+            outer = ctl.outer;
+            grp = $('<div>').appendTo(ctl.inner);
+            if (fctx.layout.pre) {
+                grp.addClass('input-group');
+                $('<span>').addClass('input-group-addon').text(fctx.layout.pre).appendTo(grp);
             }
+            inp = $("<input>").attr({ type: 'text', id: fctx.id }).addClass('form-control').appendTo(grp);
+            if (fctx.layout.readonly) inp.attr("readonly", "");
+            if (fctx.layout.post) {
+                grp.addClass('input-group');
+                $('<span>').addClass('input-group-addon').text(fctx.layout.post).appendTo(grp);
+            }
+
+            inp.on('change blur keyup', function (e) {
+                var vctx = {
+                    value: $(this).val()
+                };
+                fctx.iowner.hevt(vctx, e);
+            });
+            return outer;
         }
 
-        obj.renderValidate = function (target, valok) {
-            if (valok) {
-                target.parent().removeClass('has-error');
+        exp.renderEnabled = function (e) {
+            if (e) {
+                inp.attr('disabled', null);
+                grp.css('opacity', '');
             }
             else {
-                target.parent().addClass('has-error');
+                inp.attr('disabled', '');
+                grp.css('opacity', 0.5);
             }
         }
-        return obj;
+
+        exp.renderValidate = function (valok) {
+            if (valok) {
+                outer.removeClass('has-error');
+            }
+            else {
+                outer.addClass('has-error');
+            }
+        }
+
+        exp.updateTarget = function (vraw, vusr) {
+            inp.val(vusr);
+        }
+
+        return exp;
     }
+
 
     //simple boxed numeric-input viewmodel
-    fitems.number = function (fctx) {
-        var obj = fitems.base(fctx);
-        obj.renderCore = function (target) {
-            var ctr = $("<div>").addClass("form-group");
-            if (fctx.cfg.label) {
-                ctr.append($("<label>").addClass('control-label').attr({ for: fctx.id }).text(fctx.cfg.label));
-            }
-            var inp = $("<input>").attr({ type: 'number', id: fctx.id }).addClass('form-control');
-            if (fctx.cfg.readonly) inp.attr("readonly", "");
-            target.append(ctr.append(inp));
+    fitems.numbox = function (fctx) {
+        var exp = {}, outer, inp, grp;
 
-            return {
-                elemInp: inp,
-                events: ["change", /*"keypress",*/ "blur", "keyup"]
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormControl(fctx);
+            outer = ctl.outer;
+            grp = $('<div>').appendTo(ctl.inner);
+            if (fctx.layout.pre) {
+                grp.addClass('input-group');
+                $('<span>').addClass('input-group-addon').text(fctx.layout.pre).appendTo(grp);
             }
+            inp = $("<input>").attr({ type: 'number', id: fctx.id }).addClass('form-control').appendTo(grp);
+            if (fctx.layout.readonly) inp.attr("readonly", "");
+            if (fctx.layout.post) {
+                grp.addClass('input-group');
+                $('<span>').addClass('input-group-addon').text(fctx.layout.post).appendTo(grp);
+            }
+
+            inp.on('change blur keyup', function (e) {
+                var vctx = {
+                    value: $(this).val()
+                };
+                fctx.iowner.hevt(vctx, e);
+            });
+            return outer;
         }
 
-        obj.renderValidate = function (target, valok) {
-            if (valok) {
-                target.parent().removeClass('has-error');
+        exp.renderEnabled = function (e) {
+            if (e) {
+                inp.attr('disabled', null);
+                grp.css('opacity', '');
             }
             else {
-                target.parent().addClass('has-error');
+                inp.attr('disabled', '');
+                grp.css('opacity', 0.5);
             }
         }
-        return obj;
+
+        exp.renderValidate = function (valok) {
+            if (valok) {
+                outer.removeClass('has-error');
+            }
+            else {
+                outer.addClass('has-error');
+            }
+        }
+
+        exp.updateTarget = function (vraw, vusr) {
+            inp.val(vusr);
+        }
+
+        return exp;
     }
+
+
+    //simple boxed text-area viewmodel
+    fitems.textarea = function (fctx) {
+        var exp = {}, outer, inp, grp;
+
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormControl(fctx);
+            outer = ctl.outer;
+            grp = $('<div>').appendTo(ctl.inner);
+            if (fctx.layout.pre) {
+                grp.addClass('input-group');
+                $('<span>').addClass('input-group-addon').text(fctx.layout.pre).appendTo(grp);
+            }
+            inp = $("<textarea>").attr({ type: 'text', id: fctx.id }).addClass('form-control').appendTo(grp);
+            if (fctx.layout.readonly) inp.attr("readonly", "");
+            if (fctx.layout.post) {
+                grp.addClass('input-group');
+                $('<span>').addClass('input-group-addon').text(fctx.layout.post).appendTo(grp);
+            }
+
+            inp.on('change blur keyup', function (e) {
+                var vctx = {
+                    value: $(this).val()
+                };
+                fctx.iowner.hevt(vctx, e);
+            });
+            return outer;
+        }
+
+        exp.renderEnabled = function (e) {
+            if (e) {
+                inp.attr('disabled', null);
+                grp.css('opacity', '');
+            }
+            else {
+                inp.attr('disabled', '');
+                grp.css('opacity', 0.5);
+            }
+        }
+
+        exp.renderValidate = function (valok) {
+            if (valok) {
+                outer.removeClass('has-error');
+            }
+            else {
+                outer.addClass('has-error');
+            }
+        }
+
+        exp.updateTarget = function (vraw, vusr) {
+            inp.val(vusr);
+        }
+
+        return exp;
+    }
+
 
     //simple checkbox-input viewmodel
     fitems.checkbox = function (fctx) {
-        var obj = fitems.base(fctx);
-        obj.renderCore = function (target) {
-            var outer = $('<div>');
-            var inner = $("<div>").addClass("checkbox");
-            var inp = $("<input>").attr({ type: 'checkbox', id: fctx.id });
-            if (fctx.cfg.readonly) inp.attr("readonly", "");
-            $("<label>").appendTo(inner).append(inp).append(fctx.cfg.label);
-            target.append(outer.append(inner));
+        var exp = {}, outer, inp;
 
-            return {
-                elemInp: inp,
-                events: ["change", /*"keypress",*/ "blur", "keyup"]
-            }
-        }
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormControl(fctx);
+            outer = ctl.outer;
+            var inner = $("<div>").addClass("checkbox").css({
+                'margin-top': 0
+            }).appendTo(ctl.inner);
+            inp = $("<input>").attr({ type: 'checkbox', id: fctx.id }).css({
+                'margin-left': 0
+            }).appendTo(inner);
+            if (fctx.layout.readonly) inp.attr("readonly", "");
 
-        obj.renderValidate = function (target, valok) {
-            var outer = target.parent().parent();
-            if (valok) {
-                outer.removeClass('has-error');
+            var span;
+            if (fctx.layout.text) {
+                span = $('<span>').text(fctx.layout.text).css({
+                    'margin-left': 20
+                }).appendTo(inner);
             }
-            else {
-                outer.addClass('has-error');
+            if (inp.prettyCheckable) {
+                inp.prettyCheckable();
+                inner.css('margin-top', 3);
+                ctl.inner.css('margin-bottom', 10);
+                if (span) {
+                    span.css({
+                        'margin-left': 5,
+                        position: 'absolute',
+                        top: 5
+                    });
+                }
             }
-        }
-        return obj;
-    }
 
-    //simple checkbox-input viewmodel
-    fitems.radio = function (fctx) {
-        var obj = fitems.base(fctx);
-        obj.renderCore = function (target) {
-            var inputs = [];
-            var outer = $('<div>');
-            if (fctx.cfg.label) {
-                $('<label>').addClass('control-label').appendTo(outer).text(fctx.cfg.label);
-                $('<div>').addClass('radio hide').appendTo(outer);
-            }
-            (fctx.cfg.enum || []).forEach(function (kv) {
-                var inner = $("<div>").addClass("radio").appendTo(outer);
-                var inp = $("<input>").attr({
-                    type: 'radio',
-                    name: fctx.id + '_' + fctx.cfg.name,
-                    id: fctx.id + '_' + kv.key,
-                    value: kv.key
-                });
-                if (fctx.cfg.readonly) inp.attr("readonly", "");
-                $("<label>").appendTo(inner).append(inp).append(kv.value);
-                //outer.append(inner);
-                inputs.push(inp);
+            inp.on('change blur keyup', function (e) {
+                var vctx = {
+                    value: !!$(this).prop('checked')
+                };
+                fctx.iowner.hevt(vctx, e);
             });
-            target.append(outer);
-
-            return {
-                elemInp: inputs,
-                events: ["change", /*"keypress",*/ "blur", "keyup"]
-            }
+            return outer;
         }
 
-        obj.renderValidate = function (target, valok) {
-            var first = _.isArray(target) ? target[0] : target;
-            var outer = first.parent().parent().parent();
+        exp.renderEnabled = function (e) {
+            if (inp.prettyCheckable) {
+                inp.prettyCheckable(e ? 'enable' : 'disable');
+            }
+            else {
+                inp.attr('disabled', e ? null : '');
+            }
+            inp.closest('.checkbox').css('opacity', e ? '' : 0.5);
+        }
+
+        exp.renderValidate = function (valok) {
             if (valok) {
                 outer.removeClass('has-error');
             }
@@ -843,146 +1046,418 @@ AuForms.JQFactory = (function () {
                 outer.addClass('has-error');
             }
         }
-        return obj;
+
+        exp.updateTarget = function (vraw, vusr) {
+            if (inp.prettyCheckable) {
+                inp.prettyCheckable(vusr ? 'check' : 'uncheck');
+            }
+            else {
+                inp.prop('checked', !!vusr);
+            }
+        }
+
+        return exp;
     }
+
+
+    //simple radio-buttons input viewmodel
+    fitems.radio = function (fctx) {
+        function getter(c, e) {
+            var vctx = { value: null };
+            var arr = c.vmx.getInputs();
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i].prop('checked')) {
+                    vctx.value = arr[i].val();
+                    break;
+                }
+            }
+            c.iowner.hevt(vctx, e);
+        }
+
+        var exp = {}, outer, inputs;
+
+        exp.getInputs = function () {
+            return inputs;
+        }
+
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormControl(fctx);
+            outer = ctl.outer;
+            inputs = [];
+            var opts = fctx.layout.enum || [];
+            if (opts.length) {
+                opts.forEach(function (opt) {
+                    var inner = $("<div>").addClass("radio").appendTo(ctl.inner);
+                    var inp = $("<input>").attr({
+                        type: 'radio',
+                        name: fctx.layout.group || (fctx.id + '_' + fctx.layout.name),
+                        id: fctx.id + '_' + opt.key,
+                        value: opt.key
+                    });
+                    if (fctx.layout.readonly) inp.attr("readonly", "");
+                    var label = $("<label>").appendTo(inner).append(inp);
+                    var span = $('<span>').text(opt.value).css({
+                        'margin-left': 20
+                    }).appendTo(label);
+
+                    var f = fctx.layout.font;
+                    if (f) {
+                        if (f.bold === false) {
+                            span.css('font-weight', 400);
+                        }
+                        else if (f.bold === true) {
+                            span.css('font-weight', 700);
+                        }
+                    }
+
+                    if (inp.prettyCheckable) {
+                        inp.prettyCheckable();
+                        label.css('padding-left', 0);
+                        inner.css({
+                            'margin-top': 0,
+                            'margin-bottom': 0
+                        });
+                        span.css({
+                            'margin-left': 5,
+                            position: 'absolute',
+                            top: 5
+                        });
+                    }
+                    inputs.push(inp);
+                });
+            }
+
+            inputs.forEach(function (inp) {
+                inp.on('change blur keyup', function (e) {
+                    if (fctx.layout.group) {
+                        var arr = fctx.iform.select(function (c) {
+                            return c.layout.group === fctx.layout.group;
+                        });
+                        arr.forEach(function (c) {
+                            getter(c, e);
+                        });
+                    }
+                    else {
+                        getter(fctx, e);
+                        //var vctx = { value: null };
+                        //for (var i = 0; i < inputs.length; i++) {
+                        //    if (inputs[i].prop('checked')) {
+                        //        vctx.value = inputs[i].val();
+                        //        break;
+                        //    }
+                        //}
+                        //fctx.iowner.hevt(vctx, e);
+                    }
+                });
+            });
+            return outer;
+        }
+
+        exp.renderEnabled = function (e) {
+            inputs.forEach(function (inp) {
+                if (inp.prettyCheckable) {
+                    inp.prettyCheckable(e ? 'enable' : 'disable');
+                }
+                else {
+                    inp.attr('disabled', e ? null : '');
+                }
+                inp.closest('.radio').css('opacity', e ? '' : 0.5);
+            });
+        }
+
+        exp.renderValidate = function (valok) {
+            if (valok) {
+                outer.removeClass('has-error');
+            }
+            else {
+                outer.addClass('has-error');
+            }
+        }
+
+        exp.updateTarget = function (vraw, vusr) {
+            inputs.forEach(function (inp) {
+                if (inp.prettyCheckable) {
+                    inp.prettyCheckable(vusr == inp.val() ? 'check' : 'uncheck');
+                }
+                else {
+                    inp.prop('checked', vusr == inp.val());
+                }
+            });
+        }
+
+        return exp;
+    }
+
 
     //simple dropdown selector input viewmodel
     fitems.select = function (fctx) {
-        var obj = fitems.base(fctx);
-        obj.renderCore = function (target) {
-            var ctr = $("<div>").addClass("form-group");
-            if (fctx.cfg.label) {
-                ctr.append($("<label>").addClass('control-label').attr({ for: fctx.id }).text(fctx.cfg.label));
-            }
-            var inp = $("<select>").attr({ id: fctx.id }).addClass('form-control');
-            if (fctx.cfg.readonly) inp.attr("readonly", "");
-            (fctx.cfg.enum || []).forEach(function (kv) {
-                $("<option>").attr("value", kv.key).text(kv.value).appendTo(inp);
-            });
-            target.append(ctr.append(inp));
+        var exp = {}, outer, inp;
 
-            return {
-                elemInp: inp,
-                events: ["change", /*"keypress",*/ "blur", "keyup"]
-            }
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormControl(fctx);
+            outer = ctl.outer;
+            inp = $("<select>").attr({ id: fctx.id }).addClass('form-control').appendTo(ctl.inner);
+            if (fctx.layout.readonly) inp.attr("readonly", "");
+            (fctx.layout.enum || []).forEach(function (opt) {
+                $("<option>").attr("value", opt.key).text(opt.value).appendTo(inp);
+            });
+
+            inp.on('change blur keyup', function (e) {
+                var vctx = {
+                    value: $(this).val()
+                };
+                fctx.iowner.hevt(vctx, e);
+            });
+            return outer;
         }
 
-        obj.renderValidate = function (target, valok) {
-            if (valok) {
-                target.parent().removeClass('has-error');
+        exp.renderEnabled = function (e) {
+            if (e) {
+                inp.attr('disabled', null);
+                inp.css('opacity', '');
             }
             else {
-                target.parent().addClass('has-error');
-            }
-        }
-        return obj;
-    }
-
-    //custom dropdown multi-selector input viewmodel
-    fitems.multiselect = function (fctx) {
-        var obj = fitems.base(fctx);
-        obj.renderCore = function (target) {
-            var ctr = $("<div>").addClass("form-group");
-            if (fctx.cfg.label) {
-                ctr.append($("<label>").addClass('control-label').attr({ for: fctx.id }).text(fctx.cfg.label));
-            }
-            var inp = $("<select>").attr({ id: fctx.id, multiple: "multiple" }).addClass('form-control');
-            if (fctx.cfg.readonly) inp.attr("readonly", "");
-            (fctx.cfg.enum || []).forEach(function (kv) {
-                $("<option>").attr("value", kv.key).text(kv.value).appendTo(inp);
-            });
-            target.append(ctr.append(inp));
-            var opts = _.cloneDeep(fctx.cfg.options || {});
-            opts.onInitialized = function (s,c) {
-                c.parent().css("display", "block");
-            }
-            inp.multiselect(opts);
-
-            return {
-                elemInp: inp,
-                events: ["change", /*"keypress",*/ "blur", "keyup"]
+                inp.attr('disabled', '');
+                inp.css('opacity', 0.5);
             }
         }
 
-        obj.renderValidate = function (target, valok) {
-            var outer = target.parent().parent();
+        exp.renderValidate = function (valok) {
             if (valok) {
                 outer.removeClass('has-error');
             }
             else {
                 outer.addClass('has-error');
             }
+        }
 
-            var btn = target.parent().find('.btn-group > .btn');
+        exp.updateTarget = function (vraw, vusr) {
+            inp.val(vusr);
+        }
+
+        return exp;
+    }
+
+
+    //custom multiselect-to-field converter
+    fitems.multiselect = function (fctx) {
+        var exp = {}, outer, inp;
+
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormControl(fctx);
+            outer = ctl.outer;
+            inp = $("<select>").addClass('form-control').attr({
+                id: fctx.id,
+                multiple: "multiple"
+            }).appendTo(ctl.inner);
+            if (fctx.layout.readonly) inp.attr("readonly", "");
+            (fctx.layout.enum || []).forEach(function (opt) {
+                $("<option>").attr("value", opt.key).text(opt.value).appendTo(inp);
+            });
+            var opts = _.cloneDeep(fctx.layout.options || {});
+            opts.onInitialized = function (s, c) {
+                c.parent().css("display", "block");
+                var ul = c.find('.multiselect-container').css({
+                    'position': 'relative',
+                    float: 'none',
+                    'margin-top': 36,
+                    'padding': '10px 0px'
+                });
+                ul.find('li').css({
+                    'margin': '3px 0px'
+                });
+            }
+            inp.multiselect(opts);
+
+            inp.on('change blur keyup', function (e) {
+                var vctx = {
+                    value: $(this).val()
+                };
+                fctx.iowner.hevt(vctx, e);
+            });
+            return outer;
+        }
+
+        exp.renderEnabled = function (e) {
+            inp.multiselect(e ? 'enable' : 'disable');
+        }
+
+        exp.renderValidate = function (valok) {
+            if (valok) {
+                outer.removeClass('has-error');
+            }
+            else {
+                outer.addClass('has-error');
+            }
+            var btn = outer.find('.btn-group > .btn');
             btn.attr("style", "border-color:" + (valok ? 'auto' : "#a94442"));
         }
-        return obj;
+
+        exp.updateTarget = function (vraw, vusr) {
+            inp.multiselect('select', vusr);
+        }
+
+        return exp;
     }
+
 
     //custom dropdown time input viewmodel
-    fitems.fg_time = function (fctx) {
-        var obj = fitems.base(fctx);
-        obj.renderCore = function (target) {
-            var ctr = $("<div>").addClass("form-group");
-            if (fctx.cfg.label) {
-                ctr.append($("<label>").addClass('control-label').attr({ for: fctx.id }).text(fctx.cfg.label));
-            }
-            var inp = $("<input>").attr({ type: 'text', id: fctx.id }).addClass('form-control');
-            if (fctx.cfg.readonly) inp.attr("readonly", "");
-            target.append(ctr.append(inp));
-            var opts = _.cloneDeep(fctx.cfg.options || {});
-            //opts.overlayContainer = target;
+    fitems.fgtime = function (fctx) {
+        var exp = {}, outer, inp, grp;
+
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormControl(fctx);
+            outer = ctl.outer;
+            grp = $('<div>').addClass('input-group').appendTo(ctl.inner);
+            inp = $("<input>").attr({ type: 'text', id: fctx.id }).addClass('form-control fg-mv-picker').appendTo(grp);
+            if (fctx.layout.readonly) inp.attr("readonly", "");
+            $('<span>').addClass('input-group-addon glyphicon glyphicon-time').css({
+                top: 0,
+                'font-size': '1.2em'
+            }).appendTo(grp);
+
+            var opts = _.cloneDeep(fctx.layout.options || {});
             inp.timeDropper(opts);
 
-            return {
-                elemInp: inp,
-                events: ["change", /*"keypress",*/ "blur", "keyup"]
-            }
+            inp.on('change blur keyup', function (e) {
+                var vctx = {
+                    value: $(this).val()
+                };
+                fctx.iowner.hevt(vctx, e);
+            });
+            return outer;
         }
 
-        obj.renderValidate = function (target, valok) {
-            if (valok) {
-                target.parent().removeClass('has-error');
+        exp.renderEnabled = function (e) {
+            if (e) {
+                inp.attr('disabled', null);
+                grp.css('opacity', '');
             }
             else {
-                target.parent().addClass('has-error');
-            }
-        }
-        return obj;
-    }
-
-    //custom dropdown date input viewmodel
-    fitems.fg_date = function (fctx) {
-        var obj = fitems.base(fctx);
-        obj.renderCore = function (target) {
-            var ctr = $("<div>").addClass("form-group");
-            if (fctx.cfg.label) {
-                ctr.append($("<label>").addClass('control-label').attr({ for: fctx.id }).text(fctx.cfg.label));
-            }
-            var inp = $("<input>").attr({ type: 'text', id: fctx.id }).addClass('form-control');
-            if (fctx.cfg.readonly) inp.attr("readonly", "");
-            target.append(ctr.append(inp));
-            for (var k in fctx.cfg.options) {
-                inp.attr("data-" + k, fctx.cfg.options[k]);
-            }
-            inp.dateDropper(fctx.cfg.options);
-
-            return {
-                elemInp: inp,
-                events: ["change", /*"keypress",*/ "blur", "keyup"]
+                inp.attr('disabled', '');
+                grp.css('opacity', 0.5);
             }
         }
 
-        obj.renderValidate = function (target, valok) {
+        exp.renderValidate = function (valok) {
             if (valok) {
-                target.parent().removeClass('has-error');
+                outer.removeClass('has-error');
             }
             else {
-                target.parent().addClass('has-error');
+                outer.addClass('has-error');
             }
         }
-        return obj;
+
+        exp.updateTarget = function (vraw, vusr) {
+            inp.val(vusr);
+        }
+
+        return exp;
     }
+
+
+    //custom dropdown time input viewmodel
+    fitems.fgdate = function (fctx) {
+        var exp = {}, outer, inp, grp;
+
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormControl(fctx);
+            outer = ctl.outer;
+            grp = $('<div>').addClass('input-group').appendTo(ctl.inner);
+            inp = $("<input>").attr({ type: 'text', id: fctx.id }).addClass('form-control fg-mv-picker').appendTo(grp);
+            //if (fctx.layout.readonly) inp.attr("readonly", "");
+            $('<span>').addClass('input-group-addon glyphicon glyphicon-calendar').css({
+                top: 0,
+                'font-size': '1.2em'
+            }).appendTo(grp);
+
+            for (var k in fctx.layout.options) {
+                inp.attr("data-" + k, fctx.layout.options[k]);
+            }
+            inp.dateDropper(fctx.layout.options);
+
+            inp.on('change blur keyup', function (e) {
+                var vctx = {
+                    value: $(this).val()
+                };
+                fctx.iowner.hevt(vctx, e);
+            });
+            return outer;
+        }
+
+        exp.renderEnabled = function (e) {
+            if (e) {
+                inp.attr('disabled', null);
+                grp.css('opacity', '');
+            }
+            else {
+                inp.attr('disabled', '');
+                grp.css('opacity', 0.5);
+            }
+        }
+
+        exp.renderValidate = function (valok) {
+            if (valok) {
+                outer.removeClass('has-error');
+            }
+            else {
+                outer.addClass('has-error');
+            }
+        }
+
+        exp.updateTarget = function (vraw, vusr) {
+            inp.val(vusr);
+        }
+
+        return exp;
+    }
+
+
+    //custom button viewmodel
+    fitems.button = function (fctx) {
+        var exp = {}, outer;
+
+        exp.defaults = {};
+        exp.defaults.margin = { top: 0, right: 0, bottom: 0, left: 0 };
+
+        exp.render = function () {
+            outer = $('<button>').attr({
+                type: 'button',
+                id: fctx.id,
+            }).appendTo(fctx.target);
+
+            outer.addClass(fctx.layout.cssClass || 'btn btn-default');
+
+            var icon, label;
+            if (fctx.layout.icon) icon = $('<span>').addClass(fctx.layout.icon).appendTo(outer);
+            if (fctx.layout.label) label = $('<span>').text(fctx.layout.label);
+            if (label && icon) {
+                $('<div>').addClass('visible-md-inline-block visible-lg-inline-block').append(label).css({
+                    'margin-left': 4
+                }).appendTo(outer);
+            }
+            else if (label) {
+                label.appendTo(outer);
+            }
+
+            outer.click(function (e) {
+                fctx.owner.trig(e);
+            });
+            return outer;
+        }
+
+        exp.renderEnabled = function (e) {
+            if (e) {
+                outer.attr('disabled', null);
+            }
+            else {
+                outer.attr('disabled', '');
+            }
+        }
+
+        return exp;
+    }
+
 
 
     /**
@@ -1003,4 +1478,4 @@ AuForms.JQFactory = (function () {
     }
 
     return exp;
-})();
+})(jQuery);

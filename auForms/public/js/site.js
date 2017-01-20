@@ -368,13 +368,12 @@ $(document).ready(function () {
             options: sampleOptions
         };
         fn(targets);
-        //footer.append(AuForms.buttons.create(info.layout, null));
     }
 
     viewTargetHandlers.dialog = function (fn) {
         var targets = {
             body: $('<div>'),
-            footer: $('#ffoot').empty(),
+            footer: null,
             options: sampleOptions
         };
 
@@ -385,11 +384,11 @@ $(document).ready(function () {
             closable: true
         });
         dialog.realize();
+        targets.dialog = dialog;
 
         var f = dialog.getModalFooter();
         f.show();
         targets.footer = f.find('.bootstrap-dialog-footer');
-        //f.find('.bootstrap-dialog-footer').append(AuForms.buttons.create(info.layout, dialog));
         fn(targets);
         dialog.open();
     }
@@ -430,61 +429,30 @@ var samplesFactory = {};
 samplesFactory["buttonDemo_2+2"] = function (targets) {
     "use strict";
 
-    var layout = { "body": {}, "footer": { "type": "hstack", "nodes": [{ "type": "hstack", "nodes": [{ "type": "button", "label": "Bottone 1", "icon": "glyphicon glyphicon-eye-open" }, { "type": "button", "label": "Bottone 2", "icon": "glyphicon glyphicon-thumbs-up" }] }, { "type": "hstack", "nodes": [{ "type": "button", "label": "Close 1", "icon": null }, { "type": "button", "label": "Close 2", "icon": null }] }] } };
+    var layout = { "body": {}, "footer": { "type": "hstack", "halign": "right", "nodes": [{ "type": "hstack", "margin": { "top": "0px", "right": "8px", "bottom": "0px", "left": "0px" }, "nodes": [{ "type": "button", "label": "Bottone 1", "icon": "glyphicon glyphicon-eye-open" }, { "type": "button", "label": "Bottone 2", "icon": "glyphicon glyphicon-thumbs-up" }] }, { "type": "hstack", "nodes": [{ "type": "button", "id": "c1", "label": "Close 1" }, { "type": "button", "id": "c2", "label": "Close 2" }] }] } };
 
-    var form = AuForms.create(fact);
+    var form = AuForms.create();
     form.render(layout, targets);
 
-    //var layout = {
-    //    groups: [{
-    //        items: [{
-    //            type: "button",
-    //            options: {
-    //                label: 'Bottone 1',
-    //                icon: 'glyphicon glyphicon-eye-open'
-    //            }
-    //        }, {
-    //                type: "button",
-    //                options: {
-    //                    label: 'Bottone 2',
-    //                    icon: 'glyphicon glyphicon-thumbs-up'
-    //                }
-    //            }]
-    //    }, {
-    //            items: [{
-    //                type: "button",
-    //                options: {
-    //                    label: "Close 1",
-    //                    action: function (b, m, c) {
-    //                        if (c) {
-    //                            c.close();
-    //                        }
-    //                        else {
-    //                            alert('close!');
-    //                        }
-    //                    }
-    //                }
-    //            }, {
-    //                    type: "button",
-    //                    options: {
-    //                        label: "Close 2",
-    //                        action: function (b, m, c) {
-    //                            if (c) {
-    //                                c.close();
-    //                            }
-    //                            else {
-    //                                alert('close!');
-    //                            }
-    //                        }
-    //                    }
-    //                }]
-    //        }]
-    //}
+    form.on('c1', function (sender, args) {
+        if (targets.dialog) {
+            targets.dialog.close();
+        }
+        else {
+            alert('close 1!');
+        }
+    });
 
-    //return {
-    //    layout: layout
-    //}
+    form.on('c2', function (sender, args) {
+        if (targets.dialog) {
+            targets.dialog.close();
+        }
+        else {
+            alert('close 2!');
+        }
+    });
 }
+
 
 
 samplesFactory["buttonDemo_1+2+1"] = function (target, options) {
@@ -499,21 +467,21 @@ samplesFactory["buttonDemo_1+2+1"] = function (target, options) {
                     icon: 'glyphicon glyphicon-eye-open'
                 }
             }]
-        },{
-            items: [{
-                type: "button",
-                options: {
-                    label: 'Bottone M1',
-                    icon: 'glyphicon glyphicon-eye-open'
-                }
-            }, {
+        }, {
+                items: [{
                     type: "button",
                     options: {
-                        label: 'Bottone M2',
-                        icon: 'glyphicon glyphicon-thumbs-up'
+                        label: 'Bottone M1',
+                        icon: 'glyphicon glyphicon-eye-open'
                     }
-                }]
-        }, {
+                }, {
+                        type: "button",
+                        options: {
+                            label: 'Bottone M2',
+                            icon: 'glyphicon glyphicon-thumbs-up'
+                        }
+                    }]
+            }, {
                 items: [{
                     type: "button",
                     options: {
@@ -537,293 +505,156 @@ samplesFactory["buttonDemo_1+2+1"] = function (target, options) {
 }
 
 
-samplesFactory.basicText = function (target, options) {
+
+samplesFactory.basicText = function (targets) {
     "use strict";
 
-    var config = {
-        sections: {
-            main: [{
-                type: "text",
-                label: "Nome",
-                name: "nome"
-            }, {
-                    type: "text",
-                    label: "Cognome",
-                    name: "cognome"
-                }, {
-                    type: "text",
-                    label: "Messaggio",
-                    watch: ["nome", "cognome"],
-                    readonly: true,
-                    conv: function (fctx) {
-                        return {
-                            toTarget: function () {
-                                if (this.target) {
-                                    var f = fctx.form;
-                                    var s = f.getData().saluto + ' ';
-                                    s += f.getData().nome + ' ';
-                                    s += (f.getData().cognome || "") + ' ';
-                                    this.target.val(s);
-                                }
-                            },
-                        }
-                    }
-                }]
+    var layout = { "body": { "type": "vstack", "nodes": [{ "type": "textbox", "id": "nome", "path": "nome", "label": "Nome" }, { "type": "textbox", "id": "cognome", "path": "cognome", "label": "Cognome" }, { "type": "textbox", "id": "msg1", "conv": "ucase", "label": "Messaggio 1" }, { "type": "textblock", "id": "msg2", "conv": "lcase", "label": "Messaggio 2" }] }, "footer": { "type": "hstack", "halign": "right", "nodes": [{ "type": "button", "id": "close", "label": "Close" }] } };
+
+    var form = AuForms.create();
+    form.getFactory().convs.ucase = function (fctx) {
+        return {
+            toTarget: function (vraw) {
+                return vraw.toUpperCase();
+            }
         }
-    };
+    }
+
+    form.getFactory().convs.lcase = function (fctx) {
+        return {
+            toTarget: function (vraw) {
+                return vraw.toLowerCase();
+            }
+        }
+    }
+
+    form.render(layout, targets);
+
+    form.on('nome cognome', function (sender, args) {
+        var s = form.getData().saluto + ' ';
+        s += form.getData().nome + ' ';
+        s += (form.getData().cognome || "");
+        form.getNode('msg1').set(s);
+        form.getNode('msg2').set(s);
+    });
+
+    form.on('close', function (sender, args) {
+        if (targets.dialog) {
+            targets.dialog.close();
+        }
+        else {
+            alert('close!');
+        }
+    });
 
     var data = {
         saluto: "ciao",
         nome: "Tigro"
     };
-
-    var fact = AuForms.JQFactory.get();
-    var form = AuForms.create(fact);
-    form.setConfig(config);
     form.setData(data);
-    form.render(target);
-
-    var layout = {
-        groups: [{
-            items: [{
-                type: "button",
-                options: {
-                    label: "Close",
-                    action: function (b, m, c) {
-                        alert('close!');
-                    }
-                }
-            }]
-        }]
-    }
-
-    return {
-        layout: layout
-    }
 }
 
 
-samplesFactory.basicValidation = function (target, options) {
+
+samplesFactory.basicValidation = function (targets) {
     "use strict";
 
-    var config = {
-        sections: {
-            main: [{
-                type: "text",
-                label: "Nome",
-                name: "nome",
-                validate: {
-                    required: true,
-                    text: {}
-                }
-            }, {
-                    type: "text",
-                    label: "Cognome",
-                    name: "cognome",
-                    validate: {
-                        text: {
-                            minlength: 3,
-                            maxlength: 10
-                        }
-                    }
-                }, {
-                    type: "text",
-                    label: "E-Mail",
-                    name: "e_mail",
-                    validate: {
-                        required: false,
-                        email: {}
-                    }
-                }, {
-                    type: "number",
-                    label: "Peso (kg)",
-                    name: "peso",
-                    validate: {
-                        required: true,
-                        float: {
-                            min: 0.1,
-                            max: 20.0
-                        }
-                    }
-                }, {
-                    type: "number",
-                    label: "Altezza (cm)",
-                    name: "altezza",
-                    validate: {
-                        required: true,
-                        int: {
-                            min: 10,
-                            max: 200
-                        }
-                    }
-                }, {
-                    type: "checkbox",
-                    label: "Tigro è un porzèl!",
-                    name: "conferma",
-                    validate: {
-                        checked: true
-                    }
-                }, {
-                    type: "radio",
-                    label: "Stato civile",
-                    name: "stato_civile",
-                    enum: [{ key: 'scap', value: 'Scapolo' }, { key: 'spos', value: 'Sposato' }, { key: 'div', value: 'Divorziato' }],
-                    validate: {
-                        checked: true,
-                    }
-                }, {
-                    type: "select",
-                    label: "Razza",
-                    name: "razza",
-                    enum: [{ key: 'sib', value: 'Siberiano' }, { key: 'eur', value: 'Europeo' }, { key: 'nor', value: 'Norvegese' }, { key: 'siam', value: 'Siamese' }, { key: 'abi', value: 'Abissino' }, { key: 'mc', value: 'Maine-coon' }],
-                    validate: {
-                        required: true,
-                    }
-                }, {
-                    type: "multiselect",
-                    label: "Disastri",
-                    name: "disastri",
-                    enum: [{ key: 'bicch', value: 'Bicchieri rotti' }, { key: 'albnat', value: 'Albero di Natale' }, { key: 'cusc', value: 'Cuscini' }, { key: 'div', value: 'Divano' }, { key: 'fiori', value: 'Fiori e piante' }, { key: 'cibo', value: 'Cibo per terra' }, { key: 'box', value: 'Scatole rovesciate' }, { key: 'h2o', value: 'Spruzzi d\'acqua in giro' }, { key: 'agg', value: 'Agguati' }, { key: 'betty', value: 'Zampate a Betty' }, { key: 'toys', value: 'Giocattoli sparsi per la casa' }],
-                    validate: {
-                        required: true,
-                    }
-                }, {
-                    type: "fg_time",
-                    label: "Orario di nascita",
-                    name: "nato_ora",
-                    conv: "text",
-                    validate: {
-                        required: true,
-                    },
-                    options: {
-                        modal: true,
-                        title: "Immettere l'orario di nascita"
-                    }
-                }, {
-                    type: "fg_date",
-                    label: "Data di nascita",
-                    name: "nato_data",
-                    conv: "text",
-                    validate: {
-                        required: true,
-                    },
-                    options: {
-                        "large-mode": true,
-                        "max-year": 2030,
-                        "modal": true,
-                        //"allow-drop-up": true
-                        title: "Immettere la data di nascita"
-                    }
-                }, {
-                    type: "fg_time",
-                    label: "Orario di adozione",
-                    name: "adoz_ora",
-                    conv: "text",
-                    validate: {
-                        required: true,
-                    },
-                    options: {
-                        modal: true,
-                        title: "Immettere l'orario di adozione"
-                    }
-                }, {
-                    type: "fg_date",
-                    label: "Data di adozione",
-                    name: "adoz_data",
-                    conv: "text",
-                    validate: {
-                        required: true,
-                    },
-                    options: {
-                        "large-mode": true,
-                        "max-year": 2030,
-                        "modal": true,
-                        //"allow-drop-up": true
-                        title: "Immettere la data di adozione"
-                    }
-                }]
+    var layout = { "body": { "type": "vstack", "nodes": [{ "type": "checkbox", "id": "global_enable", "text": "Abilitazione generale" }, { "type": "vstack", "id": "global_ctr", "nodes": [{ "type": "textblock", "glcl": [4, 8], "label": "Famiglia", "text": "Felidi" }, { "type": "textbox", "glcl": [4, 8], "path": "nome", "label": "Nome", "validate": { "required": true } }, { "type": "textbox", "glcl": [4, 8], "path": "cognome", "label": "Cognome", "validate": { "text": { "min": 3, "max": 10 } } }, { "type": "textbox", "bg": "bg-info", "glcl": [4, 8], "path": "e_mail", "label": "E-Mail", "pre": "@", "validate": { "required": true, "email": {} } }, { "type": "numbox", "bg": "bg-info", "glcl": [4, 8], "path": "peso", "label": "Peso", "post": "kg", "validate": { "required": true, "float": { "min": 0.1, "max": 20.0 } } }, { "type": "numbox", "bg": "bg-info", "glcl": [4, 8], "path": "lungh", "label": "Lunghezza", "post": "cm", "validate": { "required": true, "int": { "min": 10, "max": 200 } } }, { "type": "checkbox", "glcl": [4, 8], "path": "conferma", "label": "Constatazione", "text": "Tigro l'é un porzèl", "validate": { "checked": true } }, { "type": "radio", "glcl": [4, 8], "path": "stato_civile", "label": "Stato civile", "validate": { "required": true }, "enum": [{ "key": "scap", "value": "Scapolo" }, { "key": "spos", "value": "Sposato" }, { "key": "div", "value": "Divorziato" }] }, { "type": "select", "glcl": [4, 8], "path": "razza", "label": "Razza", "validate": { "required": true }, "enum": [{ "key": "sib", "value": "Siberiano" }, { "key": "eur", "value": "Europeo" }, { "key": "nor", "value": "Norvegese delle foreste" }, { "key": "siam", "value": "Siamese" }, { "key": "mc", "value": "Maine-coon" }, { "key": "rag", "value": "Rag-doll" }, { "key": "bir", "value": "Birmano" }, { "key": "per", "value": "Persiano" }] }, { "type": "multiselect", "glcl": [4, 8], "path": "disastri", "label": "Disastri commessi", "validate": { "required": true }, "enum": [{ "key": "bicch", "value": "Bicchieri rotti" }, { "key": "albnat", "value": "Albero di Natale svenuto" }, { "key": "cusc", "value": "Cuscini" }, { "key": "div", "value": "Divano" }, { "key": "fiori", "value": "Fiori e piante" }, { "key": "cibo", "value": "Cibo per terra" }, { "key": "box", "value": "Scatole rovesciate" }, { "key": "h2o", "value": "Spruzzi d'acqua in giro" }, { "key": "agg", "value": "Agguati" }, { "key": "betty", "value": "Zampate a Betty" }, { "key": "toys", "value": "Giocattoli sparsi per la casa" }] }, { "type": "fgtime", "glcl": [4, 8], "path": "nato_ora", "label": "Orario di nascita", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di nascita" } }, { "type": "fgdate", "glcl": [4, 8], "path": "nato_data", "label": "Data di nascita", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di nascita" } }, { "type": "fgtime", "glcl": [4, 8], "path": "adoz_ora", "label": "Orario di adozione", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di adozione" } }, { "type": "fgdate", "glcl": [4, 8], "path": "adoz_data", "label": "Data di adozione", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di adozione" } }, { "type": "grid-layout", "bg": "bg-info", "glcl": [4, 8], "nodes": [{ "type": "fgdate", "gl-col": "6", "path": "vacc_data", "label": "Data di vaccinazione", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di vaccinazione" } }, { "type": "fgtime", "gl-col": "6", "path": "vacc_ora", "label": "Orario di vaccinazione", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di vaccinazione" } }] }, { "type": "grid-layout", "bg": "bg-warning", "glcl": [4, 8], "label": "Data/ora castrazione", "nodes": [{ "type": "fgdate", "gl-col": "6", "path": "castr_data", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di castrazione" } }, { "type": "fgtime", "gl-col": "6", "path": "castr_ora", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di castrazione" } }] }, { "type": "textarea", "glcl": [4, 8], "path": "note", "label": "Note" }] }] }, "footer": { "type": "hstack", "halign": "right", "nodes": [{ "type": "hstack", "margin": { "top": "0px", "right": "32px", "bottom": "0px", "left": "0px" }, "nodes": [{ "type": "button", "id": "close", "label": "Close" }] }, { "type": "hstack", "nodes": [{ "type": "button", "id": "reset", "label": "Reset" }, { "type": "button", "id": "submit", "label": "Submit" }] }] } };
+
+    var form = AuForms.create();
+    form.render(layout, targets);
+
+    form.on('reset', function (sender, args) {
+        form.resetData();
+    });
+
+    form.on('submit', function (sender, args) {
+        alert(JSON.stringify(form.getData()));
+    });
+
+    form.on('close', function (sender, args) {
+        if (targets.dialog) {
+            targets.dialog.close();
         }
-    };
+        else {
+            alert('close!');
+        }
+    });
+
+    form.on('global_enable', function (sender, args) {
+        var e = sender.get();
+        form.getNode('global_ctr').enabled(e);
+    });
+
+    form.getNode('global_ctr').enabled(form.getNode('global_enable').get());
+
+    form.validationUpdate = function (e) {
+        console.log("valok=" + e.valok);
+        form.getNode('submit').enabled(e.valok);
+    }
 
     var data = {
         nome: "Tigro",
         cognome: "Porzèl",
         e_mail: "tigro@porzel.com",
         peso: 4.5,
-        altezza: 35,
+        lungh: 80,
         conferma: true,
         stato_civile: 'scap',
-        razza: 'nor',
-        disastri: ['cusc', 'div']
+        razza: 'mc',
+        disastri: ['cusc', 'div'],
+        note: "Povero martire di Betty..."
     };
+    form.setData(data);
+}
+
+
+
+samplesFactory.panels = function (targets) {
+    "use strict";
+
+    var layout = { "body": { "type": "vstack", "nodes": [{ "type": "select", "id": "s1", "glcl": [4, 8], "path": "razza", "validate": { "required": true }, "enum": [{ "key": "", "value": "- - -" }, { "key": "sib", "value": "Siberiano" }, { "key": "eur", "value": "Europeo" }, { "key": "nor", "value": "Norvegese delle foreste" }, { "key": "siam", "value": "Siamese" }, { "key": "mc", "value": "Maine-coon" }, { "key": "rag", "value": "Rag-doll" }, { "key": "bir", "value": "Birmano" }, { "key": "per", "value": "Persiano" }], "label": { "type": "radio", "id": "r1", "label": "", "group": "vacanze", "font": { "bold": true }, "enum": [{ "key": "R", "value": "Razza" }] } }, { "type": "multiselect", "id": "s2", "glcl": [4, 8], "path": "disastri", "validate": { "required": true }, "enum": [{ "key": "bicch", "value": "Bicchieri rotti" }, { "key": "albnat", "value": "Albero di Natale svenuto" }, { "key": "cusc", "value": "Cuscini" }, { "key": "div", "value": "Divano" }, { "key": "fiori", "value": "Fiori e piante" }, { "key": "cibo", "value": "Cibo per terra" }, { "key": "box", "value": "Scatole rovesciate" }, { "key": "h2o", "value": "Spruzzi d'acqua in giro" }, { "key": "agg", "value": "Agguati" }, { "key": "betty", "value": "Zampate a Betty" }, { "key": "toys", "value": "Giocattoli sparsi per la casa" }], "label": { "type": "radio", "id": "r2", "group": "vacanze", "font": { "bold": true }, "enum": [{ "key": "D", "value": "Disastri commessi" }] } }, { "type": "panel", "bg": "panel-info", "glcl": [4, 8], "header": "Pannello semplice", "nodes": [{ "type": "vstack", "nodes": [{ "type": "textbox", "glcl": [4, 8], "path": "nome", "label": "Nome", "validate": { "required": true } }, { "type": "textbox", "glcl": [4, 8], "path": "cognome", "label": "Cognome", "validate": { "text": { "min": 3, "max": 10 } } }, { "type": "textbox", "bg": "bg-info", "glcl": [4, 8], "path": "e_mail", "label": "E-Mail", "pre": "@", "validate": { "required": true, "email": {} } }] }] }, { "type": "panel", "bg": "panel-info", "glcl": [4, 8], "header": "Pannello nidificato", "nodes": [{ "type": "vstack", "nodes": [{ "type": "numbox", "bg": "bg-info", "path": "peso", "label": "Peso", "post": "kg", "validate": { "required": true, "float": { "min": 0.1, "max": 20.0 } } }, { "type": "numbox", "bg": "bg-info", "path": "lungh", "label": "Lunghezza", "post": "cm", "validate": { "required": true, "int": { "min": 10, "max": 200 } } }, { "type": "panel", "header": "Pannello interno", "nodes": [{ "type": "vstack", "nodes": [{ "type": "checkbox", "glcl": [4, 8], "path": "conferma", "label": "Constatazione", "text": "Tigro l'é un porzèl", "validate": { "checked": true } }, { "type": "radio", "glcl": [4, 8], "path": "stato_civile", "label": "Stato civile", "validate": { "required": true }, "enum": [{ "key": "scap", "value": "Scapolo" }, { "key": "spos", "value": "Sposato" }, { "key": "div", "value": "Divorziato" }] }] }] }] }] }, { "type": "panel", "glcl": [4, 8], "header": { "type": "radio", "id": "p1", "group": "istanti", "enum": [{ "key": "P1", "value": "Istante di nascita" }] }, "nodes": [{ "type": "fgtime", "path": "nato_ora", "label": "Orario", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di nascita" } }, { "type": "fgdate", "path": "nato_data", "label": "Data", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di nascita" } }] }, { "type": "panel", "glcl": [4, 8], "header": { "type": "radio", "id": "p2", "group": "istanti", "enum": [{ "key": "P2", "value": "Istante di adozione" }] }, "nodes": [{ "type": "fgtime", "path": "adoz_ora", "label": "Orario", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di adozione" } }, { "type": "fgdate", "path": "adoz_data", "label": "Data", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di adozione" } }] }, { "type": "panel", "glcl": [4, 8], "header": { "type": "radio", "id": "p3", "group": "istanti", "enum": [{ "key": "P3", "value": "Istante di vaccinazione" }] }, "nodes": [{ "type": "grid-layout", "bg": "bg-info", "nodes": [{ "type": "fgdate", "gl-col": "6", "path": "vacc_data", "label": "Data", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di vaccinazione" } }, { "type": "fgtime", "gl-col": "6", "path": "vacc_ora", "label": "Orario", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di vaccinazione" } }] }] }, { "type": "panel", "glcl": [4, 8], "header": { "type": "radio", "id": "p4", "group": "istanti", "enum": [{ "key": "P4", "value": "Istante di castrazione" }] }, "nodes": [{ "type": "grid-layout", "bg": "bg-warning", "nodes": [{ "type": "fgdate", "gl-col": "6", "path": "castr_data", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di castrazione" } }, { "type": "fgtime", "gl-col": "6", "path": "castr_ora", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di castrazione" } }] }] }] }, "footer": { "type": "hstack", "halign": "right", "nodes": [{ "type": "hstack", "margin": { "top": "0px", "right": "32px", "bottom": "0px", "left": "0px" }, "nodes": [{ "type": "button", "id": "close", "label": "Close" }] }, { "type": "hstack", "nodes": [{ "type": "button", "id": "reset", "label": "Reset" }, { "type": "button", "id": "submit", "label": "Submit" }] }] } };
 
     var form = AuForms.create();
-    form.setConfig(config);
-    form.setData(data);
-    form.render(target);
+    form.render(layout, targets);
 
-    //var btnres = $("<button>").addClass("btn btn-default").attr({ type: "button" }).css({ width: '100%' }).text("Reset");
-    //btnres.click(function () {
-    //    form.resetData();
-    //    form.render($('#fbody').empty());
-    //});
+    form.on('reset', function (sender, args) {
+        form.resetData();
+    });
 
-    //var btnsub = $("<button>").addClass("btn btn-default").attr({ type: "button" }).css({ width: '100%' }).text("Submit");
-    //btnsub.click(function () {
-    //    alert(JSON.stringify(form.getData()));
-    //});
+    form.on('submit', function (sender, args) {
+        alert(JSON.stringify(form.getData()));
+    });
 
-    //var ctr = $("<div>").addClass('row').appendTo($('#ffoot'));
-    //$('<div>').addClass('col-xs-4').append(btnres).appendTo(ctr);
-    //$('<div>').addClass('col-xs-4 col-xs-offset-4').append(btnsub).appendTo(ctr);
+    form.on('close', function (sender, args) {
+        if (targets.dialog) {
+            targets.dialog.close();
+        }
+        else {
+            alert('close!');
+        }
+    });
+
+    function enablePanels() {
+        'p1 p2 p3 p4'.split(' ').forEach(function (id) {
+            var node = form.getNode(id);
+            console.log(id+'='+node.get())
+            node.getParent().enableChildren(node.get());
+        });
+    }
+    enablePanels();
+
+    form.on('p1 p2 p3 p4', function (sender, args) {
+        enablePanels();
+    });
 
     form.validationUpdate = function (e) {
         console.log("valok=" + e.valok);
-        //btnsub.attr({ disabled: (e.valok ? null : "disabled") });
-        $('#sub1').attr({ disabled: (e.valok ? null : "disabled") });
+        $('#submit').attr({ disabled: (e.valok ? null : "disabled") });
     }
 
-    var layout = {
-        groups: [{
-            items: [{
-                type: "button",
-                options: {
-                    label: "Submit",
-                    id: 'sub1',
-                    action: function (b, m, c) {
-                        alert(JSON.stringify(form.getData()));
-                    }
-                }
-            }, {
-                    type: "button",
-                    options: {
-                        label: "Reset",
-                        action: function (b, m, c) {
-                            form.resetData();
-                            form.render(target.empty());
-                        }
-                    }
-                }]
-        }, {
-                items: [{
-                    type: "button",
-                    options: {
-                        label: "Close",
-                        action: function (b, m, c) {
-                            if (c) {
-                                c.close();
-                            }
-                            else {
-                                alert('close!');
-                            }
-                        }
-                    }
-                }]
-            }]
-    }
-
-    return {
-        layout: layout
-    }
+    var data = {
+    };
+    form.setData(data);
 }
 
