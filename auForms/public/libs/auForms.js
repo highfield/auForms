@@ -445,6 +445,121 @@ var AuForms = (function ($) {
     }
 
 
+    function dialog(options) {
+        function trigResize() {
+            var dm = {};
+            dm.id = 'resize';
+            dm.exec = function () {
+                hresize();
+            };
+            dispatcher.push(dm);
+        }
+
+        function hresize() {
+            if (sizey) {
+                var wh = $(window).height();
+                var ah = wh * sizey / 100;
+                console.log('wh=' + wh + '; ah=' + ah);
+
+                var mh = dlg.getModalHeader();
+                var mf = dlg.getModalFooter();
+                var bh = ah - mh.height() - mf.height()-60;
+                //console.log('mh=' + mh.height() + '; mf=' + mf.height());
+
+                var md = dlg.getModalDialog();
+                md.css({
+                    'height': ah,
+                    'margin-top': (wh - ah) / 2,
+                    'margin-bottom': (wh - ah) / 2,
+                });
+
+                var mb = dlg.getModalBody().css({
+                    'height': bh
+                });
+                mb.find('.bootstrap-dialog-body').css({
+                    'height': '100%'
+                });
+                mb.find('.bootstrap-dialog-message').css({
+                    'height': '100%',
+                    'overflow-y': 'auto'
+                });
+            }
+        }
+
+        options = options || {
+            closable: true
+        };
+
+        var exp = {
+            body: $('<div>'),
+            header: null,
+            footer: null,
+        }
+
+        var dispatcher = auDispatcher();
+        var sizex, sizey, opened;
+
+        if (_.isString(options.sizex)) {
+            if (options.sizex.substring(0, 5) === 'size-') {
+                options.size = options.sizex;
+            }
+            else {
+                sizex = options.sizex;
+            }
+        }
+        if (_.isString(options.sizey)) {
+            var l = options.sizey.length;
+            if (l >= 2 && options.sizey[l - 1] === '%') {
+                sizey = parseInt(options.sizey.substring(0, l - 1));
+            }
+        }
+
+        options.message = function (dref) {
+            return exp.body;
+        }
+
+        options.onshown = function (dref) {
+            trigResize();
+        }
+
+        options.onhidden = function (dref) {
+            exp.close();
+        }
+
+        var dlg = new BootstrapDialog(options);
+        dlg.realize();
+
+        var h = dlg.getModalHeader();
+        h.show();
+        exp.footer = h.find('.bootstrap-dialog-header');
+
+        var f = dlg.getModalFooter();
+        f.show();
+        exp.footer = f.find('.bootstrap-dialog-footer');
+
+        exp.open = function () {
+            if (!dlg || opened) return;
+            opened = true;
+            if (sizex || sizey) $(window).on('resize', trigResize);
+            dlg.open();
+        }
+
+        exp.close = function () {
+            if (dlg) {
+                if (opened) {
+                    if (sizex || sizey) $(window).off('resize', trigResize);
+                    dlg.close();
+                    opened = false;
+                    console.log('close');
+                }
+                dlg = null;
+            }
+        }
+
+        return exp;
+    }
+
+
     var buildPropViewmodel = function (fctx, target, propname) {
         var cfctx = {
             factory: fctx.factory,
@@ -552,6 +667,7 @@ var AuForms = (function ($) {
 
     return {
         create: form,
+        dialog: dialog,
         helpers: {
             buildPropViewmodel: buildPropViewmodel,
             buildFormContainer: buildFormContainer,

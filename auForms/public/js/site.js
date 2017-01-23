@@ -371,26 +371,35 @@ $(document).ready(function () {
     }
 
     viewTargetHandlers.dialog = function (fn) {
-        var targets = {
-            body: $('<div>'),
-            footer: null,
-            options: sampleOptions
-        };
-
-        var dialog = new BootstrapDialog({
-            message: function (dialogRef) {
-                return targets.body;
-            },
-            closable: true
-        });
-        dialog.realize();
-        targets.dialog = dialog;
-
-        var f = dialog.getModalFooter();
-        f.show();
-        targets.footer = f.find('.bootstrap-dialog-footer');
-        fn(targets);
+        var opts = {
+            closable: true,
+            sizex: 'size-wide',
+            sizey: '95%'
+        }
+        var dialog = AuForms.dialog(opts);
+        fn(dialog);
         dialog.open();
+
+        //var targets = {
+        //    body: $('<div>'),
+        //    footer: null,
+        //    options: sampleOptions
+        //};
+
+        //var dialog = new BootstrapDialog({
+        //    message: function (dialogRef) {
+        //        return targets.body;
+        //    },
+        //    closable: true
+        //});
+        //dialog.realize();
+        //targets.dialog = dialog;
+
+        //var f = dialog.getModalFooter();
+        //f.show();
+        //targets.footer = f.find('.bootstrap-dialog-footer');
+        //fn(targets);
+        //dialog.open();
     }
 
 
@@ -414,13 +423,6 @@ $(document).ready(function () {
     $('#viewTarget').on('change', function () {
         viewTarget = $(this).val();
     })
-
-    //$('#useDialog').on('change', function () {
-    //    sampleOptions.useDialog = $(this).prop('checked');
-    //})
-
-    //$("#alarm").timeDropper();
-    //$("#alarm").dateDropper();
 });
 
 var samplesFactory = {};
@@ -638,7 +640,7 @@ samplesFactory.panels = function (targets) {
     function enablePanels() {
         'p1 p2 p3 p4'.split(' ').forEach(function (id) {
             var node = form.getNode(id);
-            console.log(id+'='+node.get())
+            console.log(id + '=' + node.get())
             node.getParent().enableChildren(node.get());
         });
     }
