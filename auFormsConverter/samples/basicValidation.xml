@@ -40,6 +40,8 @@
           <option key="betty">Zampate a Betty</option>
           <option key="toys">Giocattoli sparsi per la casa</option>
         </multiselect>
+        <select2 id="regione" label="Regione di nascita" path="regione" validate="{required:true}" />
+        <select2 id="citta" label="Città di nascita" path="citta" validate="{required:true}" />
         <fgtime label="Orario di nascita" path="nato_ora" validate="{required:true}" options="{modal:true,title:'Immettere l\'orario di nascita'}" />
         <fgdate label="Data di nascita" path="nato_data" validate="{required:true}" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di nascita'}" />
         <fgtime label="Orario di adozione" path="adoz_ora" validate="{required:true}" options="{modal:true,title:'Immettere l\'orario di adozione'}" />

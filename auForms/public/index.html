@@ -13,6 +13,8 @@
     <link rel="stylesheet" type="text/css" href="/libs/mlp-menu/jquery.multilevelpushmenu.css" />
     <link rel="stylesheet" type="text/css" href="/libs/bootstrap3-dialog/css/bootstrap-dialog.min.css" />
     <link rel="stylesheet" type="text/css" href="/libs/bootstrap-multiselect-2.0/css/bootstrap-multiselect.css" />
+    <link rel="stylesheet" href="/libs/select2/css/select2.min.css">
+    <link rel="stylesheet" href="/libs/select2-bootstrap-theme/select2-bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/libs/fg-timedropper/timedropper.css" />
     <link rel="stylesheet" type="text/css" href="/libs/fg-datedropper/datedropper.css" />
     <link rel="stylesheet" type="text/css" href="/libs/prettyCheckable/dist/prettyCheckable.css" />
@@ -44,6 +46,7 @@
                     <option value="basicText">basicText</option>
                     <option value="basicValidation">basicValidation</option>
                     <option value="panels">panels</option>
+                    <option value="basicWizard">basicWizard</option>
                 </select>
                 <select id="viewTarget">
                     <option value="page">page</option>
@@ -55,6 +58,7 @@
 
                 <!--<input type="text" id="alarm" data-large-mode="true" data-max-year="2030" style="position:relative; left:340px; top:60px;" />-->
                 <div id="fhost" style="position:relative; left:10%; top:100px; max-width:500px; width:80%; background: white">
+                    <div id="fhead"></div>
                     <div id="fbody"></div>
                     <div id="ffoot"></div>
                 </div>
@@ -78,6 +82,7 @@
     <script src="/libs/mlp-menu/jquery.multilevelpushmenu.js"></script>
     <script src="/libs/bootstrap3-dialog/js/bootstrap-dialog.min.js"></script>
     <script src="/libs/bootstrap-multiselect-2.0/js/bootstrap-multiselect.js"></script>
+    <script src="/libs/select2/js/select2.min.js"></script>
     <script src="/libs/fg-timedropper/timedropper.js"></script>
     <script src="/libs/fg-datedropper/datedropper.js"></script>
     <script src="/libs/prettyCheckable/dev/prettyCheckable.js"></script>

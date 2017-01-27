@@ -174,7 +174,7 @@ var AuForms = (function () {
         var db = {}, odb = {}, prefs = {}, oprefs = {};
         var cfg = {}, sections = {}, vmlookup = {};
 
-        exp._dispatcher = auDispatcher();
+        exp._dispatcher = AuDispatcher();
         exp.validationUpdate = null;
 
         exp.setData = function (data) {

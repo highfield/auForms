@@ -63,7 +63,7 @@ var AuForms = (function ($) {
                 fctx.vmx.updateTarget(vloc, vout);
             }
             //exp.updateTarget();
-            dispatch('change', null);
+            dispatch('change', {});
         }
 
         function validHelp1(key, vctx, vdef) {
@@ -73,7 +73,7 @@ var AuForms = (function ($) {
 
         function validHelper(vctx) {
             var valok = true;
-            if (enabEff) {
+            if (enabEff && dispEff) {
                 var vdefs = fctx.layout.validate;
                 if (_.isObject(vdefs)) {
                     for (var k in vdefs) {
@@ -98,6 +98,15 @@ var AuForms = (function ($) {
             return e;
         }
 
+        function dispHelper(e) {
+            var p = fctx;
+            while (e && (p = p.parent)) {
+                e &= p.owner.display();
+            }
+            fctx.vmx && fctx.vmx.renderDisplay && fctx.vmx.renderDisplay(e);
+            return e;
+        }
+
         var exp = {}, int = { children: [], props: [] };
         fctx.id = fctx.layout.id || uid();
         fctx.owner = exp;
@@ -106,7 +115,7 @@ var AuForms = (function ($) {
         var fi = fctx.factory.items[fctx.layout.type];
         fctx.vmx = (fi && fi(fctx)) || {};
         var xdfl = (fctx.vmx && fctx.vmx.defaults) || {};
-        var vloc, enab = true, enabEff;
+        var vloc, enab = true, enabEff, disp = true, dispEff;
 
         var fc = fctx.factory.convs[fctx.layout.conv || fctx.layout.type];
         var conv = fc && fc(fctx);  //TODO cosa passare nella funzione?
@@ -117,6 +126,22 @@ var AuForms = (function ($) {
 
         exp.getParent = function () {
             return fctx.parent && fctx.parent.owner;
+        }
+
+        exp.getVM = function () {
+            return fctx.vmx;
+        }
+
+        exp.getLayout = function () {
+            return fctx.layout;
+        }
+
+        exp.getController = function () {
+            return fctx.datactl;
+        }
+
+        exp.setController = function (dc) {
+            fctx.datactl = dc;
         }
 
         exp.render = function () {
@@ -165,6 +190,7 @@ var AuForms = (function ($) {
         }
 
         exp.load = function () {
+            fctx.vmx && fctx.vmx.onload && fctx.vmx.onload();
             if (fctx.layout.path) {
                 var v = _.get(fctx.form.getData(), fctx.layout.path);
                 setVLoc(v, false);
@@ -181,6 +207,7 @@ var AuForms = (function ($) {
 
         int.load2 = function () {
             enabEff = enabHelper(enab);
+            dispEff = dispHelper(disp);
             validHelper({ value: vloc });
 
             int.props.forEach(function (c) {
@@ -226,6 +253,27 @@ var AuForms = (function ($) {
             });
             int.children.forEach(function (c) {
                 c.iowner.updateEnabled();
+            });
+            validHelper({ value: vloc });
+        }
+
+        exp.display = function (v) {
+            if (arguments.length) {
+                disp = !!v;
+                int.updateDisplay();
+            }
+            else {
+                return disp;
+            }
+        }
+
+        int.updateDisplay = function () {
+            dispEff = dispHelper(disp);
+            int.props.forEach(function (c) {
+                c.iowner.updateDisplay();
+            });
+            int.children.forEach(function (c) {
+                c.iowner.updateDisplay();
             });
             validHelper({ value: vloc });
         }
@@ -324,7 +372,7 @@ var AuForms = (function ($) {
         var db = {}, odb = {};
         var dataok = false, rendok = false;
         var sections = {}, listeners = {};
-        var dispatcher = auDispatcher();
+        var dispatcher = AuDispatcher();
         var valids = {}, ovalok = true;
 
         exp.validationUpdate = null;
@@ -402,7 +450,8 @@ var AuForms = (function ($) {
         }
 
         exp.getNode = function (id) {
-            return int.lookup[id].owner;
+            var c = int.lookup[id];
+            return c && c.owner;
         }
 
         exp.dispose = function () {
@@ -463,7 +512,7 @@ var AuForms = (function ($) {
 
                 var mh = dlg.getModalHeader();
                 var mf = dlg.getModalFooter();
-                var bh = ah - mh.height() - mf.height()-60;
+                var bh = ah - mh.height() - mf.height() - 60;
                 //console.log('mh=' + mh.height() + '; mf=' + mf.height());
 
                 var md = dlg.getModalDialog();
@@ -496,7 +545,7 @@ var AuForms = (function ($) {
             footer: null,
         }
 
-        var dispatcher = auDispatcher();
+        var dispatcher = AuDispatcher();
         var sizex, sizey, opened;
 
         if (_.isString(options.sizex)) {
@@ -531,7 +580,12 @@ var AuForms = (function ($) {
 
         var h = dlg.getModalHeader();
         h.show();
-        exp.footer = h.find('.bootstrap-dialog-header');
+        exp.header = $('<div>').addClass('au-dialog-header').appendTo(h.find('.bootstrap-dialog-header'));
+        if (options.closable === false) {
+            exp.header.css({
+                width: '100%'
+            });
+        }
 
         var f = dlg.getModalFooter();
         f.show();
@@ -540,6 +594,7 @@ var AuForms = (function ($) {
         exp.open = function () {
             if (!dlg || opened) return;
             opened = true;
+            if (exp.header.children().length) dlg.setTitle('');
             if (sizex || sizey) $(window).on('resize', trigResize);
             dlg.open();
         }
@@ -554,6 +609,172 @@ var AuForms = (function ($) {
                 }
                 dlg = null;
             }
+        }
+
+        return exp;
+    }
+
+
+    function wizard(form, cfg) {
+        function update() {
+            var p = getPage(pgid);
+            cfg.pages.forEach(function (z) {
+                var n = form.getNode(z.id);
+                if (n) n.display(p && z.id === pgid);
+            });
+
+            if (cfg.prev) {
+                var n = form.getNode(cfg.prev);
+                if (n) n.enabled(p && !!p.prev);
+            }
+            if (cfg.next) {
+                var n = form.getNode(cfg.next);
+                if (n) n.enabled(p && !!p.next && valok);
+            }
+            if (cfg.submit) {
+                var n = form.getNode(cfg.submit);
+                if (n) n.enabled(p && !!p.submit && valok);
+            }
+            if (cfg.selector && p && p.pill) {
+                var n = form.getNode(cfg.selector);
+                if (n) {
+                    var vm = n.getVM();
+                    vm.getKeys().forEach(function (k) {
+                        var sts = vm.getStatus(k);
+                        sts.enabled = sts.active = sts.error = sts.success = false;
+                        seq.forEach(function (id) {
+                            var p = getPage(id);
+                            if (p.pill === k) {
+                                sts.enabled = true;
+                                if (id === pgid) {
+                                    sts.active = true;
+                                    if (!valok) sts.error = true;
+                                }
+                            }
+                        });
+                        if (sts.enabled && !sts.active && !sts.error) sts.success = true;
+                    });
+                    vm.updateTarget();
+                }
+            }
+        }
+
+        function getPage(id) {
+            if (!_.isString(id)) return null;
+            for (var i = 0; i < cfg.pages.length; i++) {
+                if (cfg.pages[i].id === id) return cfg.pages[i];
+            }
+        }
+
+        cfg = cfg || {};
+        cfg.pages = cfg.pages || [];
+
+        if (cfg.prev) {
+            form.on(cfg.prev, function (sender, args) {
+                var p = getPage(pgid);
+                var x0 = seq.indexOf(pgid);
+                var a = {
+                    id: getPage(p.prev) && p.prev,
+                    trim: false
+                };
+
+                if (!a.id) {
+                    a.id = pgid;
+                    exp.onPrev && exp.onPrev(a);
+                }
+                if (a.id) {
+                    a.x1 = seq.indexOf(a.id);
+                    if (a.x1 < 0 || x0 <= a.x1) a.id = null;
+                }
+                if (a.id && a.trim) seq.splice(a.x1 + 1);
+                if (a.id) {
+                    pgid = a.id;
+                    update();
+                }
+            });
+        }
+        if (cfg.next) {
+            form.on(cfg.next, function (sender, args) {
+                var p = getPage(pgid);
+                var x0 = seq.indexOf(pgid);
+                var a = {
+                    id: getPage(p.next) && p.next,
+                    trim: false
+                };
+
+                if (!a.id) {
+                    a.id = pgid;
+                    exp.onNext && exp.onNext(a);
+                }
+                if (a.id) {
+                    a.x1 = seq.indexOf(a.id);
+                    if (a.x1 >= 0 && x0 >= a.x1) {
+                        a.id = null;
+                    }
+                    else if (a.x1 >= 0 && a.x1 > x0 + 1) {
+                        a.trim = true;
+                    }
+                }
+                if (a.id && a.trim) seq.splice(x0 + 1);
+
+                if (a.id) {
+                    pgid = a.id;
+                    if (seq.indexOf(a.id) < 0) seq.push(a.id);
+                    update();
+                }
+            });
+        }
+        if (cfg.selector) {
+            form.on(cfg.selector, function (sender, args) {
+                var x0 = seq.indexOf(pgid);
+
+                var x1 = -1, id;
+                for (var i = 0; i < seq.length; i++) {
+                    var p = getPage(seq[i]);
+                    if (p.pill === args.key) {
+                        x1 = i;
+                        id = p.id;
+                        break;
+                    }
+                }
+
+                if (x1 === x0) return;
+                if (x1 < x0) {
+                    pgid = id;
+                    update();
+                }
+                else {
+                    var n = form.getNode(cfg.selector);
+                    var vm = n.getVM();
+                    var sts = vm.getStatus(args.key);
+                    if (!sts.enabled || sts.error) return;
+                    pgid = id;
+                    update();
+                }
+            });
+        }
+
+        var pgid, valok = true, seq = [];
+        var exp = {};
+
+        exp.getPageId = function () {
+            return pgid;
+        }
+
+        exp.start = function (id) {
+            if (!pgid && getPage(id)) {
+                pgid = id;
+                seq.push(id);
+                update();
+            }
+        }
+
+        exp.onPrev = $.noop;
+        exp.onNext = $.noop;
+
+        exp.setValid = function (v) {
+            valok = v;
+            update();
         }
 
         return exp;
@@ -665,9 +886,36 @@ var AuForms = (function ($) {
     }
 
 
+    function ajaxController(url) {
+        var exp = {};
+
+        exp.onFilter = $.noop;
+
+        exp.load = function (filter) {
+            exp.onFilter(filter);
+            return $.ajax({
+                type: "GET",
+                url: url,
+                data: filter,
+                dataType: 'json'
+            });
+            //var $request = $.ajax(params);
+            //$request.done(this.ls.done);
+            //$request.fail(this.ls.fail);
+            //return $request;
+        }
+
+        return exp;
+    }
+
+
     return {
         create: form,
         dialog: dialog,
+        wizard: wizard,
+        controllers: {
+            ajax: ajaxController
+        },
         helpers: {
             buildPropViewmodel: buildPropViewmodel,
             buildFormContainer: buildFormContainer,
@@ -770,6 +1018,12 @@ AuForms.JQFactory = (function ($) {
                     'margin': '0px 0px 5px 0px'
                 });
             }
+
+            if (fctx.layout.halign) {
+                outer.parent().css({
+                    'text-align': fctx.layout.halign
+                });
+            }
             //var tg = $('<div>').css({
             //    id: fctx.id,
             //}).appendTo(fctx.target);
@@ -777,13 +1031,18 @@ AuForms.JQFactory = (function ($) {
         }
 
         exp.renderChild = function (cfctx, ctg) {
+            cfctx.desDisplay = 'inline';
             ctg.css({
                 display: 'inline'
             }).parent().css({
                 display: 'inline'
             }).parent().css({
-                display: 'inline'
+                //display: 'inline'
             });
+        }
+
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
         }
 
         return exp;
@@ -809,9 +1068,15 @@ AuForms.JQFactory = (function ($) {
         }
 
         exp.renderChild = function (cfctx, ctg) {
+            cfctx.desDisplay = 'block';
             ctg.css({
-                display: 'block'
+                //display: 'block'
             });
+        }
+
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
+            //console.log("disp=" + outer.css('display'))
         }
 
         return exp;
@@ -852,6 +1117,10 @@ AuForms.JQFactory = (function ($) {
                 'padding': 0,
                 'margin': '15px 0px 0px 0px'
             });
+        }
+
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
         }
 
         return exp;
@@ -900,6 +1169,10 @@ AuForms.JQFactory = (function ($) {
             });
         }
 
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
+        }
+
         return exp;
     }
 
@@ -923,6 +1196,10 @@ AuForms.JQFactory = (function ($) {
             else {
                 inp.css('opacity', 0.5);
             }
+        }
+
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
         }
 
         exp.updateTarget = function (vraw, vusr) {
@@ -970,6 +1247,10 @@ AuForms.JQFactory = (function ($) {
                 inp.attr('disabled', '');
                 grp.css('opacity', 0.5);
             }
+        }
+
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
         }
 
         exp.renderValidate = function (valok) {
@@ -1028,6 +1309,10 @@ AuForms.JQFactory = (function ($) {
             }
         }
 
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
+        }
+
         exp.renderValidate = function (valok) {
             if (valok) {
                 outer.removeClass('has-error');
@@ -1082,6 +1367,10 @@ AuForms.JQFactory = (function ($) {
                 inp.attr('disabled', '');
                 grp.css('opacity', 0.5);
             }
+        }
+
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
         }
 
         exp.renderValidate = function (valok) {
@@ -1152,6 +1441,10 @@ AuForms.JQFactory = (function ($) {
                 inp.attr('disabled', e ? null : '');
             }
             inp.closest('.checkbox').css('opacity', e ? '' : 0.5);
+        }
+
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
         }
 
         exp.renderValidate = function (valok) {
@@ -1281,6 +1574,10 @@ AuForms.JQFactory = (function ($) {
             });
         }
 
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
+        }
+
         exp.renderValidate = function (valok) {
             if (valok) {
                 outer.removeClass('has-error');
@@ -1338,6 +1635,10 @@ AuForms.JQFactory = (function ($) {
             }
         }
 
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
+        }
+
         exp.renderValidate = function (valok) {
             if (valok) {
                 outer.removeClass('has-error');
@@ -1349,6 +1650,252 @@ AuForms.JQFactory = (function ($) {
 
         exp.updateTarget = function (vraw, vusr) {
             inp.val(vusr);
+        }
+
+        return exp;
+    }
+
+
+    //enhanced dropdown selector input viewmodel
+    fitems.select2 = function (fctx) {
+        var exp = {}, outer, inp;
+
+        exp.getWidget = function () {
+            return inp;
+        }
+
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormControl(fctx);
+            outer = ctl.outer;
+            inp = $("<select>").addClass('form-control').attr({ id: fctx.id }).css({
+                'width': '100%'
+            }).appendTo(ctl.inner);
+            if (fctx.layout.readonly) inp.attr("readonly", "");
+            if (fctx.layout.options && fctx.layout.options.multiple) inp.attr("multiple", "multiple");
+            (fctx.layout.enum || []).forEach(function (opt) {
+                $("<option>").attr("value", opt.key).text(opt.value).appendTo(inp);
+            });
+            inp.select2({
+                theme: "bootstrap"
+            });
+
+            inp.on('change blur keyup', function (e) {
+                var vctx = {
+                    value: $(this).val()
+                };
+                fctx.iowner.hevt(vctx, e);
+            });
+            return outer;
+        }
+
+        exp.renderEnabled = function (e) {
+            if (e) {
+                inp.prop('disabled', false);
+                inp.css('opacity', '');
+            }
+            else {
+                inp.prop('disabled', true);
+                inp.css('opacity', 0.5);
+            }
+        }
+
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
+        }
+
+        exp.renderValidate = function (valok) {
+            if (valok) {
+                outer.removeClass('has-error');
+            }
+            else {
+                outer.addClass('has-error');
+            }
+        }
+
+        exp.onload = function () {
+            if (fctx.datactl) {
+                inp.select2({
+                    ajax: {
+                        delay: 250,
+                        processResults: function (data) {
+                            return {
+                                results: data.items
+                            };
+                        },
+                        transport: function (params, success, failure) {
+                            var req = fctx.datactl.load(params.data);
+                            req.done(success);
+                            req.fail(failure);
+                            return req;
+                        }
+                    }
+                });
+            }
+            else {
+                inp.select2({
+                    ajax: null
+                });
+            }
+        }
+
+        exp.updateTarget = function (vraw, vusr) {
+            if (fctx.datactl) {
+                inp.empty();
+                //var $option = $('<option selected>...</option>').val(vusr);
+                var opt = $('<option>').attr('selected', '').val(vusr);
+                $('<span>').text('...').appendTo(opt);
+                $('<span>').addClass('glyphicon glyphicon-hourglass').appendTo(opt);
+                $('<span>').text('...').appendTo(opt);
+                inp.append(opt).trigger('change');
+
+                fctx.datactl
+                    .load({ id: vusr })
+                    .done(function (data) {
+                        opt.empty();
+                        if (data.items.length) {
+                            var item = data.items[0];
+                            opt.text(item.text).val(vusr);
+                        }
+                        else {
+                            $('<span>').text('*** ').appendTo(opt);
+                            $('<span>').addClass('glyphicon glyphicon-alert').appendTo(opt);
+                            $('<span>').text(' ***').appendTo(opt);
+                        }
+                        opt.removeData();
+                        inp.trigger('change');
+                    })
+                    .fail(function () {
+                        $('<span>').text('*** ').appendTo(opt);
+                        $('<span>').addClass('glyphicon glyphicon-alert').appendTo(opt);
+                        $('<span>').text(' ***').appendTo(opt);
+                        opt.removeData();
+                        inp.trigger('change');
+                    });
+            }
+            else {
+                inp.val(vusr).trigger('change');
+            }
+        }
+
+        return exp;
+    }
+
+
+    //simple pill-items selector input viewmodel
+    fitems.pillselect = function (fctx) {
+        function updateItems() {
+            if (!grp) return;
+            grp.find('li').each(function () {
+                var key = $(this).children('a').first().data('value');
+                var bd = $(this).children('div').first();
+                var sts = items[key] || {};
+                if (!sts.enabled) {
+                    $(this).addClass('au-pill-disabled disabled');
+                    bd.removeClass('au-pill-active');
+                }
+                else {
+                    $(this).removeClass('au-pill-disabled disabled');
+                    if (sts.active) {
+                        bd.addClass('au-pill-active');
+                    }
+                    else {
+                        bd.removeClass('au-pill-active');
+                    }
+                }
+
+                if (sts.error) {
+                    $(this).addClass('au-pill-error');
+                    $(this).removeClass('au-pill-success');
+                }
+                else {
+                    $(this).removeClass('au-pill-error');
+                    if (sts.success) {
+                        $(this).addClass('au-pill-success');
+                    }
+                    else {
+                        $(this).removeClass('au-pill-success');
+                    }
+                }
+            });
+        }
+
+        var exp = {}, outer, grp, items = {};
+
+        exp.getKeys = function () {
+            return Object.keys(items);
+        }
+
+        exp.getStatus = function (key) {
+            return items[key];
+        }
+
+        exp.render = function () {
+            var ctl = AuForms.helpers.buildFormControl(fctx);
+            outer = ctl.outer;
+            grp = $("<ul>").attr({ id: fctx.id }).addClass('nav nav-pills').appendTo(ctl.inner);
+            //if (fctx.layout.readonly) inp.attr("readonly", "");
+            (fctx.layout.enum || []).forEach(function (opt) {
+                items[opt.key] = {};
+                var li = $('<li>').attr('role', 'presentation').addClass('au-pill').appendTo(grp);
+                $('<div>').addClass('au-pill-border').appendTo(li);
+                var a = $('<a>').attr({
+                    'href': '#',
+                    'data-value': opt.key
+                }).css({
+                    'padding': '8px 12px'
+                }).appendTo(li);
+
+                var icon, label;
+                if (opt.icon) icon = $('<span>').addClass(opt.icon).appendTo(a);
+                if (opt.value) label = $('<span>').text(opt.value);
+                if (label && icon) {
+                    $('<div>').addClass('visible-md-inline-block visible-lg-inline-block').append(label).css({
+                        'margin-left': 4
+                    }).appendTo(a);
+                }
+                else if (label) {
+                    label.appendTo(a);
+                }
+
+                a.click(function (e) {
+                    var key = $(this).data('value');
+                    if (items[key].enabled) {
+                        fctx.owner.trig({
+                            source: e,
+                            key: key
+                        });
+                    }
+                });
+            });
+            return outer;
+        }
+
+        exp.renderEnabled = function (e) {
+            if (e) {
+                grp.attr('disabled', null);
+                grp.css('opacity', '');
+            }
+            else {
+                grp.attr('disabled', '');
+                grp.css('opacity', 0.5);
+            }
+        }
+
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
+        }
+
+        exp.renderValidate = function (valok) {
+            if (valok) {
+                outer.removeClass('has-error');
+            }
+            else {
+                outer.addClass('has-error');
+            }
+        }
+
+        exp.updateTarget = function (vraw, vusr) {
+            updateItems();
         }
 
         return exp;
@@ -1396,6 +1943,10 @@ AuForms.JQFactory = (function ($) {
 
         exp.renderEnabled = function (e) {
             inp.multiselect(e ? 'enable' : 'disable');
+        }
+
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
         }
 
         exp.renderValidate = function (valok) {
@@ -1455,6 +2006,10 @@ AuForms.JQFactory = (function ($) {
             }
         }
 
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
+        }
+
         exp.renderValidate = function (valok) {
             if (valok) {
                 outer.removeClass('has-error');
@@ -1512,6 +2067,10 @@ AuForms.JQFactory = (function ($) {
             }
         }
 
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
+        }
+
         exp.renderValidate = function (valok) {
             if (valok) {
                 outer.removeClass('has-error');
@@ -1557,7 +2116,9 @@ AuForms.JQFactory = (function ($) {
             }
 
             outer.click(function (e) {
-                fctx.owner.trig(e);
+                fctx.owner.trig({
+                    source: e
+                });
             });
             return outer;
         }
@@ -1569,6 +2130,10 @@ AuForms.JQFactory = (function ($) {
             else {
                 outer.attr('disabled', '');
             }
+        }
+
+        exp.renderDisplay = function (e) {
+            outer.css('display', e ? (fctx.desDisplay || '') : 'none');
         }
 
         return exp;

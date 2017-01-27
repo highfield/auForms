@@ -364,6 +364,7 @@ $(document).ready(function () {
     viewTargetHandlers.page = function (fn) {
         var targets = {
             body: $('#fbody').empty(),
+            header: $('#fhead').empty(),
             footer: $('#ffoot').empty(),
             options: sampleOptions
         };
@@ -405,6 +406,7 @@ $(document).ready(function () {
 
     $('#btnRemoveForm').click(function () {
         $('#fbody').empty();
+        $('#fhead').empty();
         $('#ffoot').empty();
     });
 
@@ -437,8 +439,8 @@ samplesFactory["buttonDemo_2+2"] = function (targets) {
     form.render(layout, targets);
 
     form.on('c1', function (sender, args) {
-        if (targets.dialog) {
-            targets.dialog.close();
+        if (targets.close) {
+            targets.close();
         }
         else {
             alert('close 1!');
@@ -446,8 +448,8 @@ samplesFactory["buttonDemo_2+2"] = function (targets) {
     });
 
     form.on('c2', function (sender, args) {
-        if (targets.dialog) {
-            targets.dialog.close();
+        if (targets.close) {
+            targets.close();
         }
         else {
             alert('close 2!');
@@ -541,8 +543,8 @@ samplesFactory.basicText = function (targets) {
     });
 
     form.on('close', function (sender, args) {
-        if (targets.dialog) {
-            targets.dialog.close();
+        if (targets.close) {
+            targets.close();
         }
         else {
             alert('close!');
@@ -561,7 +563,7 @@ samplesFactory.basicText = function (targets) {
 samplesFactory.basicValidation = function (targets) {
     "use strict";
 
-    var layout = { "body": { "type": "vstack", "nodes": [{ "type": "checkbox", "id": "global_enable", "text": "Abilitazione generale" }, { "type": "vstack", "id": "global_ctr", "nodes": [{ "type": "textblock", "glcl": [4, 8], "label": "Famiglia", "text": "Felidi" }, { "type": "textbox", "glcl": [4, 8], "path": "nome", "label": "Nome", "validate": { "required": true } }, { "type": "textbox", "glcl": [4, 8], "path": "cognome", "label": "Cognome", "validate": { "text": { "min": 3, "max": 10 } } }, { "type": "textbox", "bg": "bg-info", "glcl": [4, 8], "path": "e_mail", "label": "E-Mail", "pre": "@", "validate": { "required": true, "email": {} } }, { "type": "numbox", "bg": "bg-info", "glcl": [4, 8], "path": "peso", "label": "Peso", "post": "kg", "validate": { "required": true, "float": { "min": 0.1, "max": 20.0 } } }, { "type": "numbox", "bg": "bg-info", "glcl": [4, 8], "path": "lungh", "label": "Lunghezza", "post": "cm", "validate": { "required": true, "int": { "min": 10, "max": 200 } } }, { "type": "checkbox", "glcl": [4, 8], "path": "conferma", "label": "Constatazione", "text": "Tigro l'é un porzèl", "validate": { "checked": true } }, { "type": "radio", "glcl": [4, 8], "path": "stato_civile", "label": "Stato civile", "validate": { "required": true }, "enum": [{ "key": "scap", "value": "Scapolo" }, { "key": "spos", "value": "Sposato" }, { "key": "div", "value": "Divorziato" }] }, { "type": "select", "glcl": [4, 8], "path": "razza", "label": "Razza", "validate": { "required": true }, "enum": [{ "key": "sib", "value": "Siberiano" }, { "key": "eur", "value": "Europeo" }, { "key": "nor", "value": "Norvegese delle foreste" }, { "key": "siam", "value": "Siamese" }, { "key": "mc", "value": "Maine-coon" }, { "key": "rag", "value": "Rag-doll" }, { "key": "bir", "value": "Birmano" }, { "key": "per", "value": "Persiano" }] }, { "type": "multiselect", "glcl": [4, 8], "path": "disastri", "label": "Disastri commessi", "validate": { "required": true }, "enum": [{ "key": "bicch", "value": "Bicchieri rotti" }, { "key": "albnat", "value": "Albero di Natale svenuto" }, { "key": "cusc", "value": "Cuscini" }, { "key": "div", "value": "Divano" }, { "key": "fiori", "value": "Fiori e piante" }, { "key": "cibo", "value": "Cibo per terra" }, { "key": "box", "value": "Scatole rovesciate" }, { "key": "h2o", "value": "Spruzzi d'acqua in giro" }, { "key": "agg", "value": "Agguati" }, { "key": "betty", "value": "Zampate a Betty" }, { "key": "toys", "value": "Giocattoli sparsi per la casa" }] }, { "type": "fgtime", "glcl": [4, 8], "path": "nato_ora", "label": "Orario di nascita", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di nascita" } }, { "type": "fgdate", "glcl": [4, 8], "path": "nato_data", "label": "Data di nascita", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di nascita" } }, { "type": "fgtime", "glcl": [4, 8], "path": "adoz_ora", "label": "Orario di adozione", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di adozione" } }, { "type": "fgdate", "glcl": [4, 8], "path": "adoz_data", "label": "Data di adozione", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di adozione" } }, { "type": "grid-layout", "bg": "bg-info", "glcl": [4, 8], "nodes": [{ "type": "fgdate", "gl-col": "6", "path": "vacc_data", "label": "Data di vaccinazione", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di vaccinazione" } }, { "type": "fgtime", "gl-col": "6", "path": "vacc_ora", "label": "Orario di vaccinazione", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di vaccinazione" } }] }, { "type": "grid-layout", "bg": "bg-warning", "glcl": [4, 8], "label": "Data/ora castrazione", "nodes": [{ "type": "fgdate", "gl-col": "6", "path": "castr_data", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di castrazione" } }, { "type": "fgtime", "gl-col": "6", "path": "castr_ora", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di castrazione" } }] }, { "type": "textarea", "glcl": [4, 8], "path": "note", "label": "Note" }] }] }, "footer": { "type": "hstack", "halign": "right", "nodes": [{ "type": "hstack", "margin": { "top": "0px", "right": "32px", "bottom": "0px", "left": "0px" }, "nodes": [{ "type": "button", "id": "close", "label": "Close" }] }, { "type": "hstack", "nodes": [{ "type": "button", "id": "reset", "label": "Reset" }, { "type": "button", "id": "submit", "label": "Submit" }] }] } };
+    var layout = { "body": { "type": "vstack", "nodes": [{ "type": "checkbox", "id": "global_enable", "text": "Abilitazione generale" }, { "type": "vstack", "id": "global_ctr", "nodes": [{ "type": "textblock", "glcl": [4, 8], "label": "Famiglia", "text": "Felidi" }, { "type": "textbox", "glcl": [4, 8], "path": "nome", "label": "Nome", "validate": { "required": true } }, { "type": "textbox", "glcl": [4, 8], "path": "cognome", "label": "Cognome", "validate": { "text": { "min": 3, "max": 10 } } }, { "type": "textbox", "bg": "bg-info", "glcl": [4, 8], "path": "e_mail", "label": "E-Mail", "pre": "@", "validate": { "required": true, "email": {} } }, { "type": "numbox", "bg": "bg-info", "glcl": [4, 8], "path": "peso", "label": "Peso", "post": "kg", "validate": { "required": true, "float": { "min": 0.1, "max": 20.0 } } }, { "type": "numbox", "bg": "bg-info", "glcl": [4, 8], "path": "lungh", "label": "Lunghezza", "post": "cm", "validate": { "required": true, "int": { "min": 10, "max": 200 } } }, { "type": "checkbox", "glcl": [4, 8], "path": "conferma", "label": "Constatazione", "text": "Tigro l'é un porzèl", "validate": { "checked": true } }, { "type": "radio", "glcl": [4, 8], "path": "stato_civile", "label": "Stato civile", "validate": { "required": true }, "enum": [{ "key": "scap", "value": "Scapolo" }, { "key": "spos", "value": "Sposato" }, { "key": "div", "value": "Divorziato" }] }, { "type": "select", "glcl": [4, 8], "path": "razza", "label": "Razza", "validate": { "required": true }, "enum": [{ "key": "sib", "value": "Siberiano" }, { "key": "eur", "value": "Europeo" }, { "key": "nor", "value": "Norvegese delle foreste" }, { "key": "siam", "value": "Siamese" }, { "key": "mc", "value": "Maine-coon" }, { "key": "rag", "value": "Rag-doll" }, { "key": "bir", "value": "Birmano" }, { "key": "per", "value": "Persiano" }] }, { "type": "multiselect", "glcl": [4, 8], "path": "disastri", "label": "Disastri commessi", "validate": { "required": true }, "enum": [{ "key": "bicch", "value": "Bicchieri rotti" }, { "key": "albnat", "value": "Albero di Natale svenuto" }, { "key": "cusc", "value": "Cuscini" }, { "key": "div", "value": "Divano" }, { "key": "fiori", "value": "Fiori e piante" }, { "key": "cibo", "value": "Cibo per terra" }, { "key": "box", "value": "Scatole rovesciate" }, { "key": "h2o", "value": "Spruzzi d'acqua in giro" }, { "key": "agg", "value": "Agguati" }, { "key": "betty", "value": "Zampate a Betty" }, { "key": "toys", "value": "Giocattoli sparsi per la casa" }] }, { "type": "select2", "id": "regione", "glcl": [4, 8], "path": "regione", "label": "Regione di nascita", "validate": { "required": true }, "enum": [] }, { "type": "select2", "id": "citta", "glcl": [4, 8], "path": "citta", "label": "Città di nascita", "validate": { "required": true }, "enum": [] }, { "type": "fgtime", "glcl": [4, 8], "path": "nato_ora", "label": "Orario di nascita", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di nascita" } }, { "type": "fgdate", "glcl": [4, 8], "path": "nato_data", "label": "Data di nascita", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di nascita" } }, { "type": "fgtime", "glcl": [4, 8], "path": "adoz_ora", "label": "Orario di adozione", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di adozione" } }, { "type": "fgdate", "glcl": [4, 8], "path": "adoz_data", "label": "Data di adozione", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di adozione" } }, { "type": "grid-layout", "bg": "bg-info", "glcl": [4, 8], "nodes": [{ "type": "fgdate", "gl-col": "6", "path": "vacc_data", "label": "Data di vaccinazione", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di vaccinazione" } }, { "type": "fgtime", "gl-col": "6", "path": "vacc_ora", "label": "Orario di vaccinazione", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di vaccinazione" } }] }, { "type": "grid-layout", "bg": "bg-warning", "glcl": [4, 8], "label": "Data/ora castrazione", "nodes": [{ "type": "fgdate", "gl-col": "6", "path": "castr_data", "validate": { "required": true }, "options": { "modal": true, "large-mode": true, "max-year": 2030, "title": "Immettere la data di castrazione" } }, { "type": "fgtime", "gl-col": "6", "path": "castr_ora", "validate": { "required": true }, "options": { "modal": true, "title": "Immettere l'orario di castrazione" } }] }, { "type": "textarea", "glcl": [4, 8], "path": "note", "label": "Note" }] }] }, "footer": { "type": "hstack", "halign": "right", "nodes": [{ "type": "hstack", "margin": { "top": "0px", "right": "32px", "bottom": "0px", "left": "0px" }, "nodes": [{ "type": "button", "id": "close", "label": "Close" }] }, { "type": "hstack", "nodes": [{ "type": "button", "id": "reset", "label": "Reset" }, { "type": "button", "id": "submit", "label": "Submit" }] }] } };
 
     var form = AuForms.create();
     form.render(layout, targets);
@@ -575,8 +577,8 @@ samplesFactory.basicValidation = function (targets) {
     });
 
     form.on('close', function (sender, args) {
-        if (targets.dialog) {
-            targets.dialog.close();
+        if (targets.close) {
+            targets.close();
         }
         else {
             alert('close!');
@@ -595,6 +597,17 @@ samplesFactory.basicValidation = function (targets) {
         form.getNode('submit').enabled(e.valok);
     }
 
+    var ccr = AuForms.controllers.ajax('/regioni');
+    var nr = form.getNode('regione');
+    nr.setController(ccr);
+
+    var ccc = AuForms.controllers.ajax('/citta');
+    var nc = form.getNode('citta');
+    nc.setController(ccc);
+    ccc.onFilter = function (filter) {
+        filter.regione = nr.get();
+    }
+
     var data = {
         nome: "Tigro",
         cognome: "Porzèl",
@@ -605,9 +618,32 @@ samplesFactory.basicValidation = function (targets) {
         stato_civile: 'scap',
         razza: 'mc',
         disastri: ['cusc', 'div'],
-        note: "Povero martire di Betty..."
+        note: "Povero martire di Betty...",
+        citta: 26
     };
     form.setData(data);
+
+    //var wc = nc.getVM().getWidget();
+    //wc.select2({
+    //    ajax: {
+    //        //url: '/citta',
+    //        delay: 250,
+    //        processResults: function (data) {
+    //            return {
+    //                results: data.items
+    //            };
+    //        },
+    //        transport: function (params, success, failure) {
+    //            var req = ccc.load(params.data);
+    //            req.done(success);
+    //            req.fail(failure);
+    //            return req;
+    //            //controller.load(params);
+    //            //controller.on('done', success);
+    //            //controller.on('fail', failure);
+    //        }
+    //    }
+    //});
 }
 
 
@@ -629,8 +665,8 @@ samplesFactory.panels = function (targets) {
     });
 
     form.on('close', function (sender, args) {
-        if (targets.dialog) {
-            targets.dialog.close();
+        if (targets.close) {
+            targets.close();
         }
         else {
             alert('close!');
@@ -652,10 +688,96 @@ samplesFactory.panels = function (targets) {
 
     form.validationUpdate = function (e) {
         console.log("valok=" + e.valok);
-        $('#submit').attr({ disabled: (e.valok ? null : "disabled") });
+        form.getNode('submit').enabled(e.valok);
     }
 
     var data = {
+    };
+    form.setData(data);
+}
+
+
+
+samplesFactory.basicWizard = function (targets) {
+    "use strict";
+
+    var layout = { "header": { "type": "hstack", "nodes": [{ "type": "pillselect", "id": "pill", "enum": [{ "key": "ident", "icon": "glyphicon glyphicon-italic", "value": "Identità" }, { "key": "quest", "icon": "glyphicon glyphicon-question-sign", "value": "Domanda" }, { "key": "success", "icon": "glyphicon glyphicon-ok", "value": "Riassunto" }] }] }, "body": { "type": "vstack", "nodes": [{ "type": "vstack", "id": "page1", "nodes": [{ "type": "textbox", "id": "nome", "glcl": [4, 8], "path": "nome", "label": "Nome" }, { "type": "textbox", "id": "cognome", "glcl": [4, 8], "path": "cognome", "label": "Cognome" }] }, { "type": "vstack", "id": "page2", "nodes": [{ "type": "numbox", "glcl": [4, 8], "path": "peso", "label": "Peso", "post": "kg", "validate": { "required": true, "float": { "min": 0.1, "max": 20.0 } } }, { "type": "numbox", "glcl": [4, 8], "path": "lungh", "label": "Lunghezza", "post": "cm", "validate": { "required": true, "int": { "min": 10, "max": 200 } } }] }, { "type": "vstack", "id": "page3", "nodes": [{ "type": "checkbox", "glcl": [4, 8], "path": "conferma", "label": "Constatazione", "text": "Tigro l'é un porzèl" }] }, { "type": "vstack", "id": "page4", "nodes": [{ "type": "textblock", "id": "msgerr", "glcl": [4, 8], "label": "Errore", "text": "Devi confermare che Tigro è un porzèl!" }] }, { "type": "vstack", "id": "page5", "nodes": [{ "type": "textbox", "id": "msg1", "glcl": [4, 8], "conv": "ucase", "label": "Messaggio 1" }, { "type": "textblock", "id": "msg2", "glcl": [4, 8], "conv": "lcase", "label": "Messaggio 2" }] }] }, "footer": { "type": "hstack", "halign": "right", "nodes": [{ "type": "button", "id": "close", "margin": { "top": "0px", "right": "8px", "bottom": "0px", "left": "0px" }, "label": "Close" }, { "type": "hstack", "margin": { "top": "0px", "right": "8px", "bottom": "0px", "left": "0px" }, "nodes": [{ "type": "button", "id": "prev", "label": "Prev", "icon": "glyphicon glyphicon-arrow-left" }, { "type": "button", "id": "next", "label": "Next", "icon": "glyphicon glyphicon-arrow-right" }] }, { "type": "button", "id": "submit", "label": "Submit" }] } };
+
+    var form = AuForms.create();
+    form.getFactory().convs.ucase = function (fctx) {
+        return {
+            toTarget: function (vraw) {
+                return vraw.toUpperCase();
+            }
+        }
+    }
+
+    form.getFactory().convs.lcase = function (fctx) {
+        return {
+            toTarget: function (vraw) {
+                return vraw.toLowerCase();
+            }
+        }
+    }
+
+    form.render(layout, targets);
+
+    form.on('nome cognome', function (sender, args) {
+        var s = form.getData().saluto + ' ';
+        s += form.getData().nome + ' ';
+        s += (form.getData().cognome || "");
+        form.getNode('msg1').set(s);
+        form.getNode('msg2').set(s);
+    });
+
+    form.on('close', function (sender, args) {
+        if (targets.close) {
+            targets.close();
+        }
+        else {
+            alert('close!');
+        }
+    });
+
+    var wcfg = {
+        prev: 'prev',
+        next: 'next',
+        submit: 'submit',
+        selector: 'pill',
+        pages: [
+            { id: 'page1', next: 'page2', pill: 'ident' },
+            { id: 'page2', prev: 'page1', next: 'page3', pill: 'ident' },
+            { id: 'page3', prev: 'page2', next: true, pill: 'quest' },
+            { id: 'page4', prev: 'page3' },
+            { id: 'page5', prev: 'page3', submit: true, pill: 'success' },
+        ]
+    };
+
+    var wiz = AuForms.wizard(form, wcfg);
+
+    wiz.onNext = function (args) {
+        if (args.id === 'page3') {
+            //var f = form.getNode('conferma').get();
+            var f = form.getData().conferma;
+            args.id = f ? 'page5' : 'page4';
+        }
+    }
+
+    wiz.start('page1');
+
+    form.on('submit', function (sender, args) {
+        alert(JSON.stringify(form.getData()));
+    });
+
+    form.validationUpdate = function (e) {
+        console.log("valok=" + e.valok);
+        //form.getNode('submit').enabled(e.valok);
+        wiz.setValid(e.valok);
+    }
+
+    var data = {
+        saluto: "ciao",
+        nome: "Tigro"
     };
     form.setData(data);
 }

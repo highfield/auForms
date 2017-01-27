@@ -296,9 +296,11 @@ namespace auFormsConverter
                 case "radio":
                 case "select":
                 case "multiselect":
+                case "pillselect":
                     {
                         var jopt = new JObject();
                         ConvertParam(ctx, xnode, jopt, "key");
+                        ConvertParam(ctx, xnode, jopt, "icon");
                         jopt["value"] = (string)xnode;
 
                         var jarr = ctx.JParent["enum"] as JArray;
@@ -437,7 +439,9 @@ namespace auFormsConverter
             _cvInfoMap["checkbox"] = new ConvInfo { Handler = ConvertCheckBox };
             _cvInfoMap["radio"] = new ConvInfo { Handler = ConvertRadio, ElementsAllowed = "option" };
             _cvInfoMap["select"] = new ConvInfo { Handler = ConvertSelect, ElementsAllowed = "option" };
+            _cvInfoMap["select2"] = new ConvInfo { Handler = ConvertSelect, ElementsAllowed = "option" };
             _cvInfoMap["multiselect"] = new ConvInfo { Handler = ConvertSelect, ElementsAllowed = "option" };
+            _cvInfoMap["pillselect"] = new ConvInfo { Handler = ConvertSelect, ElementsAllowed = "option" };
             _cvInfoMap["option"] = new ConvInfo { Handler = ConvertOption };
             _cvInfoMap["fgdate"] = new ConvInfo { Handler = ConvertPicker };
             _cvInfoMap["fgtime"] = new ConvInfo { Handler = ConvertPicker };
