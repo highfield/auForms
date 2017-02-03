@@ -31,7 +31,8 @@ var leftMenu = [
                                             },
                                             {
                                                 name: 'Thin Magic Mobile',
-                                                link: '#'
+                                                link: 'p',
+                                                id: 'mytag'
                                             },
                                             {
                                                 name: 'Performance Crusher',
@@ -304,8 +305,13 @@ $(document).ready(function () {
         var exp = menul.multilevelpushmenu('menuexpanded', $('#menuID'));
         if (!exp) showOverlay(false);
     };
-    options_left.onItemClick = function () {
-        console.log("item-click");
+    options_left.onItemClick = function (e, lev, item, st) {
+        var a = item.children('a');
+        console.log("item-click: " + a.attr('href'));
+        //menul.multilevelpushmenu('collapse');
+    };
+    options_left.onGroupItemClick = function (e, lev, item, st) {
+        console.log("group-click");
         //menul.multilevelpushmenu('collapse');
     };
 
