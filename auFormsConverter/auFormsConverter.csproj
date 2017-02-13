@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="JavaScript1.js" />
+    <None Include="samples\userPrefs.xml" />
     <None Include="samples\demoApp.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
