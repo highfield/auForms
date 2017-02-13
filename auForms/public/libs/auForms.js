@@ -179,7 +179,8 @@ var AuForms = (function ($) {
                     section: fctx.section,
                     parent: fctx,
                     layout: nodes[i],
-                    target: tg
+                    target: tg,
+                    foptions: fctx.foptions
                 };
                 var vm = fviewmodel(cfctx);
                 int.children.push(cfctx);
@@ -326,7 +327,8 @@ var AuForms = (function ($) {
                 iform: fctx.iform,
                 section: exp,
                 layout: fctx.layout,
-                target: fctx.target
+                target: fctx.target,
+                foptions: fctx.foptions
             };
             var vm = fviewmodel(cfctx);
             int.children.push(cfctx);
@@ -364,6 +366,14 @@ var AuForms = (function ($) {
                 });
             };
             dispatcher.push(dm);
+        }
+
+        function foptions(opts) {
+            var o = _.cloneDeep(opts || {});
+            o.cspan = function (c) {
+                return o.forceLabelStacked ? 12 : c;
+            }
+            return o;
         }
 
         factory = factory || AuForms.JQFactory.get();
@@ -413,7 +423,8 @@ var AuForms = (function ($) {
                     iform: int,
                     name: sct,
                     layout: layout[sct],
-                    target: tg
+                    target: tg,
+                    foptions: foptions(targets.options)
                 });
                 sections[sct].render();
             }
@@ -792,6 +803,7 @@ var AuForms = (function ($) {
             parent: fctx,
             layout: fctx.layout[propname],
             target: target,
+            foptions: fctx.foptions,
             prophost: true
         };
         var vm = fviewmodel(cfctx);
@@ -815,12 +827,17 @@ var AuForms = (function ($) {
         var inner = $("<div>").attr({ id: fctx.id }).appendTo(colc);
         //if (!fctx.prophost) inner.addClass('form-group');
         if (fctx.layout.glcl) {
+            outer.addClass('row');
+            var c0 = fctx.foptions.cspan(fctx.layout.glcl[0]), c1 = fctx.foptions.cspan(fctx.layout.glcl[1]);
             if (colh) {
-                colh.addClass('col-md-' + fctx.layout.glcl[0]).css({ margin: 0, padding: 0 });
-                colc.addClass('col-md-' + fctx.layout.glcl[1]).css({ margin: 0, padding: 0 });
+                colh.addClass('col-md-' + c0).css({ margin: 0, padding: 0, 'min-width': 160 });
+                colc.addClass('col-md-' + c1).css({ margin: 0, padding: 0 });
             }
             else {
-                colc.addClass('col-md-' + fctx.layout.glcl[1] + ' col-md-offset-' + fctx.layout.glcl[0]).css({ /*margin: 0,*/ padding: 0 });
+                colc.addClass('col-md-' + c1 + ' col-md-offset-' + fctx.layout.glcl[0]).css({
+                    //margin: 0,
+                    padding: 0
+                });
             }
         }
 
@@ -853,8 +870,10 @@ var AuForms = (function ($) {
         var inner = $("<div>").appendTo(colc);
         if (!fctx.prophost) inner.addClass('form-group');
         if (fctx.layout.glcl) {
-            colh.addClass('col-md-' + fctx.layout.glcl[0]).css({ margin: 0, padding: 0 });
-            colc.addClass('col-md-' + fctx.layout.glcl[1]).css({ margin: 0, padding: 0 });
+            outer.addClass('row');
+            var c0 = fctx.foptions.cspan(fctx.layout.glcl[0]), c1 = fctx.foptions.cspan(fctx.layout.glcl[1]);
+            colh.addClass('col-md-' + c0).css({ margin: 0, padding: 0, 'min-width': 160 });
+            colc.addClass('col-md-' + c1).css({ margin: 0, padding: 0 });
         }
 
         if (fctx.layout.label) {
@@ -875,6 +894,7 @@ var AuForms = (function ($) {
                     parent: fctx,
                     layout: fctx.layout.label,
                     target: colh,
+                    foptions: fctx.foptions,
                     prophost: true
                 };
                 var vm = fviewmodel(cfctx);

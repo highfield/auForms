@@ -268,14 +268,6 @@ var leftMenu = [
     }
 ];
 
-var rightMenu = [
-    {
-        title: 'My Sidebar',
-        id: 'sidebarID',
-        icon: 'fa fa-home',
-        items: []
-    }];
-
 
 $(document).ready(function () {
     var options_left = {
@@ -337,14 +329,24 @@ $(document).ready(function () {
 
     $('#women_shoes').addClass('multilevelpushmenu_selected');
 
-    $('#btnOpenWomen').click(function () {
-        menul.multilevelpushmenu('expand', $('#women'));
-    });
+    //$('#btnOpenWomen').click(function () {
+    //    menul.multilevelpushmenu('expand', $('#women'));
+    //});
 
     $(window).on('resize', function () {
         menul.multilevelpushmenu('option', 'menuHeight', $(document).height() - 40);
         menul.multilevelpushmenu('redraw');
     });
+
+
+    /*
+    var rightMenu = [
+        {
+            //title: 'My Sidebar',
+            id: 'sidebarID',
+            //icon: 'fa fa-home',
+            items: []
+        }];
 
     var options_right = {
         menuID: 'multilevelpushmenu_right',
@@ -357,22 +359,57 @@ $(document).ready(function () {
         direction: 'rtl',
     };
 
+    options_right.onExpandMenuEnd = function () {
+        $('#sidebarID').css({
+            'background': 'transparent',
+            //'visibility': 'hidden',
+            //'pointer-events': 'none'
+        });
+    };
+
     var menur = $('#menur').multilevelpushmenu(options_right);
+    var $menur = $('<div>').css({
+        margin: 10
+    }).appendTo($('#multilevelpushmenu_right'));
 
     $('.mmenu-aux').click(function (e) {
-        menur.multilevelpushmenu('expand');
+        if (menur.multilevelpushmenu('menuexpanded', $('#sidebarID'))) {
+            menur.multilevelpushmenu('collapse');
+        }
+        else {
+            menur.multilevelpushmenu('expand');
+        }
+    });
+    */
+
+    var menur = $('#menur').addClass('sidebar right').sidebar({
+        side: 'right',
+        closed: true
+    });;
+
+    var $menur = $('<div>').css({
+        //margin: 10
+    }).appendTo($('#menur'));
+
+    $('.mmenu-aux').click(function (e) {
+        menur.trigger('sidebar:toggle');
     });
 
+    $('#menur').css({
+        'overflow-y': 'auto'
+    }).perfectScrollbar();
 
 
-    var sample, sampleOptions = {}, viewTarget, viewTargetHandlers = {};
+
+    var viewTargetHandlers = {}, selectorCache = {};
+    //var sample, viewTarget;
 
     viewTargetHandlers.page = function (fn) {
         var targets = {
             body: $('#fbody').empty(),
             header: $('#fhead').empty(),
             footer: $('#ffoot').empty(),
-            options: sampleOptions
+            options: {}
         };
         fn(targets);
     }
@@ -386,51 +423,82 @@ $(document).ready(function () {
         var dialog = AuForms.dialog(opts);
         fn(dialog);
         dialog.open();
+    }
 
-        //var targets = {
-        //    body: $('<div>'),
-        //    footer: null,
-        //    options: sampleOptions
-        //};
-
-        //var dialog = new BootstrapDialog({
-        //    message: function (dialogRef) {
-        //        return targets.body;
-        //    },
-        //    closable: true
-        //});
-        //dialog.realize();
-        //targets.dialog = dialog;
-
-        //var f = dialog.getModalFooter();
-        //f.show();
-        //targets.footer = f.find('.bootstrap-dialog-footer');
-        //fn(targets);
-        //dialog.open();
+    viewTargetHandlers.sidebar = function (fn) {
+        $menur.empty();
+        var targets = {
+            header: $('<div>').appendTo($menur),
+            body: $('<div>').appendTo($menur),
+            footer: $('<div>').appendTo($menur),
+            options: {
+                forceLabelStacked: true
+            }
+        };
+        fn(targets);
     }
 
 
-    $('#btnRemoveForm').click(function () {
-        $('#fbody').empty();
-        $('#fhead').empty();
-        $('#ffoot').empty();
-    });
+    //$('#btnRemoveForm').click(function () {
+    //    $('#fbody').empty();
+    //    $('#fhead').empty();
+    //    $('#ffoot').empty();
+    //});
 
-    $('#btnShowForm').click(function () {
-        var h = viewTargetHandlers[viewTarget || 'page'];
-        h && h(function (targets) {
-            var fn = sample && samplesFactory[sample];
-            return fn && fn(targets);
+    //$('#btnShowForm').click(function () {
+    //    var h = viewTargetHandlers[viewTarget || 'page'];
+    //    h && h(function (targets) {
+    //        var fn = sample && samplesFactory[sample];
+    //        return fn && fn(targets);
+    //    });
+    //});
+
+    $('#btnShowSelector').click(function () {
+        var opts = {
+            closable: true,
+            //sizex: 'size-wide',
+            //sizey: '95%'
+        }
+        var dialog = AuForms.dialog(opts);
+
+        var layout = { "body": { "type": "vstack", "nodes": [{ "type": "select", "path": "sampleSelector", "label": "Esempio", "enum": [{ "key": "", "value": "(none)" }, { "key": "buttonDemo_2+2", "value": "buttonDemo 2+2" }, { "key": "buttonDemo_1+2+1", "value": "buttonDemo 1+2+1" }, { "key": "basicText", "value": "basicText" }, { "key": "basicValidation", "value": "basicValidation" }, { "key": "panels", "value": "panels" }, { "key": "basicWizard", "value": "basicWizard" }] }, { "type": "select", "path": "viewTarget", "label": "Target", "enum": [{ "key": "page", "value": "page" }, { "key": "dialog", "value": "dialog" }, { "key": "sidebar", "value": "sidebar" }] }] }, "footer": { "type": "hstack", "halign": "right", "nodes": [{ "type": "button", "id": "btnOpenWomen", "label": "Open 'Women'" }, { "type": "button", "id": "btnRemoveForm", "label": "Remove" }, { "type": "button", "id": "btnShowForm", "label": "Show" }] } };
+        var form = AuForms.create();
+        form.render(layout, dialog);
+
+        form.on('btnShowForm', function (sender, args) {
+            var h = viewTargetHandlers[form.getData().viewTarget || 'page'];
+            h && h(function (targets) {
+                var sample = form.getData().sampleSelector;
+                var fn = sample && samplesFactory[sample];
+                return fn && fn(targets);
+            });
+            selectorCache = form.getData();
+            dialog.close();
         });
+
+        form.on('btnRemoveForm', function (sender, args) {
+            $('#fbody').empty();
+            $('#fhead').empty();
+            $('#ffoot').empty();
+            dialog.close();
+        });
+
+        form.on('btnOpenWomen', function (sender, args) {
+            menul.multilevelpushmenu('expand', $('#women'));
+            dialog.close();
+        });
+
+        form.setData(selectorCache);
+        dialog.open();
     });
 
-    $('#sampleSelector').on('change', function () {
-        sample = $(this).val();
-    })
+    //$('#sampleSelector').on('change', function () {
+    //    sample = $(this).val();
+    //})
 
-    $('#viewTarget').on('change', function () {
-        viewTarget = $(this).val();
-    })
+    //$('#viewTarget').on('change', function () {
+    //    viewTarget = $(this).val();
+    //})
 });
 
 var samplesFactory = {};

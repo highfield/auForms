@@ -10,7 +10,12 @@
     <link rel="stylesheet" type="text/css" href="/libs/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css" />
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,300italic,700&subset=latin,cyrillic-ext,latin-ext,cyrillic' rel='stylesheet' type='text/css' />
+
+    <link rel='stylesheet' href='/libs/gridstack/gridstack.min.css' />
+
     <link rel="stylesheet" type="text/css" href="/libs/mlp-menu/jquery.multilevelpushmenu.css" />
+    <link rel='stylesheet' href='/libs/perfect-scrollbar/css/perfect-scrollbar.min.css' />
+
     <link rel="stylesheet" type="text/css" href="/libs/bootstrap3-dialog/css/bootstrap-dialog.min.css" />
     <link rel="stylesheet" type="text/css" href="/libs/bootstrap-multiselect-2.0/css/bootstrap-multiselect.css" />
     <link rel="stylesheet" href="/libs/select2/css/select2.min.css">
@@ -22,19 +27,60 @@
     <link rel='stylesheet' href='/css/styles.css' />
 </head>
 <body style="overflow-y:hidden">
+    <nav class="navbar navbar-default" style="margin-bottom:0px">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <a class="mmenu-main" href="#menu-main"><i class="fa fa-bars"></i></a>
+                <!--<button type="button" class="navbar-toggle collapsed" style="margin-right:60px" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span>AuForms</span>
+                </button>-->
+            </div>
+
+            <a href="#" class="navbar-brand" style="margin-left:60px" id="btnShowSelector">
+                <span>AuForms</span>
+            </a>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <!--<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a id="btnOpenWomen" href="#">Open 'Women'</a></li>
+                    <li>
+                        <select id="sampleSelector">
+                            <option value="">(none)</option>
+                            <option value="buttonDemo_2+2">buttonDemo 2+2</option>
+                            <option value="buttonDemo_1+2+1">buttonDemo 1+2+1</option>
+                            <option value="basicText">basicText</option>
+                            <option value="basicValidation">basicValidation</option>
+                            <option value="panels">panels</option>
+                            <option value="basicWizard">basicWizard</option>
+                        </select>
+                    </li>
+                    <li>
+                        <select id="viewTarget">
+                            <option value="page">page</option>
+                            <option value="dialog">dialog</option>
+                            <option value="sidebar">sidebar</option>
+                        </select>
+                    </li>
+                    <li><a id="btnShowForm" href="#">Show</a></li>
+                    <li><a id="btnRemoveForm" href="#">Remove</a></li>
+                </ul>
+            </div>-->
+            <a class="mmenu-aux" href="#menu-aux">
+                <i class="fa fa-gear"></i>
+            </a>
+        </div>
+    </nav>
     <div id="page">
-        <div class="header">
-            <div id="socketStatus"></div>
+        <!--<div class="header">
             <a class="mmenu-main" href="#menu-main"></a>
             <span>AuForms demo</span>
             <a class="mmenu-aux" href="#menu-aux">
                 <span class="glyphicon glyphicon-cog"></span>
             </a>
-        </div>
-
-        <image src="/images/uva-bianca.jpg" style="min-width:100%; min-height:100%; position:absolute;top:40px" />
-
-        <div class="page-content">
+        </div>-->
+        <!--<image src="/images/uva-bianca.jpg" style="min-width:100%; min-height:100%; position:absolute;top:0px" />-->
+        <!--<div class="page-content">
             <div class="au-null" style="height:100%; overflow-y:auto">
 
                 <button id="btnOpenWomen" style="position:relative; left:10px; top:60px;">Open 'Women'</button>
@@ -51,13 +97,22 @@
                 <select id="viewTarget">
                     <option value="page">page</option>
                     <option value="dialog">dialog</option>
+                    <option value="sidebar">sidebar</option>
                 </select>
-                <!--<input type="checkbox" id="useDialog" />Dialog-->
                 <button id="btnShowForm">show</button>
-                <button id="btnRemoveForm" style="/*position:relative; left:20px; top:60px;*/">Remove</button>
+                <button id="btnRemoveForm">Remove</button>
 
-                <!--<input type="text" id="alarm" data-large-mode="true" data-max-year="2030" style="position:relative; left:340px; top:60px;" />-->
                 <div id="fhost" style="position:relative; left:10%; top:100px; max-width:500px; width:80%; background: white">
+                    <div id="fhead"></div>
+                    <div id="fbody"></div>
+                    <div id="ffoot"></div>
+                </div>
+            </div>
+        </div>-->
+
+        <div class="page-content">
+            <div class="au-null" style="height:100%; overflow-y:auto">
+                <div id="fhost" style="position:relative; left:10%; top:10px; max-width:500px; width:80%; background: snow">
                     <div id="fhead"></div>
                     <div id="fbody"></div>
                     <div id="ffoot"></div>
@@ -79,7 +134,14 @@
     <script src="/libs/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
     <script src="/libs/lodash.min.js"></script>
     <!--<script src="/libs/numeral-2.0.4/numeral.min.js"></script>-->
+
+    <script src="/libs/jquery.lory.min.js"></script>
+    <script src="/libs/gridstack/gridstack.js"></script>
+
     <script src="/libs/mlp-menu/jquery.multilevelpushmenu.js"></script>
+    <script src="/libs/jQuery-sidebar/jquery.sidebar.js"></script>
+    <script src="/libs/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js"></script>
+
     <script src="/libs/bootstrap3-dialog/js/bootstrap-dialog.min.js"></script>
     <script src="/libs/bootstrap-multiselect-2.0/js/bootstrap-multiselect.js"></script>
     <script src="/libs/select2/js/select2.min.js"></script>
