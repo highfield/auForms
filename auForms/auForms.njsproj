@@ -5,6 +5,7 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>auForms</Name>
     <RootNamespace>auForms</RootNamespace>
+    <LaunchUrl>cardview.html</LaunchUrl>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -21,7 +22,7 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <ProjectView>ShowAllFiles</ProjectView>
     <NodejsPort>1337</NodejsPort>
-    <StartWebBrowser>true</StartWebBrowser>
+    <StartWebBrowser>True</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,6 +33,7 @@
   <ItemGroup>
     <Compile Include="app.js" />
     <Compile Include="public\fonts\linecons\lte-ie7.js" />
+    <Compile Include="public\js\cardview-demo.js" />
     <Compile Include="public\js\site_old.js" />
     <Compile Include="public\js\site.js" />
     <Compile Include="public\libs\auDispatcher.js" />
@@ -43,6 +45,10 @@
     <Compile Include="public\libs\bootstrap-multiselect-2.0\js\bootstrap-multiselect.js" />
     <Compile Include="public\libs\bootstrap3-dialog\js\bootstrap-dialog.js" />
     <Compile Include="public\libs\bootstrap3-dialog\js\bootstrap-dialog.min.js" />
+    <Compile Include="public\libs\jquery-bootgrid\jquery.bootgrid.fa.js" />
+    <Compile Include="public\libs\jquery-bootgrid\jquery.bootgrid.fa.min.js" />
+    <Compile Include="public\libs\jquery-bootgrid\jquery.bootgrid.js" />
+    <Compile Include="public\libs\jquery-bootgrid\jquery.bootgrid.min.js" />
     <Compile Include="public\libs\gridstack\gridstack.all.js" />
     <Compile Include="public\libs\gridstack\gridstack.jQueryUI.js" />
     <Compile Include="public\libs\gridstack\gridstack.jQueryUI.min.js" />
@@ -160,6 +166,8 @@
     <Compile Include="bin\www" />
     <Content Include="package.json" />
     <Content Include="public\cards.html" />
+    <Content Include="public\cardview.html" />
+    <Content Include="public\css\cardview-demo.css" />
     <Content Include="public\css\styles.css" />
     <Content Include="public\fonts\codropsicons\codropsicons.eot" />
     <Content Include="public\fonts\codropsicons\codropsicons.svg" />
@@ -195,6 +203,10 @@
     <Content Include="public\libs\bootstrap3-dialog\css\bootstrap-dialog.css" />
     <Content Include="public\libs\bootstrap3-dialog\css\bootstrap-dialog.min.css" />
     <Content Include="public\libs\bootstrap3-dialog\less\bootstrap-dialog.less" />
+    <Content Include="public\libs\jquery-bootgrid\jquery.bootgrid-1.3.1.zip" />
+    <Content Include="public\libs\jquery-bootgrid\jQuery.Bootgrid.1.3.1.nupkg" />
+    <Content Include="public\libs\jquery-bootgrid\jquery.bootgrid.css" />
+    <Content Include="public\libs\jquery-bootgrid\jquery.bootgrid.min.css" />
     <Content Include="public\libs\gridstack\gridstack-extra.css" />
     <Content Include="public\libs\gridstack\gridstack-extra.min.css" />
     <Content Include="public\libs\gridstack\gridstack.css" />
@@ -264,6 +276,7 @@
     <Folder Include="public\libs\bootstrap3-dialog\css\" />
     <Folder Include="public\libs\bootstrap3-dialog\js\" />
     <Folder Include="public\libs\bootstrap3-dialog\less\" />
+    <Folder Include="public\libs\jquery-bootgrid\" />
     <Folder Include="public\libs\gridstack\" />
     <Folder Include="public\libs\perfect-scrollbar\" />
     <Folder Include="public\libs\perfect-scrollbar\css\" />
