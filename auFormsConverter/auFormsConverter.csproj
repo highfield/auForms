@@ -75,7 +75,6 @@
     <None Include="samples\basicWizard.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="JavaScript1.js" />
     <None Include="samples\userPrefs.xml" />
     <None Include="samples\demoApp.xml" />
   </ItemGroup>
