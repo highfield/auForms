@@ -1,0 +1,86 @@
+﻿/*label.has-pretty-child {
+    font-weight: 700;
+}*/
+
+input[readonly].fg-mv-picker {
+    background-color: white;
+}
+
+.au-dialog-header {
+    display: inline-block;
+    width: 96%;
+}
+
+@media (max-width: 480px) {
+    .au-dialog-header {
+        width: 85%;
+    }
+}
+
+@media (max-width: 768px) {
+    .au-dialog-header {
+        width: 92%;
+    }
+}
+
+.au-dialog-header .form-group {
+    margin-bottom: 0px;
+}
+
+.au-pill {
+    border-radius: 4px;
+    background-color: transparent;
+}
+
+.au-pill > a:focus{
+    background-color: transparent !important;
+}
+
+.au-pill-border {
+    position: absolute;
+    width:100%;
+    height:100%;
+    border-radius: 4px;
+    border-width: 3px;
+    border-style: solid;
+    border-color: transparent;
+}
+
+.au-pill-active {
+    border-color: #5cb85c;
+}
+
+.au-pill-error {
+    background-color: #d9534f;
+    color: #eee;
+}
+
+.au-pill-success {
+    background-color: #5cb85c;
+    color: #eee;
+}
+
+.au-dialog-header .au-pill {
+    color: #eee;
+}
+
+    /*.au-dialog-header .au-pill:focus {
+        background-color: transparent !important;
+    }*/
+
+    .au-dialog-header .au-pill:hover {
+        color: #222;
+    }
+
+.au-dialog-header .au-pill-disabled span {
+    /*background-color: #eee;*/
+    color: #CCC;
+}
+
+.au-dialog-header .au-pill-active {
+    border-color: #eee;
+}
+
+.select2-container {
+  z-index: 10000;
+}

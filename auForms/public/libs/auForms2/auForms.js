@@ -38,470 +38,291 @@ var AuForms = (function ($) {
     })();
 
 
-    //viewmodel pseudo-class
-    function fviewmodel(fctx) {
-        function dispatch(actname, args) {
-            var dm = {};
-            dm.id = fctx.id + "_" + actname;
-            dm.exec = function () {
-                var hs = fctx.listeners[fctx.id] || [];
-                hs.forEach(function (h) {
-                    h(exp, args);
-                });
-            };
-            fctx.dispatcher.push(dm);
+    //definitions
+    var ntFNode = {}, ntFSection = {};
+    var RenderLevel = (function () {
+        var me = {
+            build: 0,
+            update: 1,
+            validate: 2,
+            ready: 3
+        };
+        var a = ['build', 'update', 'validate', 'ready'];
+
+        me.check = function (v) { return v >= 0 && v <= 3; }
+        me.enum = function () { return a.slice(0); }
+        return me;
+    })();
+
+
+    //form-node pseudo-base class
+    function FBase(ntype, config) {
+        var me = {
+            _fctx: null,
+            _parent: null,
+            _header: null,
+            _children: [],
+            _rlev: RenderLevel.build
+        };
+
+        me.getParent = function () { return me._parent; }
+        me.getChildren = function () { return me._children.slice(0); }
+
+        me._attach = function (p, f) {
+            me._parent = p;
+            me._fctx = f;
+            return me;
         }
 
-        function setVLoc(v, f) {
-            if (v === vloc) return;
-            vloc = v;
-            if (f && fctx.layout.path) {
-                _.set(fctx.form.getData(), fctx.layout.path, vloc);
+        me._detach = function () {
+            me._parent = null;
+            return me;
+        }
+
+        me.getHeader = function () { return me._header; }
+        me.setHeader = function (obj) {
+            if (me._header) {
+                me._header._detach();
+                delete me._fctx.lookup[me._header._uid];
+                me._header = null;
             }
-            if (fctx.vmx && fctx.vmx.updateTarget) {
-                var vout = (conv && conv.toTarget) ? conv.toTarget(vloc) : vloc;
-                fctx.vmx.updateTarget(vloc, vout);
+            if (n) {
+                if (n._nt !== ntype) throw new Error("Invalid node type.");
+                if (me._fctx.lookup[n._uid]) throw new Error("Duplicate ID:" + n._uid);
+                me._fctx.lookup[n._uid] = n;
+                me._header = n;
+                n._attach(me, me._fctx);
             }
-            //exp.updateTarget();
-            dispatch('change', {});
         }
 
-        function validHelp1(key, vctx, vdef) {
-            var fn = fctx.factory.valids[key];
-            return fn && fn(vctx, vdef);
+        me.add = function (n) {
+            if (!n || n._nt !== ntype) throw new Error("Invalid node type.");
+            if (me._fctx.lookup[n._uid]) throw new Error("Duplicate ID:" + n._uid);
+            me._fctx.lookup[n._uid] = n;
+            me._children.push(n);
+            n._attach(me, me._fctx);
         }
 
-        function validHelper(vctx) {
-            var valok = true;
-            if (enabEff && dispEff) {
-                var vdefs = fctx.layout.validate;
-                if (_.isObject(vdefs)) {
-                    for (var k in vdefs) {
-                        if (!validHelp1(k, vctx, vdefs[k])) {
-                            valok = false;
-                            break;
-                        }
-                    }
+        me.remove = function (x) {
+            if (arguments.length === 0) {
+                me._parent && me._parent.remove(me);
+            }
+            else if (_.isInteger(x)) {
+                if (x >= 0 && x < me._children.length) {
+                    var k = me._children[x]._detach()._uid;
+                    delete me._fctx.lookup[k];
+                    me._children.splice(x, 1);
                 }
             }
-            fctx.iform.hvalid(fctx.id, valok);
-            fctx.vmx && fctx.vmx.renderValidate && fctx.vmx.renderValidate(valok);
-            return valok;
-        }
-
-        function enabHelper(e) {
-            var p = fctx;
-            while (e && (p = p.parent)) {
-                e &= p.owner.enabled();
+            else if (_.isString(x)) {
+                //TODO rimozione per id
             }
-            fctx.vmx && fctx.vmx.renderEnabled && fctx.vmx.renderEnabled(e);
-            return e;
-        }
-
-        function dispHelper(e) {
-            var p = fctx;
-            while (e && (p = p.parent)) {
-                e &= p.owner.display();
-            }
-            fctx.vmx && fctx.vmx.renderDisplay && fctx.vmx.renderDisplay(e);
-            return e;
-        }
-
-        var exp = {}, int = { children: [], props: [] };
-        fctx.id = fctx.layout.id || uid();
-        fctx.owner = exp;
-        fctx.iowner = int;
-
-        var fi = fctx.factory.items[fctx.layout.type];
-        fctx.vmx = (fi && fi(fctx)) || {};
-        var xdfl = (fctx.vmx && fctx.vmx.defaults) || {};
-        var vloc, enab = true, enabEff, disp = true, dispEff;
-
-        var fc = fctx.factory.convs[fctx.layout.conv || fctx.layout.type];
-        var conv = fc && fc(fctx);  //TODO cosa passare nella funzione?
-
-        exp.getId = function () {
-            return fctx.id;
-        }
-
-        exp.getParent = function () {
-            return fctx.parent && fctx.parent.owner;
-        }
-
-        exp.getVM = function () {
-            return fctx.vmx;
-        }
-
-        exp.getLayout = function () {
-            return fctx.layout;
-        }
-
-        exp.getController = function () {
-            return fctx.datactl;
-        }
-
-        exp.setController = function (dc) {
-            fctx.datactl = dc;
-        }
-
-        exp.render = function () {
-            var tg = fctx.vmx && fctx.vmx.render && fctx.vmx.render();
-
-            //refine common properties
-            var margin = fctx.layout.margin || xdfl.margin;// || { top: 15, left: 0, bottom: 15, right: 0 };
-            if (margin) {
-                tg.css({
-                    'margin-top': margin.top || 0,
-                    'margin-right': margin.right || 0,
-                    'margin-bottom': margin.bottom || 0,
-                    'margin-left': margin.left || 0
-                });
-            }
-            if (fctx.layout.halign) {
-                tg.css({
-                    'text-align': fctx.layout.halign
-                });
-            }
-
-            //scan children
-            var nodes = fctx.layout.nodes || [];
-            if (nodes.length && !tg) {
-                throw new Error("Undefined container to host child nodes: " + fctx.layout.type);
-            }
-
-            for (var i = 0; i < nodes.length; i++) {
-                var cfctx = {
-                    factory: fctx.factory,
-                    dispatcher: fctx.dispatcher,
-                    listeners: fctx.listeners,
-                    form: fctx.form,
-                    iform: fctx.iform,
-                    section: fctx.section,
-                    parent: fctx,
-                    layout: nodes[i],
-                    target: tg,
-                    foptions: fctx.foptions
-                };
-                var vm = fviewmodel(cfctx);
-                int.children.push(cfctx);
-                var ctg = vm.render();
-                ctg && fctx.vmx && fctx.vmx.renderChild && fctx.vmx.renderChild(cfctx, ctg);
-            }
-            return tg;
-        }
-
-        exp.load = function () {
-            fctx.vmx && fctx.vmx.onload && fctx.vmx.onload();
-            if (fctx.layout.path) {
-                var v = _.get(fctx.form.getData(), fctx.layout.path);
-                setVLoc(v, false);
-            }
-
-            int.props.forEach(function (c) {
-                c.owner.load();
-            });
-
-            int.children.forEach(function (c) {
-                c.owner.load();
-            });
-        }
-
-        int.load2 = function () {
-            enabEff = enabHelper(enab);
-            dispEff = dispHelper(disp);
-            validHelper({ value: vloc });
-
-            int.props.forEach(function (c) {
-                c.iowner.load2();
-            });
-            int.children.forEach(function (c) {
-                c.iowner.load2();
-            });
-        }
-
-        exp.trig = function (args) {
-            dispatch('trig', args);
-        }
-
-        exp.get = function () {
-            return vloc;
-        }
-
-        exp.set = function (v) {
-            setVLoc(v, true);
-        }
-
-        exp.enabled = function (v) {
-            if (arguments.length) {
-                enab = !!v;
-                int.updateEnabled();
-            }
-            else {
-                return enab;
-            }
-        }
-
-        exp.enableChildren = function (v) {
-            int.children.forEach(function (c) {
-                c.owner.enabled(v);
-            });
-        }
-
-        int.updateEnabled = function () {
-            enabEff = enabHelper(enab);
-            int.props.forEach(function (c) {
-                c.iowner.updateEnabled();
-            });
-            int.children.forEach(function (c) {
-                c.iowner.updateEnabled();
-            });
-            validHelper({ value: vloc });
-        }
-
-        exp.display = function (v) {
-            if (arguments.length) {
-                disp = !!v;
-                int.updateDisplay();
-            }
-            else {
-                return disp;
-            }
-        }
-
-        int.updateDisplay = function () {
-            dispEff = dispHelper(disp);
-            int.props.forEach(function (c) {
-                c.iowner.updateDisplay();
-            });
-            int.children.forEach(function (c) {
-                c.iowner.updateDisplay();
-            });
-            validHelper({ value: vloc });
-        }
-
-        exp.dispose = function () {
-            fctx.vmx && fctx.vmx.dispose && fctx.vmx.dispose();
-            fctx.vmx = null;
-            fctx.iform.unreg(fctx);
-        }
-
-        int.hevt = function (vctx, e) {
-            var dm = {};
-            dm.id = fctx.id + "_" + e.type;
-            dm.exec = function () {
-                var valok = validHelper(vctx);
-                if (valok) {
-                    var vout = (conv && conv.toSource) ? conv.toSource(vctx.value) : vctx.value;
-                    exp.set(vout);
+            else if (_.isObject(x)) {
+                var i = me._children.indexOf(x);
+                if (i >= 0) {
+                    me._children[i]._detach();
+                    delete me._fctx.lookup[me._children[i]._uid];
+                    me._children.splice(i, 1);
                 }
-            };
-            fctx.dispatcher.push(dm);
+            }
         }
 
-        //int.scantree = function (fn) {
-        //    fn();
-        //    int.children.forEach(function (c) {
-        //        c.iowner.scantree(fn);
-        //    });
-        //}
+        var ena = true;
+        me._enabled = function () {
+            return me._parent ? (ena && me._parent._enabled()) : ena;
+        }
 
-        fctx.iform.reg(fctx);
-        return exp;
+        me.getEnabled = function () { return ena; }
+        me.setEnabled = function (v) {
+            ena = !!v;
+            me.render(RenderLevel.update);
+        }
+
+        var vis = true;
+        me._visible = function () {
+            return me._parent ? (vis && me._parent._visible()) : vis;
+        }
+
+        me.getVisible = function () { return vis; }
+        me.setVisible = function (v) {
+            vis = !!v;
+            me.render(RenderLevel.update);
+        }
+
+        me.render = function (lev) {
+            if (RenderLevel.check(lev) && lev < me._rlev) {
+                me._rlev = lev;
+                me._fctx.form._rtrigger();
+            }
+        }
+        me._render = function (plev) {
+            var lev = Math.min(me._rlev, plev);
+            var ra = RenderLevel.enum();
+            for (var l = lev; l < ra.length; l++) {
+                var fn = me[ra[l]];
+                if (l === RenderLevel.build) {
+                    var hosts = (fn && fn()) || {};
+                    if (me._header) me._header._host = hosts.header || me._host;
+                    me._children.forEach(function (c) {
+                        c._host = hosts.children || me._host;
+                    });
+                }
+                else {
+                    fn && fn();
+                }
+                me._header && me._header._render(l);
+                me._children.forEach(function (c) {
+                    c._render(l);
+                });
+            }
+        }
+
+        return me;
     }
 
 
-    //section pseudo-class
-    function fsection(fctx) {
-        var exp = {}, int = { children: [] };
+    //form-node pseudo-class
+    function FNode(config) {
+        config = config || {};
+        var me = FBase(ntFNode, config);
+        Object.defineProperty(me, '_nt', { value: ntFNode, writable: false });
 
-        exp.getName = function () {
-            return fctx.name;
+        me._uid = config.id || uid();
+        me.getId = function () { return me._uid; }
+
+        me.isValid = function () {
         }
 
-        exp.render = function () {
-            var cfctx = {
-                factory: fctx.factory,
-                dispatcher: fctx.dispatcher,
-                listeners: fctx.listeners,
-                form: fctx.form,
-                iform: fctx.iform,
-                section: exp,
-                layout: fctx.layout,
-                target: fctx.target,
-                foptions: fctx.foptions
-            };
-            var vm = fviewmodel(cfctx);
-            int.children.push(cfctx);
-            vm.render();
+        me.get = function () {
+        }
+        me.set = function (v) {
         }
 
-        exp.load = function () {
-            int.children.forEach(function (c) {
-                c.owner.load();
-                c.iowner.load2();
-            });
-        }
+        //exp.dispose = function () {
+        //}
 
-        exp.dispose = function () {
-            if (int.children) {
-                int.children.forEach(function (c) {
-                    c.owner.dispose();
-                });
-                int.children = null;
-            }
-        }
+        return me;
+    }
 
-        return exp;
+
+    //form-section pseudo-class
+    function FSection(name, config) {
+        if (!name || !_.isString(name)) throw new Error("Invalid name: " + name);
+        var me = FBase(ntFNode, config);
+        Object.defineProperty(me, '_nt', { value: ntFSection, writable: false });
+
+        me._sname = name;
+        me.getName = function () { return me._sname; }
+
+        return me;
     }
 
 
     //form pseudo-class
-    function form(factory) {
-        function valUpdate(valok) {
-            var dm = {};
-            dm.id = "valupdate";
-            dm.exec = function () {
-                exp.validationUpdate && exp.validationUpdate({
-                    valok: valok
+    function Form(targets, options) {
+        function layout(form, factory) {
+            var me = {};
+            me.empty = function () { form.empty(); }
+            me.load = function (obj) {
+                me.empty();
+                if (!obj || obj.type !== 'form') throw new Error('Invalid layout.');
+                for (var k in obj) {
+                    if (k === 'type') continue;
+                    var sct = FSection(k, obj[k]);
+                    form.add(sct);
+                }
+            }
+
+            me.convert = function (obj) {
+                var n = factory[obj.type](obj);
+                if (!n) throw new Error('Plug-in type not supported:' + obj.type);
+                var lb = obj.header || obj.label;
+                if (_.isString(lb)) {
+                    n.setHeader(me.convert({ type: 'textblock', v: lb }));
+                }
+                else if (_.isObject(lb)) {
+                    n.setHeader(me.convert(lb));
+                }
+                (obj.nodes || []).forEach(function (c) {
+                    n.add(me.convert(c));
                 });
-            };
-            dispatcher.push(dm);
-        }
-
-        function foptions(opts) {
-            var o = _.cloneDeep(opts || {});
-            o.cspan = function (c) {
-                return o.forceLabelStacked ? 12 : c;
+                return n;
             }
-            return o;
+
+            return me;
         }
 
-        factory = factory || AuForms.JQFactory.get();
+        var me = FBase(ntFSection, {});
+        var odata = {}, evtreg = {};
 
-        var exp = {}, int = { lookup: {} };
-        var db = {}, odb = {};
-        var dataok = false, rendok = false;
-        var sections = {}, listeners = {};
-        var dispatcher = AuDispatcher();
-        var valids = {}, ovalok = true;
-
-        exp.validationUpdate = null;
-
-        exp.getFactory = function () {
-            return factory;
-        }
-
-        exp.setData = function (data) {
-            if (!_.isObject(data)) throw new Error("Data must be an object.");
-            odb = data || {};
-            dataok = true;
-            exp.resetData();
-        }
-
-        exp.resetData = function () {
-            db = _.cloneDeep(odb);
-            exp.load();
-        }
-
-        exp.getData = function () {
-            return db;
-        }
-
-        exp.render = function (layout, targets) {
-            for (var sct in sections) {
-                sections[sct].dispose();
-                delete sections[sct];
-            }
-            for (var sct in layout) {
-                var tg = targets[sct];
-                if (!tg) throw new Error("Must specify a valid rendering target for: " + sct);
-                sections[sct] = fsection({
-                    factory: factory,
-                    dispatcher: dispatcher,
-                    listeners: listeners,
-                    form: exp,
-                    iform: int,
-                    name: sct,
-                    layout: layout[sct],
-                    target: tg,
-                    foptions: foptions(targets.options)
-                });
-                sections[sct].render();
-            }
-            rendok = true;
-            exp.load();
-        }
-
-        exp.load = function () {
-            if (!dataok || !rendok) return;
-            for (var k in sections) {
-                sections[k].load();
-            }
-        }
-
-        exp.validate = function () {
-            var valok = true;
-            for (var k in sections) {
-                valok &= sections[k].validate();
-            }
-            return valok;
-        }
-
-        exp.on = function (source, handler) {
-            if (!handler || !_.isString(source)) return;
-            var asrc = source.split(' ');
-            asrc.forEach(function (s) {
-                listeners[s] = listeners[s] || [];
-                listeners[s].push(handler);
+        me._fctx.form = me;
+        me._fctx.options = options || {};
+        me._fctx.lookup = {};
+        me._fctx.data = {};
+        me._fctx.dispatcher = AuDispatcher();
+        me._rtrigger = function () {
+            me._fctx.dispatcher.push({
+                exec: me._render
             });
         }
 
-        exp.off = function (source, handler) {
+        me.getData = function () { return me._fctx.data; }
+
+        me.load = function (data) {
+            odata = data || {};
+            me._fctx.data = _.cloneDeep(odata);
+            me.render(RenderLevel.update);
+        }
+
+        me.reload = function () {
+            me.load(odata);
+        }
+
+        me.getNode = function (id) {
+            return me._fctx.lookup[id];
+        }
+
+        me.getSection = function (name) {
+            for (var i = 0; i < me._children.length; i++) {
+                var c = me._children[i];
+                if (name === c.getName()) return c;
+            }
+        }
+
+        me.empty = function () {
             //TODO
         }
 
-        exp.getNode = function (id) {
-            var c = int.lookup[id];
-            return c && c.owner;
+        me.layout = function (factory) {
+            return layout(me, factory);
         }
 
-        exp.dispose = function () {
-            for (var k in sections) {
-                sections[k].dispose();
+        me._render = function () {
+            if (me._rlev === RenderLevel.build) {
+                me._children.forEach(function (c) {
+                    c._host = targets[c._sname];
+                });
             }
-        }
-
-        int.reg = function (c) {
-            if (c) int.lookup[c.id] = c;
-        }
-
-        int.unreg = function (c) {
-            if (c) delete int.lookup[c.id];
-        }
-
-        int.select = function (fn) {
-            var a = [];
-            for (var k in int.lookup) {
-                var c = int.lookup[k];
-                if (!fn || fn(c)) a.push(c);
+            var ra = RenderLevel.enum();
+            for (var l = me._rlev; l < ra.length; l++) {
+                me._children.forEach(function (c) {
+                    c._render(l);
+                });
             }
-            return a;
+            me._rlev = RenderLevel.ready;
         }
 
-        int.hvalid = function (vmid, valok) {
-            //console.log("id=" + vmid + ": ok=" + valok);
-            valids[vmid] = valok;
-            valok = true;
-            for (var k in valids) {
-                valok &= valids[k];
-            }
-            if (valok !== ovalok) {
-                ovalok = valok;
-                valUpdate(ovalok);
-            }
+        me.on = function (s, h) {
         }
 
-        return exp;
+        me.off = function (s, h) {
+        }
+
+        me.dispose = function () {
+            //TODO
+        }
+
+        return me;
     }
 
 
@@ -857,14 +678,15 @@ var AuForms = (function ($) {
     }
 
 
-    var buildFormControl = function (fctx) {
+    var buildFormControl = function (node) {
+        node._host.empty();
         var outer = $("<div>").css({
             'overflow': 'hidden',
             margin: 0
-        }).appendTo(fctx.target);
-        if (fctx.layout.bg) {
-            outer.addClass(fctx.layout.bg);
-        }
+        }).appendTo(node._host);
+        //if (fctx.layout.bg) {
+        //    outer.addClass(fctx.layout.bg);
+        //}
 
         var colh = $('<div>').appendTo(outer), colc = $('<div>').appendTo(outer);
         var inner = $("<div>").appendTo(colc);
@@ -930,7 +752,13 @@ var AuForms = (function ($) {
 
 
     return {
-        create: form,
+        ntFNode: ntFNode,
+        ntFSection: ntFSection,
+        RenderLevel: RenderLevel,
+        FBase: FBase,
+        FNode: FNode,
+        FSection: FSection,
+        Form: Form,
         dialog: dialog,
         wizard: wizard,
         controllers: {

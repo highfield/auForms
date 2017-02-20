@@ -32,13 +32,14 @@
   <ItemGroup>
     <Compile Include="app.js" />
     <Compile Include="public\fonts\linecons\lte-ie7.js" />
-    <Compile Include="public\js\site_old.js" />
-    <Compile Include="public\js\site_old_old.js" />
     <Compile Include="public\js\site.js" />
+    <Compile Include="public\js\site_old.js" />
+    <Compile Include="public\js\site2.js" />
     <Compile Include="public\libs\auDispatcher.js" />
-    <Compile Include="public\libs\auForms\auForms_old.js" />
-    <Compile Include="public\libs\auForms\auForms_old_old.js" />
+    <Compile Include="public\libs\auForms2\auForms-widgets.js" />
     <Compile Include="public\libs\auForms\auForms.js" />
+    <Compile Include="public\libs\auForms\auForms_old.js" />
+    <Compile Include="public\libs\auForms2\auForms.js" />
     <Compile Include="public\libs\bootstrap-3.3.7-dist\js\bootstrap.js" />
     <Compile Include="public\libs\bootstrap-3.3.7-dist\js\bootstrap.min.js" />
     <Compile Include="public\libs\bootstrap-3.3.7-dist\js\npm.js" />
@@ -174,6 +175,7 @@
     <Content Include="public\fonts\linecons\Read Me.txt" />
     <Content Include="public\images\pic-123169078.jpg" />
     <Content Include="public\images\uva-bianca.jpg" />
+    <Content Include="public\libs\auForms2\auForms.css" />
     <Content Include="public\libs\auForms\auForms.css" />
     <Content Include="public\libs\bootstrap-3.3.7-dist\css\bootstrap-theme.css" />
     <Content Include="public\libs\bootstrap-3.3.7-dist\css\bootstrap-theme.css.map" />
@@ -262,6 +264,8 @@
     <Folder Include="public\libs\bootstrap3-dialog\js\" />
     <Folder Include="public\libs\bootstrap3-dialog\less\" />
     <Folder Include="public\libs\auForms\" />
+    <Folder Include="public\libs\gridstack\" />
+    <Folder Include="public\libs\auForms2\" />
     <Folder Include="public\libs\perfect-scrollbar\" />
     <Folder Include="public\libs\perfect-scrollbar\css\" />
     <Folder Include="public\libs\perfect-scrollbar\js\" />
