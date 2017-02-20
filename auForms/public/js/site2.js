@@ -402,7 +402,6 @@ $(document).ready(function () {
 
 
     var viewTargetHandlers = {}, selectorCache = {};
-    //var sample, viewTarget;
 
     viewTargetHandlers.page = function (fn) {
         var targets = {
@@ -439,21 +438,69 @@ $(document).ready(function () {
     }
 
 
-    //$('#btnRemoveForm').click(function () {
-    //    $('#fbody').empty();
-    //    $('#fhead').empty();
-    //    $('#ffoot').empty();
-    //});
+    function temp() {
+        viewTargetHandlers.page(function (targets) {
+            //var layout = {
+            //    type: 'form',
+            //    body: {
+            //        type: 'stack',
+            //        nodes: [{
+            //            type: 'row',
+            //            label: 'Etichetta',
+            //            bg: 'bg-info',
+            //            nodes: [{
+            //                type: 'textblock',
+            //                text: 'prova'
+            //            }]
+            //        }, {
+            //                type: 'row',
+            //                label: 'Etichetta',
+            //                bg: 'bg-warning',
+            //                nodes: [{
+            //                    type: 'textblock',
+            //                    text: 'prova'
+            //                }]
+            //            }, {
+            //                type: 'row',
+            //                label: 'Etichetta',
+            //                bg: 'bg-default',
+            //                nodes: [{
+            //                    type: 'textblock',
+            //                    text: 'prova'
+            //                }]
+            //            }]
+            //    },
+            //    footer: {
+            //        type: 'stack',
+            //        inline: true,
+            //        nodes: [{
+            //            type: 'button',
+            //            text: 'Bottone 1'
+            //        }, {
+            //                type: 'button',
+            //                icon: 'fa fa-gear',
+            //                margin:'0px 5px'
+            //            }, {
+            //                type: 'button',
+            //                text: 'Bottone 3',
+            //                icon: 'fa fa-gear'
+            //            }, {
+            //                type: 'button'
+            //            }]
+            //    }
+            //};
 
-    //$('#btnShowForm').click(function () {
-    //    var h = viewTargetHandlers[viewTarget || 'page'];
-    //    h && h(function (targets) {
-    //        var fn = sample && samplesFactory[sample];
-    //        return fn && fn(targets);
-    //    });
-    //});
+            //var layout = { "type": "form", "body": {}, "footer": { "type": "stack", "halign": "right", "inline": true, "nodes": [{ "type": "stack", "margin": "0px 8px 0px 0px", "inline": true, "nodes": [{ "type": "button", "text": "Bottone 1", "icon": "glyphicon glyphicon-eye-open" }, { "type": "button", "text": "Bottone 2", "icon": "glyphicon glyphicon-thumbs-up" }] }, { "type": "stack", "inline": true, "nodes": [{ "type": "button", "id": "c1", "text": "Close 1" }, { "type": "button", "id": "c2", "text": "Close 2" }] }] } };
+            var layout = { "type": "form", "body": { "type": "stack", "nodes": [{ "type": "row", "header": "Nome", "nodes": [{ "type": "textbox", "id": "nome", "path": "nome" }] }, { "type": "row", "header": "Cognome", "nodes": [{ "type": "textbox", "id": "cognome", "path": "cognome" }] }, { "type": "row", "header": "Messaggio 1", "nodes": [{ "type": "textbox", "id": "msg1", "conv": "ucase" }] }, { "type": "row", "header": "Messaggio 2", "nodes": [{ "type": "textblock", "id": "msg2", "conv": "lcase" }] }] }, "footer": { "type": "stack", "halign": "right", "nodes": [{ "type": "button", "id": "close", "text": "Close" }] } };
+            var form = AuForms.Form(targets, {});
+            form.layout(AuFormsWidgets).load(layout);
+        });
+        return 1;
+    }
+
 
     $('#btnShowSelector').click(function () {
+        if (temp()) return;
         var opts = {
             closable: true,
             //sizex: 'size-wide',
@@ -461,9 +508,24 @@ $(document).ready(function () {
         }
         var dialog = AuForms.dialog(opts);
 
-        var layout = { "body": { "type": "vstack", "nodes": [{ "type": "select", "path": "sampleSelector", "label": "Esempio", "enum": [{ "key": "", "value": "(none)" }, { "key": "buttonDemo_2+2", "value": "buttonDemo 2+2" }, { "key": "buttonDemo_1+2+1", "value": "buttonDemo 1+2+1" }, { "key": "basicText", "value": "basicText" }, { "key": "basicValidation", "value": "basicValidation" }, { "key": "panels", "value": "panels" }, { "key": "basicWizard", "value": "basicWizard" }] }, { "type": "select", "path": "viewTarget", "label": "Target", "enum": [{ "key": "page", "value": "page" }, { "key": "dialog", "value": "dialog" }, { "key": "sidebar", "value": "sidebar" }] }] }, "footer": { "type": "hstack", "halign": "right", "nodes": [{ "type": "button", "id": "btnOpenWomen", "label": "Open 'Women'" }, { "type": "button", "id": "btnRemoveForm", "label": "Remove" }, { "type": "button", "id": "btnShowForm", "label": "Show" }] } };
-        var form = AuForms.create();
-        form.render(layout, dialog);
+        //var layout = { "body": { "type": "vstack", "nodes": [{ "type": "select", "path": "sampleSelector", "label": "Esempio", "enum": [{ "key": "", "value": "(none)" }, { "key": "buttonDemo_2+2", "value": "buttonDemo 2+2" }, { "key": "buttonDemo_1+2+1", "value": "buttonDemo 1+2+1" }, { "key": "basicText", "value": "basicText" }, { "key": "basicValidation", "value": "basicValidation" }, { "key": "panels", "value": "panels" }, { "key": "basicWizard", "value": "basicWizard" }] }, { "type": "select", "path": "viewTarget", "label": "Target", "enum": [{ "key": "page", "value": "page" }, { "key": "dialog", "value": "dialog" }, { "key": "sidebar", "value": "sidebar" }] }] }, "footer": { "type": "hstack", "halign": "right", "nodes": [{ "type": "button", "id": "btnOpenWomen", "label": "Open 'Women'" }, { "type": "button", "id": "btnRemoveForm", "label": "Remove" }, { "type": "button", "id": "btnShowForm", "label": "Show" }] } };
+        //var form = AuForms.create();
+        //form.render(layout, dialog);
+
+        var layout = {
+            type: 'form',
+            body: {
+                type: 'row',
+                label: 'Etichetta',
+                bg: 'bg-warning',
+                nodes: [{
+                    type: 'textblock',
+                    v: 'prova'
+                }]
+            }
+        };
+        var form = AuForms.Form(dialog, {});
+        form.layout(AuFormsWidgets).load(layout);
 
         form.on('btnShowForm', function (sender, args) {
             var h = viewTargetHandlers[form.getData().viewTarget || 'page'];
@@ -488,17 +550,10 @@ $(document).ready(function () {
             dialog.close();
         });
 
-        form.setData(selectorCache);
+        form.load(selectorCache);
         dialog.open();
     });
 
-    //$('#sampleSelector').on('change', function () {
-    //    sample = $(this).val();
-    //})
-
-    //$('#viewTarget').on('change', function () {
-    //    viewTarget = $(this).val();
-    //})
 });
 
 var samplesFactory = {};

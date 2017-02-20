@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<auForm>
+  <section name="body">
+    <vstack>
+      <textbox label="Nome" path="nome" id="nome" />
+      <textbox label="Cognome" path="cognome" id="cognome" />
+      <textbox label="Messaggio 1" id="msg1" readonly="true" conv="ucase" />
+      <textblock label="Messaggio 2" id="msg2" conv="lcase" />
+    </vstack>
+  </section>
+
+  <section name="footer">
+    <hstack halign="right">
+      <button label="Close" id="close" />
+    </hstack>
+  </section>
+</auForm>

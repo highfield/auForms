@@ -55,62 +55,162 @@ var AuForms = (function ($) {
     })();
 
 
+    //form-property pseudo class
+    function FProp(owner, name, config, cb) {
+        function setValid(v) {
+            if (v === valok) return;
+            valok = v;
+        }
+
+        cb = cb || function () {
+            owner.render(RenderLevel.update);
+        };
+
+        var me = {}, initok, vraw, vout, spath, conv, bidi, valids = [], valok = true;
+        me.getName = function () { return name; }
+        me.isValid = function () { return valok; }
+        me.getConv = function () { return conv; }
+        me.setConv = function (v) { conv = v; }
+
+        me.get = function () { return vout; }
+        me.set = function (v) {
+            if (!initok || vout === v) return;
+            vout = v;
+            if (bidi) {
+                if (!me.validate()) return;
+
+                var vr = conv ? conv.toSource(vout) : vout;
+                if (vraw === vr) return;
+                vraw = vr;
+            }
+            else {
+                vraw = vout;
+            }
+            cb();
+        }
+
+        me.getRaw = function () { return vraw; }
+        me.setRaw = function (vr) {
+            if (vraw === vr) return;
+            vraw = vr;
+            if (initok) {
+                vout = conv ? conv.toTarget(vraw) : vraw;
+            }
+        }
+
+        me.load = function () {
+            if (!initok || !spath) return;
+            vraw = _.get(owner._fctx.data, spath);
+            vout = conv ? conv.toTarget(vraw) : vraw;
+        }
+
+        me.save = function () {
+            if (!initok || !spath || !bidi) return;
+            _.set(owner._fctx.data, spath, vraw);
+        }
+
+        me.validate = function () {
+            var ok = true;
+            for (var i = 0; i < valids.length; i++) {
+                ok &= !!valids[i].fn(valids[i].p);
+                if (!ok) break;
+            }
+            setValid(ok);
+            return ok;
+        }
+
+        me.addValidator = function (fn, params) {
+            valids.push({
+                fn: fn, p: params
+            });
+        }
+
+        me.init = function () {
+            if (initok) return;
+            var cfg = config[name];
+            if (_.isObject(cfg)) {
+                var opts = me._fctx.options;
+                spath = cfg.path;
+                conv = opts.converters[cfg.conv];
+                bidi = _.isObject(cfg.validate);
+                if (bidi) {
+                    for (var k in cfg.validate) {
+                        valids.push({
+                            fn: opts.validators[k], p: cfg.validate[k]
+                        });
+                    }
+                }
+            }
+            else if (cfg != null) {
+                vraw = vout = cfg;
+            }
+            initok = true;
+        }
+
+        owner._props[name] = me;
+        return me;
+    }
+
+
     //form-node pseudo-base class
     function FBase(ntype, config) {
         var me = {
+            _type: config.type,
             _fctx: null,
             _parent: null,
             _header: null,
             _children: [],
-            _rlev: RenderLevel.build
+            _props: {},
+            _rlev: RenderLevel.build,
+            _initLk: false,
+            _initProps: false
         };
 
         me.getParent = function () { return me._parent; }
         me.getChildren = function () { return me._children.slice(0); }
+        me.prop = function (name) { return me._props[name]; }
 
-        me._attach = function (p, f) {
+        FProp(me, 'margin', config);
+
+        me._attach = function (p) {
             me._parent = p;
-            me._fctx = f;
             return me;
         }
 
         me._detach = function () {
+            if (me._initLk) delete me._fctx.lookup[me._uid];
+            me._initLk = false;
             me._parent = null;
             return me;
         }
 
         me.getHeader = function () { return me._header; }
-        me.setHeader = function (obj) {
+        me.setHeader = function (n) {
             if (me._header) {
                 me._header._detach();
-                delete me._fctx.lookup[me._header._uid];
                 me._header = null;
             }
             if (n) {
                 if (n._nt !== ntype) throw new Error("Invalid node type.");
-                if (me._fctx.lookup[n._uid]) throw new Error("Duplicate ID:" + n._uid);
-                me._fctx.lookup[n._uid] = n;
+                n._attach(me);
                 me._header = n;
-                n._attach(me, me._fctx);
             }
         }
 
         me.add = function (n) {
             if (!n || n._nt !== ntype) throw new Error("Invalid node type.");
-            if (me._fctx.lookup[n._uid]) throw new Error("Duplicate ID:" + n._uid);
-            me._fctx.lookup[n._uid] = n;
+            n._attach(me);
             me._children.push(n);
-            n._attach(me, me._fctx);
         }
 
         me.remove = function (x) {
+            if (!me._parent) return;
             if (arguments.length === 0) {
                 me._parent && me._parent.remove(me);
             }
             else if (_.isInteger(x)) {
                 if (x >= 0 && x < me._children.length) {
                     var k = me._children[x]._detach()._uid;
-                    delete me._fctx.lookup[k];
                     me._children.splice(x, 1);
                 }
             }
@@ -121,58 +221,69 @@ var AuForms = (function ($) {
                 var i = me._children.indexOf(x);
                 if (i >= 0) {
                     me._children[i]._detach();
-                    delete me._fctx.lookup[me._children[i]._uid];
                     me._children.splice(i, 1);
                 }
             }
         }
 
-        var ena = true;
+        FProp(me, 'enabled', config).setRaw(config.enabled != null ? !!config.enabled : true);
         me._enabled = function () {
+            var ena = me._props['enabled'].get();
             return me._parent ? (ena && me._parent._enabled()) : ena;
         }
 
-        me.getEnabled = function () { return ena; }
-        me.setEnabled = function (v) {
-            ena = !!v;
-            me.render(RenderLevel.update);
-        }
-
-        var vis = true;
+        FProp(me, 'visible', config).setRaw(config.visible != null ? !!config.visible : true);
         me._visible = function () {
+            var vis = me._props['visible'].get();
             return me._parent ? (vis && me._parent._visible()) : vis;
         }
 
-        me.getVisible = function () { return vis; }
-        me.setVisible = function (v) {
-            vis = !!v;
-            me.render(RenderLevel.update);
-        }
-
         me.render = function (lev) {
-            if (RenderLevel.check(lev) && lev < me._rlev) {
+            if (me._fctx && RenderLevel.check(lev) && lev <= me._rlev) {
                 me._rlev = lev;
                 me._fctx.form._rtrigger();
             }
         }
-        me._render = function (plev) {
-            var lev = Math.min(me._rlev, plev);
+        me._render = function (fctx, plev) {
+            me._fctx = fctx;
+            if (me._uid && !me._initLk) {
+                var lk = me._fctx.lookup;
+                if (lk[me._uid]) throw new Error("Duplicate ID:" + me._uid);
+                lk[me._uid] = me;
+                me._initLk = true;
+            }
+            if (!me._initProps) {
+                for (var k in me._props) {
+                    me._props[k].init();
+                }
+                me._initProps = true;
+            }
+
             var ra = RenderLevel.enum();
-            for (var l = lev; l < ra.length; l++) {
+            for (var l = Math.min(me._rlev, plev); l < ra.length; l++) {
                 var fn = me[ra[l]];
+                fn && fn();
                 if (l === RenderLevel.build) {
-                    var hosts = (fn && fn()) || {};
-                    if (me._header) me._header._host = hosts.header || me._host;
-                    me._children.forEach(function (c) {
-                        c._host = hosts.children || me._host;
-                    });
+                    var targets = me._targets || {};
+                    if (me._header) me._header._host = targets.header || me._host;
+                    if (_.isArray(targets.children)) {
+                        for (var i = 0; i < me._children.length; i++) {
+                            var h = i < targets.children.length ? targets.children[i] : me._host;
+                            me._children[i]._host = h;
+                        }
+                    }
+                    else {
+                        me._children.forEach(function (c) {
+                            c._host = targets.children || me._host;
+                        });
+                    }
                 }
-                else {
-                    fn && fn();
+                else if (l === RenderLevel.update) {
+                    me._host.css('margin', me._props['margin'].get());
                 }
-                me._header && me._header._render(l);
+                me._header && me._header._render(fctx, l);
                 me._children.forEach(function (c) {
-                    c._render(l);
+                    c._render(fctx, l);
                 });
             }
         }
@@ -193,10 +304,14 @@ var AuForms = (function ($) {
         me.isValid = function () {
         }
 
-        me.get = function () {
-        }
-        me.set = function (v) {
-        }
+        //var value = config.v;
+        //me.get = function () { return value; }
+        //me.set = function (v) {
+        //    if (value !== v) {
+        //        value = v;
+        //        me.render(RenderLevel.update);
+        //    }
+        //}
 
         //exp.dispose = function () {
         //}
@@ -209,6 +324,7 @@ var AuForms = (function ($) {
     function FSection(name, config) {
         if (!name || !_.isString(name)) throw new Error("Invalid name: " + name);
         var me = FBase(ntFNode, config);
+        me._type = 'section';
         Object.defineProperty(me, '_nt', { value: ntFSection, writable: false });
 
         me._sname = name;
@@ -225,23 +341,26 @@ var AuForms = (function ($) {
             me.empty = function () { form.empty(); }
             me.load = function (obj) {
                 me.empty();
-                if (!obj || obj.type !== 'form') throw new Error('Invalid layout.');
+                if (!obj || (obj.type && obj.type !== 'form')) throw new Error('Invalid layout.');
+                if (!obj.type) return;
                 for (var k in obj) {
-                    if (k === 'type') continue;
+                    if (k === 'type' || !obj[k].type) continue;
                     var sct = FSection(k, obj[k]);
                     form.add(sct);
+                    sct.add(me.convert(obj[k]));
                 }
             }
 
             me.convert = function (obj) {
-                var n = factory[obj.type](obj);
-                if (!n) throw new Error('Plug-in type not supported:' + obj.type);
-                var lb = obj.header || obj.label;
-                if (_.isString(lb)) {
-                    n.setHeader(me.convert({ type: 'textblock', v: lb }));
+                var fn = factory[obj.type];
+                if (!_.isFunction(fn)) throw new Error('Plug-in type not supported:' + obj.type);
+                var n = fn(obj);
+                if (!_.isObject(n)) throw new Error('Invalid plug-in instance:' + obj.type);
+                if (_.isObject(obj.header)) {
+                    n.setHeader(me.convert(obj.header));
                 }
-                else if (_.isObject(lb)) {
-                    n.setHeader(me.convert(lb));
+                else if (_.isString(obj.header)) {
+                    n.setHeader(me.convert({ type: 'label', text: obj.header }));
                 }
                 (obj.nodes || []).forEach(function (c) {
                     n.add(me.convert(c));
@@ -252,14 +371,19 @@ var AuForms = (function ($) {
             return me;
         }
 
-        var me = FBase(ntFSection, {});
+        var me = FBase(ntFSection, { type: 'form' });
         var odata = {}, evtreg = {};
 
-        me._fctx.form = me;
-        me._fctx.options = options || {};
-        me._fctx.lookup = {};
-        me._fctx.data = {};
-        me._fctx.dispatcher = AuDispatcher();
+        me._fctx = {
+            form: me,
+            options: options || {},
+            lookup: {},
+            data: {},
+            dispatcher: AuDispatcher()
+        };
+        me._cspan = function (c) {
+            return me._fctx.options.forceLabelStacked ? 12 : c;
+        }
         me._rtrigger = function () {
             me._fctx.dispatcher.push({
                 exec: me._render
@@ -291,6 +415,7 @@ var AuForms = (function ($) {
 
         me.empty = function () {
             //TODO
+            me.render(RenderLevel.build);
         }
 
         me.layout = function (factory) {
@@ -306,7 +431,7 @@ var AuForms = (function ($) {
             var ra = RenderLevel.enum();
             for (var l = me._rlev; l < ra.length; l++) {
                 me._children.forEach(function (c) {
-                    c._render(l);
+                    c._render(me._fctx, l);
                 });
             }
             me._rlev = RenderLevel.ready;
@@ -613,6 +738,7 @@ var AuForms = (function ($) {
     }
 
 
+    /*
     var buildPropViewmodel = function (fctx, target, propname) {
         var cfctx = {
             factory: fctx.factory,
@@ -677,7 +803,6 @@ var AuForms = (function ($) {
         return { outer: outer, inner: inner, label: colh };
     }
 
-
     var buildFormControl = function (node) {
         node._host.empty();
         var outer = $("<div>").css({
@@ -726,7 +851,7 @@ var AuForms = (function ($) {
         }
         return { outer: outer, inner: inner, label: colh };
     }
-
+    */
 
     function ajaxController(url) {
         var exp = {};
@@ -755,6 +880,7 @@ var AuForms = (function ($) {
         ntFNode: ntFNode,
         ntFSection: ntFSection,
         RenderLevel: RenderLevel,
+        FProp: FProp,
         FBase: FBase,
         FNode: FNode,
         FSection: FSection,
@@ -764,11 +890,11 @@ var AuForms = (function ($) {
         controllers: {
             ajax: ajaxController
         },
-        helpers: {
-            buildPropViewmodel: buildPropViewmodel,
-            buildFormContainer: buildFormContainer,
-            buildFormControl: buildFormControl
-        }
+        //helpers: {
+        //    buildPropViewmodel: buildPropViewmodel,
+        //    buildFormContainer: buildFormContainer,
+        //    buildFormControl: buildFormControl
+        //}
     }
 })(jQuery);
 

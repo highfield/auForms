@@ -1,17 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <auForm>
   <section name="body">
-    <vstack>
-      <textbox label="Nome" path="nome" id="nome" />
-      <textbox label="Cognome" path="cognome" id="cognome" />
-      <textbox label="Messaggio 1" id="msg1" readonly="true" conv="ucase" />
-      <textblock label="Messaggio 2" id="msg2" conv="lcase" />
-    </vstack>
+    <stack>
+      <row header="Nome">
+        <textbox text="{path:'nome'}" id="nome" />
+      </row>
+      <row header="Cognome">
+        <textbox text="{path:'cognome'}" id="cognome" />
+      </row>
+      <row header="Messaggio 1">
+        <textbox id="msg1" readonly="true" />
+      </row>
+      <row header="Messaggio 2">
+        <textblock id="msg2" />
+      </row>
+    </stack>
   </section>
 
   <section name="footer">
-    <hstack halign="right">
-      <button label="Close" id="close" />
-    </hstack>
+    <stack halign="right">
+      <button text="Close" id="close" />
+    </stack>
   </section>
 </auForm>

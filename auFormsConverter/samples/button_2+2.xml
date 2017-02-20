@@ -5,15 +5,15 @@
   </section>
   
   <section name="footer">
-    <hstack halign="right">
-      <hstack margin="0,8,0,0">
-        <button label="Bottone 1" icon="glyphicon glyphicon-eye-open" />
-        <button label="Bottone 2" icon="glyphicon glyphicon-thumbs-up" />
-      </hstack>
-      <hstack>
-        <button label="Close 1" id="c1" />
-        <button label="Close 2" id="c2" />
-      </hstack>
-    </hstack>
+    <stack halign="right" inline="true">
+      <stack margin="0px 8px 0px 0px" inline="true">
+        <button text="Bottone 1" icon="glyphicon glyphicon-eye-open" />
+        <button text="Bottone 2" icon="glyphicon glyphicon-thumbs-up" />
+      </stack>
+      <stack inline="true">
+        <button text="Close 1" id="c1" />
+        <button text="Close 2" id="c2" />
+      </stack>
+    </stack>
   </section>
 </auForm>

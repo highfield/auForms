@@ -47,7 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AuFormsHelpers.cs" />
+    <Compile Include="AuFormsHelpers2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -77,6 +77,12 @@
   <ItemGroup>
     <None Include="samples\userPrefs.xml" />
     <None Include="samples\demoApp.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="samples\__old__button_2+2.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="samples\__old__basicText.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
