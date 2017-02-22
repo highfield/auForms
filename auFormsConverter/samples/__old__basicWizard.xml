@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<auForm>
+  <section name="header">
+    <hstack>
+      <pillselect id="pill">
+        <option key="ident" icon="glyphicon glyphicon-italic">Identità</option>
+        <option key="quest" icon="glyphicon glyphicon-question-sign">Domanda</option>
+        <option key="success" icon="glyphicon glyphicon-ok">Riassunto</option>
+      </pillselect>
+    </hstack>
+  </section>
+
+  <section name="body">
+    <vstack>
+      <vstack id="page1" gl-col-label="4 8">
+        <textbox label="Nome" path="nome" id="nome" />
+        <textbox label="Cognome" path="cognome" id="cognome" />
+      </vstack>
+      <vstack id="page2" gl-col-label="4 8">
+        <numbox label="Peso" path="peso" post="kg" validate="{ required:true, float:{min:0.1, max:20.0}}" />
+        <numbox label="Lunghezza" path="lungh" post="cm" validate="{ required:true, int:{min:10, max:200}}" />
+      </vstack>
+      <vstack id="page3" gl-col-label="4 8">
+        <checkbox label="Constatazione" text="Tigro l'é un porzèl" path="conferma" />
+      </vstack>
+      <vstack id="page4" gl-col-label="4 8">
+        <textblock label="Errore" id="msgerr" text="Devi confermare che Tigro è un porzèl!" />
+      </vstack>
+      <vstack id="page5" gl-col-label="4 8">
+        <textbox label="Messaggio 1" id="msg1" readonly="true" conv="ucase" />
+        <textblock label="Messaggio 2" id="msg2" conv="lcase" />
+      </vstack>
+    </vstack>
+  </section>
+
+  <section name="footer">
+    <hstack halign="right">
+      <button id="close" label="Close" margin="0,8,0,0" />
+      <hstack margin="0,8,0,0">
+        <button id="prev" label="Prev" icon="glyphicon glyphicon-arrow-left" />
+        <button id="next" label="Next" icon="glyphicon glyphicon-arrow-right" />
+      </hstack>
+      <button id="submit" label="Submit" />
+    </hstack>
+  </section>
+</auForm>

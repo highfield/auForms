@@ -16,12 +16,14 @@ namespace Cet.Aurora.Web.PageBuilder
             _cvInfoMap["row"] = new ConvInfo { Handler = ConvertRow, ElementsAllowed = "*" };
             _cvInfoMap["stack"] = new ConvInfo { Handler = ConvertStack, ElementsAllowed = "*" };
             _cvInfoMap["grid-layout"] = new ConvInfo { Handler = ConvertGridLayout, ElementsAllowed = "*" };
+            _cvInfoMap["icon"] = new ConvInfo { Handler = ConvertIcon };
             _cvInfoMap["textblock"] = new ConvInfo { Handler = ConvertTextBlock };
             _cvInfoMap["textbox"] = new ConvInfo { Handler = ConvertTextBox };
-            _cvInfoMap["numbox"] = new ConvInfo { Handler = ConvertTextBox };
+            _cvInfoMap["numbox"] = new ConvInfo { Handler = ConvertNumBox };
             _cvInfoMap["textarea"] = new ConvInfo { Handler = ConvertTextArea };
             _cvInfoMap["checkbox"] = new ConvInfo { Handler = ConvertCheckBox };
-            _cvInfoMap["radio"] = new ConvInfo { Handler = ConvertRadio, ElementsAllowed = "option" };
+            _cvInfoMap["radiobox"] = new ConvInfo { Handler = ConvertRadioBox };
+            _cvInfoMap["radioselect"] = new ConvInfo { Handler = ConvertRadioSelect, ElementsAllowed = "option" };
             _cvInfoMap["select"] = new ConvInfo { Handler = ConvertSelect, ElementsAllowed = "option" };
             _cvInfoMap["select2"] = new ConvInfo { Handler = ConvertSelect, ElementsAllowed = "option" };
             _cvInfoMap["multiselect"] = new ConvInfo { Handler = ConvertSelect, ElementsAllowed = "option" };
@@ -117,15 +119,15 @@ namespace Cet.Aurora.Web.PageBuilder
                     jnode["id"] = id;
                 }
 
-                ConvertParamString(pctx, xnode, jnode, "bg");
                 ConvertParamString(pctx, xnode, jnode, "halign");
                 ConvertParamString(pctx, xnode, jnode, "margin");
                 //ConvertThickness(pctx, xnode, jnode, "margin");
-                ConvertParamString(pctx, xnode, jnode, "gl-col");
+                ConvertParamBool(pctx, xnode, jnode, "visible");
+                ConvertParamBool(pctx, xnode, jnode, "enabled");
 
                 if (pctx.Parent.ColLabel != null)
                 {
-                    jnode["glcl"] = new JArray(
+                    jnode["gcols"] = new JArray(
                         pctx.Parent.ColLabel.Col1,
                         pctx.Parent.ColLabel.Col2
                         );
@@ -175,18 +177,10 @@ namespace Cet.Aurora.Web.PageBuilder
         }
 
 
-        static JObject ConvertRow(ConvContext ctx, XElement xnode, JObject jnode)
-        {
-            //ConvertParamString(ctx, xnode, jnode, "label");
-            ConvertParamString(ctx, xnode, jnode, "header");
-            return jnode;
-        }
-
-
         static JObject ConvertStack(ConvContext ctx, XElement xnode, JObject jnode)
         {
-            //ConvertParamString(ctx, xnode, jnode, "label");
             ConvertParamBool(ctx, xnode, jnode, "inline");
+            ConvertParamString(ctx, xnode, jnode, "bg");
             ConvertGLColLabel(ctx, xnode, jnode);
             return jnode;
         }
@@ -194,29 +188,37 @@ namespace Cet.Aurora.Web.PageBuilder
 
         static JObject ConvertGridLayout(ConvContext ctx, XElement xnode, JObject jnode)
         {
-            //ConvertParamString(ctx, xnode, jnode, "label");
+            ConvertParamString(ctx, xnode, jnode, "bg");
+            ConvertGLColLabel(ctx, xnode, jnode);
+            return jnode;
+        }
+
+
+        static JObject ConvertPanel(ConvContext ctx, XElement xnode, JObject jnode)
+        {
+            ConvertParamString(ctx, xnode, jnode, "bg");
+            ConvertStringOrJSON(ctx, xnode, jnode, "header");
+            return jnode;
+        }
+
+
+        static JObject ConvertRow(ConvContext ctx, XElement xnode, JObject jnode)
+        {
+            ConvertParamString(ctx, xnode, jnode, "bg");
+            ConvertParamString(ctx, xnode, jnode, "header");
+            return jnode;
+        }
+
+
+        static JObject ConvertIcon(ConvContext ctx, XElement xnode, JObject jnode)
+        {
+            ConvertStringOrJSON(ctx, xnode, jnode, "value");
             return jnode;
         }
 
 
         static JObject ConvertTextBlock(ConvContext ctx, XElement xnode, JObject jnode)
         {
-            //ConvertParamString(ctx, xnode, jnode, "path");
-            //ConvertParamString(ctx, xnode, jnode, "conv");
-            //ConvertParamString(ctx, xnode, jnode, "label");
-            ConvertStringOrJSON(ctx, xnode, jnode, "text");
-            return jnode;
-        }
-
-
-        static JObject ConvertTextBox(ConvContext ctx, XElement xnode, JObject jnode)
-        {
-            //ConvertParamString(ctx, xnode, jnode, "path");
-            //ConvertParamString(ctx, xnode, jnode, "conv");
-            //ConvertParamString(ctx, xnode, jnode, "label");
-            ConvertParamString(ctx, xnode, jnode, "pre");
-            ConvertParamString(ctx, xnode, jnode, "post");
-            //ConvertJSON(ctx, xnode, jnode, "validate");
             ConvertStringOrJSON(ctx, xnode, jnode, "text");
             return jnode;
         }
@@ -224,35 +226,63 @@ namespace Cet.Aurora.Web.PageBuilder
 
         static JObject ConvertTextArea(ConvContext ctx, XElement xnode, JObject jnode)
         {
-            //ConvertParamString(ctx, xnode, jnode, "path");
-            //ConvertParamString(ctx, xnode, jnode, "conv");
-            //ConvertParamString(ctx, xnode, jnode, "label");
-            //ConvertJSON(ctx, xnode, jnode, "validate");
             ConvertStringOrJSON(ctx, xnode, jnode, "text");
+            return jnode;
+        }
+
+
+        static JObject ConvertTextBox(ConvContext ctx, XElement xnode, JObject jnode)
+        {
+            ConvertParamString(ctx, xnode, jnode, "pre");
+            ConvertParamString(ctx, xnode, jnode, "post");
+            ConvertStringOrJSON(ctx, xnode, jnode, "text");
+            ConvertParamBool(ctx, xnode, jnode, "readonly");
+            return jnode;
+        }
+
+
+        static JObject ConvertNumBox(ConvContext ctx, XElement xnode, JObject jnode)
+        {
+            ConvertParamString(ctx, xnode, jnode, "pre");
+            ConvertParamString(ctx, xnode, jnode, "post");
+            ConvertStringOrJSON(ctx, xnode, jnode, "value");
+            ConvertParamBool(ctx, xnode, jnode, "readonly");
+            return jnode;
+        }
+
+
+        static JObject ConvertPicker(ConvContext ctx, XElement xnode, JObject jnode)
+        {
+            ConvertStringOrJSON(ctx, xnode, jnode, "value");
+            ConvertJSON(ctx, xnode, jnode, "options");
             return jnode;
         }
 
 
         static JObject ConvertCheckBox(ConvContext ctx, XElement xnode, JObject jnode)
         {
-            //ConvertParamString(ctx, xnode, jnode, "path");
-            //ConvertParamString(ctx, xnode, jnode, "conv");
-            //ConvertParamString(ctx, xnode, jnode, "label");
             ConvertStringOrJSON(ctx, xnode, jnode, "text");
-            //ConvertJSON(ctx, xnode, jnode, "validate");
+            ConvertStringOrJSON(ctx, xnode, jnode, "checked");
             return jnode;
         }
 
 
-        static JObject ConvertRadio(ConvContext ctx, XElement xnode, JObject jnode)
+        static JObject ConvertRadioBox(ConvContext ctx, XElement xnode, JObject jnode)
         {
-            //ConvertParamString(ctx, xnode, jnode, "path");
-            //ConvertParamString(ctx, xnode, jnode, "conv");
-            //ConvertParamString(ctx, xnode, jnode, "label");
+            ConvertStringOrJSON(ctx, xnode, jnode, "text");
+            ConvertStringOrJSON(ctx, xnode, jnode, "checked");
+            ConvertParamString(ctx, xnode, jnode, "value");
             ConvertParamString(ctx, xnode, jnode, "group");
-            //ConvertJSON(ctx, xnode, jnode, "validate");
-            ConvertJSON(ctx, xnode, jnode, "options");
             ConvertJSON(ctx, xnode, jnode, "font");
+            return jnode;
+        }
+
+
+        static JObject ConvertRadioSelect(ConvContext ctx, XElement xnode, JObject jnode)
+        {
+            ConvertStringOrJSON(ctx, xnode, jnode, "value");
+            ConvertParamString(ctx, xnode, jnode, "group");
+            ConvertJSON(ctx, xnode, jnode, "options");
             jnode["enum"] = new JArray();
             return jnode;
         }
@@ -260,24 +290,9 @@ namespace Cet.Aurora.Web.PageBuilder
 
         static JObject ConvertSelect(ConvContext ctx, XElement xnode, JObject jnode)
         {
-            //ConvertParamString(ctx, xnode, jnode, "path");
-            //ConvertParamString(ctx, xnode, jnode, "conv");
-            //ConvertParamString(ctx, xnode, jnode, "label");
-            //ConvertJSON(ctx, xnode, jnode, "validate");
+            ConvertStringOrJSON(ctx, xnode, jnode, "value");
             ConvertJSON(ctx, xnode, jnode, "options");
             jnode["enum"] = new JArray();
-            return jnode;
-        }
-
-
-        static JObject ConvertPicker(ConvContext ctx, XElement xnode, JObject jnode)
-        {
-            //ConvertParamString(ctx, xnode, jnode, "path");
-            //ConvertParamString(ctx, xnode, jnode, "conv");
-            //ConvertParamString(ctx, xnode, jnode, "label");
-            ConvertStringOrJSON(ctx, xnode, jnode, "text");
-            //ConvertJSON(ctx, xnode, jnode, "validate");
-            ConvertJSON(ctx, xnode, jnode, "options");
             return jnode;
         }
 
@@ -286,7 +301,7 @@ namespace Cet.Aurora.Web.PageBuilder
         {
             switch (ctx.XParent.Name.LocalName)
             {
-                case "radio":
+                case "radioselect":
                 case "select":
                 case "multiselect":
                 case "pillselect":
@@ -313,15 +328,9 @@ namespace Cet.Aurora.Web.PageBuilder
 
         static JObject ConvertButton(ConvContext ctx, XElement xnode, JObject jnode)
         {
-            ConvertParamString(ctx, xnode, jnode, "text");
-            ConvertParamString(ctx, xnode, jnode, "icon");
-            return jnode;
-        }
-
-
-        static JObject ConvertPanel(ConvContext ctx, XElement xnode, JObject jnode)
-        {
-            ConvertParamString(ctx, xnode, jnode, "header");
+            ConvertStringOrJSON(ctx, xnode, jnode, "text");
+            ConvertStringOrJSON(ctx, xnode, jnode, "icon");
+            ConvertStringOrJSON(ctx, xnode, jnode, "cssClass");
             return jnode;
         }
 
@@ -419,24 +428,24 @@ namespace Cet.Aurora.Web.PageBuilder
 
         static void ConvertGLColLabel(ConvContext ctx, XElement xnode, JObject jnode)
         {
-            var text = (string)xnode.Attribute("gl-col-label");
+            var text = (string)xnode.Attribute("grid-col-defs");
             if (text == null) return;
 
             var parts = text.Split(' ');
             if (parts.Length != 2)
             {
-                throw new InvalidDataException($"Invalid gl-col-label format for: {text}");
+                throw new InvalidDataException($"Invalid grid-col-defs format for: {text}");
             }
 
             var cl = new GLColLabel();
             if (int.TryParse(parts[0], out cl.Col1) == false)
             {
-                throw new InvalidDataException($"Invalid gl-col-label format for: {text}");
+                throw new InvalidDataException($"Invalid grid-col-defs format for: {text}");
             }
 
             if (int.TryParse(parts[1], out cl.Col2) == false)
             {
-                throw new InvalidDataException($"Invalid gl-col-label format for: {text}");
+                throw new InvalidDataException($"Invalid grid-col-defs format for: {text}");
             }
             ctx.ColLabel = cl;
         }

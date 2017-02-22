@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<auForm>
+  <section name="body">
+    <vstack gl-col-label="4 8">
+      <select path="razza" validate="{required:true}" id="s1">
+        <select.label>
+          <radio id="r1" label="" group="vacanze" font="{bold:true}">
+            <option key="R">Razza</option>
+          </radio>
+        </select.label>
+        <option key="">- - -</option>
+        <option key="sib">Siberiano</option>
+        <option key="eur">Europeo</option>
+        <option key="nor">Norvegese delle foreste</option>
+        <option key="siam">Siamese</option>
+        <option key="mc">Maine-coon</option>
+        <option key="rag">Rag-doll</option>
+        <option key="bir">Birmano</option>
+        <option key="per">Persiano</option>
+      </select>
+      <multiselect path="disastri" validate="{required:true}" id="s2">
+        <multiselect.label>
+          <radio id="r2" group="vacanze" font="{bold:true}">
+            <option key="D">Disastri commessi</option>
+          </radio>
+        </multiselect.label>
+        <option key="bicch">Bicchieri rotti</option>
+        <option key="albnat">Albero di Natale svenuto</option>
+        <option key="cusc">Cuscini</option>
+        <option key="div">Divano</option>
+        <option key="fiori">Fiori e piante</option>
+        <option key="cibo">Cibo per terra</option>
+        <option key="box">Scatole rovesciate</option>
+        <option key="h2o">Spruzzi d'acqua in giro</option>
+        <option key="agg">Agguati</option>
+        <option key="betty">Zampate a Betty</option>
+        <option key="toys">Giocattoli sparsi per la casa</option>
+      </multiselect>
+
+      <panel header="Pannello semplice" bg="panel-info">
+        <vstack gl-col-label="4 8">
+          <textbox label="Nome" path="nome" validate="{ required:true}" />
+          <textbox label="Cognome" path="cognome" validate="{ text:{min:3, max:10}}" />
+          <textbox label="E-Mail" path="e_mail" pre="@" validate="{ required:true, email:{}}" bg="bg-info" />
+        </vstack>
+      </panel>
+
+      <panel header="Pannello nidificato" bg="panel-info">
+        <vstack>
+          <numbox label="Peso" path="peso" post="kg" validate="{ required:true, float:{min:0.1, max:20.0}}" bg="bg-info" />
+          <numbox label="Lunghezza" path="lungh" post="cm" validate="{ required:true, int:{min:10, max:200}}" bg="bg-info" />
+          <panel header="Pannello interno">
+            <vstack gl-col-label="4 8">
+              <checkbox label="Constatazione" text="Tigro l'é un porzèl" path="conferma" validate="{ checked:true}" />
+              <radio label="Stato civile" path="stato_civile" validate="{required:true}">
+                <option key="scap">Scapolo</option>
+                <option key="spos">Sposato</option>
+                <option key="div">Divorziato</option>
+              </radio>
+            </vstack>
+          </panel>
+        </vstack>
+      </panel>
+
+      <panel>
+        <panel.header>
+          <radio id="p1" group="istanti">
+            <option key="P1">Istante di nascita</option>
+          </radio>
+        </panel.header>
+        <fgtime label="Orario" path="nato_ora" validate="{required:true}" options="{modal:true,title:'Immettere l\'orario di nascita'}" />
+        <fgdate label="Data" path="nato_data" validate="{required:true}" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di nascita'}" />
+      </panel>
+
+      <panel>
+        <panel.header>
+          <radio id="p2" group="istanti">
+            <option key="P2">Istante di adozione</option>
+          </radio>
+        </panel.header>
+        <fgtime label="Orario" path="adoz_ora" validate="{required:true}" options="{modal:true,title:'Immettere l\'orario di adozione'}" />
+        <fgdate label="Data" path="adoz_data" validate="{required:true}" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di adozione'}" />
+      </panel>
+
+      <panel>
+        <panel.header>
+          <radio id="p3" group="istanti">
+            <option key="P3">Istante di vaccinazione</option>
+          </radio>
+        </panel.header>
+        <grid-layout bg="bg-info">
+          <fgdate gl-col="6" label="Data" path="vacc_data" validate="{required:true}" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di vaccinazione'}" />
+          <fgtime gl-col="6" label="Orario" path="vacc_ora" validate="{required:true}" options="{modal:true,title:'Immettere l\'orario di vaccinazione'}" />
+        </grid-layout>
+      </panel>
+
+      <panel>
+        <panel.header>
+          <radio id="p4" group="istanti">
+            <option key="P4">Istante di castrazione</option>
+          </radio>
+        </panel.header>
+        <grid-layout bg="bg-warning">
+          <fgdate gl-col="6" path="castr_data" validate="{required:true}" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di castrazione'}" />
+          <fgtime gl-col="6" path="castr_ora" validate="{required:true}" options="{modal:true,title:'Immettere l\'orario di castrazione'}" />
+        </grid-layout>
+      </panel>
+    </vstack>
+  </section>
+
+  <section name="footer">
+    <hstack halign="right">
+      <hstack margin="0,32,0,0">
+        <button label="Close" id="close" />
+      </hstack>
+      <hstack>
+        <button label="Reset" id="reset" />
+        <button label="Submit" id="submit" />
+      </hstack>
+    </hstack>
+  </section>
+</auForm>

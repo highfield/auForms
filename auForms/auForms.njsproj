@@ -36,6 +36,7 @@
     <Compile Include="public\js\site_old.js" />
     <Compile Include="public\js\site2.js" />
     <Compile Include="public\libs\auDispatcher.js" />
+    <Compile Include="public\libs\auForms2\auForms-validators.js" />
     <Compile Include="public\libs\auForms2\auForms-widgets.js" />
     <Compile Include="public\libs\auForms\auForms.js" />
     <Compile Include="public\libs\auForms\auForms_old.js" />

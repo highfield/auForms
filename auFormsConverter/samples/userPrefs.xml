@@ -1,37 +1,30 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <auForm>
   <section name="header">
-    <hstack>
-      <button label="Log off" id="logoff" />
-    </hstack>
+    <stack inline="true">
+      <button text="Log off" id="logoff" />
+    </stack>
   </section>
   
   <section name="body">
-    <vstack>
-      <button label="Refresh" id="refresh" />
+    <stack>
+      <button text="Refresh" id="refresh" />
       
       <panel header="Preferenze" bg="panel-default">
-        <radio label="Naming" path="naming" validate="{required:true}">
-          <option key="D">Descrizione</option>
-          <option key="L">Nome logico</option>
-          <option key="P">Nome fisico</option>
-        </radio>
+        <row header="Naming">
+          <radio value="{path:'naming', validate:{required:true} }">
+            <option key="D">Descrizione</option>
+            <option key="L">Nome logico</option>
+            <option key="P">Nome fisico</option>
+          </radio>
+        </row>
       </panel>
-
-      <panel header="Test" bg="panel-info">
-        <vstack>
-          <textbox label="Nome" path="nome" id="nome" />
-          <textbox label="Cognome" path="cognome" id="cognome" />
-          <textbox label="Messaggio 1" id="msg1" readonly="true" conv="ucase" />
-          <textblock label="Messaggio 2" id="msg2" conv="lcase" />
-        </vstack>
-      </panel>
-    </vstack>
+    </stack>
   </section>
   
   <section name="footer">
-    <hstack>
-      <button label="Salva" id="save" />
-    </hstack>
+    <stack inline="true">
+      <button text="Salva" id="save" />
+    </stack>
   </section>
 </auForm>

@@ -84,6 +84,33 @@
   <ItemGroup>
     <None Include="samples\__old__basicText.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="samples\__old__demoApp.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="samples\__old__basicValidation.xml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="samples\__old__panels.xml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="samples\__old__basicWizard.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="samples\__old__userPrefs.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="samples\dynamicLayout.xml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="samples\iconery.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

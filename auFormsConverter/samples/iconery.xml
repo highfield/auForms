@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<auForm>
+  <section name="body">
+    <stack grid-col-defs="4 8">
+
+      <row header="A">
+        <icon value="{path:'a'}" />
+      </row>
+      <row header="B">
+        <icon value="{path:'b'}" />
+      </row>
+      <row header="C">
+        <icon value="{path:'c'}" />
+      </row>
+      <stack inline="true">
+        <icon value="{path:'a'}" />
+        <icon value="{path:'b'}" />
+        <icon value="{path:'c'}" />
+      </stack>
+
+      <panel bg="panel-info">
+        <panel.header>
+          <row header="Scelta icona">
+            <radioselect id="icona" value="{validate:{required:true} }">
+              <option key="a">A</option>
+              <option key="b">B</option>
+              <option key="c">C</option>
+            </radioselect>
+          </row>
+        </panel.header>
+        <stack>
+          <row header="value">
+            <textbox id="iconValue" />
+          </row>
+          <button text="Update" id="update" />
+        </stack>
+      </panel>
+
+    </stack>
+  </section>
+
+  <section name="footer">
+    <stack halign="right">
+      <icon value="fa fa-camera-retro fa-3x text-info" margin="0px 0px 30px 0px" />
+      <button text="Close" id="close" />
+    </stack>
+  </section>
+</auForm>

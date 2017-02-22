@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<auForm>
+  <section name="body">
+    <vstack>
+      <select label="Esempio" path="sampleSelector">
+        <option key="">(none)</option>
+        <option key="buttonDemo_2+2">buttonDemo 2+2</option>
+        <option key="buttonDemo_1+2+1">buttonDemo 1+2+1</option>
+        <option key="basicText">basicText</option>
+        <option key="basicValidation">basicValidation</option>
+        <option key="panels">panels</option>
+        <option key="basicWizard">basicWizard</option>
+      </select>
+      <select label="Target" path="viewTarget">
+        <option key="page">page</option>
+        <option key="dialog">dialog</option>
+        <option key="sidebar">sidebar</option>
+      </select>
+    </vstack>
+  </section>
+
+  <section name="footer">
+    <hstack halign="right">
+      <button label="Open 'Women'" id="btnOpenWomen" />
+      <button label="Remove" id="btnRemoveForm" />
+      <button label="Show" id="btnShowForm" />
+    </hstack>
+  </section>
+</auForm>

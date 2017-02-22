@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<auForm>
+  <section name="body">
+    <stack grid-col-defs="4 8">
+      <row header="Scelta layout">
+        <radioselect id="layout" value="{validate:{required:true} }">
+          <option key="simple">Pannello semplice</option>
+          <option key="nested">Pannello nidificato</option>
+          <option key="stacked">Pannelli impilati</option>
+        </radioselect>
+      </row>
+
+      <panel id="simple" visible="false" header="Pannello semplice" bg="panel-info">
+        <stack grid-col-defs="4 8">
+          <row header="Nome">
+            <textbox text="{path:'nome', validate:{required:true} }" />
+          </row>
+          <row header="Cognome">
+            <textbox text="{path:'cognome', validate:{text:{min:3, max:10}} }" />
+          </row>
+          <row header="E-Mail">
+            <textbox text="{path:'e_mail', validate:{required:true, email:{}} }" pre="@" bg="bg-info" />
+          </row>
+        </stack>
+      </panel>
+
+      <panel id="nested" visible="false" header="Pannello nidificato" bg="panel-info">
+        <stack>
+          <row header="Peso">
+            <numbox value="{path:'peso', validate:{ required:true, float:{min:0.1, max:20.0}} }" post="kg" bg="bg-info" />
+          </row>
+          <row header="Lunghezza">
+            <numbox value="{path:'lungh', validate:{ required:true, int:{min:10, max:200}} }" post="cm" bg="bg-info" />
+          </row>
+          <panel header="Pannello interno" bg="panel-default">
+            <stack grid-col-defs="4 8">
+              <row header="Constatazione">
+                <checkbox text="Tigro l'é un porzèl" checked="{path:'conferma', validate:{ checked:true} }" />
+              </row>
+              <row header="Stato civile">
+                <radioselect checked="{path:'stato_civile', validate:{required:true} }">
+                  <option key="scap">Scapolo</option>
+                  <option key="spos">Sposato</option>
+                  <option key="div">Divorziato</option>
+                </radioselect>
+              </row>
+            </stack>
+          </panel>
+        </stack>
+      </panel>
+
+      <stack id="stacked" visible="false">
+        <panel bg="panel-default">
+          <panel.header>
+            <radiobox id="p1" text="Istante di nascita" value="P1" group="istanti" />
+          </panel.header>
+          <row header="Orario">
+            <fgtime value="{path:'nato_ora', validate:{required:true} }" options="{modal:true,title:'Immettere l\'orario di nascita'}" />
+          </row>
+          <row header="Data">
+            <fgdate value="{path:'nato_data', validate:{required:true} }" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di nascita'}" />
+          </row>
+        </panel>
+
+        <panel bg="panel-success">
+          <panel.header>
+            <radiobox id="p2" text="Istante di adozione" value="P2" group="istanti" />
+          </panel.header>
+          <row header="Orario">
+            <fgtime value="{path:'adoz_ora', validate:{required:true} }" options="{modal:true,title:'Immettere l\'orario di adozione'}" />
+          </row>
+          <row header="Data">
+            <fgdate value="{path:'adoz_data', validate:{required:true} }" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di adozione'}" />
+          </row>
+        </panel>
+
+        <panel bg="panel-info">
+          <panel.header>
+            <radiobox id="p3" text="Istante di vaccinazione" value="P3" group="istanti" />
+          </panel.header>
+          <grid-layout bg="bg-info" grid-col-defs="6 6">
+            <row header="Data">
+              <fgdate value="{path:'vacc_data', validate:{required:true} }" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di vaccinazione'}" />
+            </row>
+            <row header="Orario">
+              <fgtime value="{path:'vacc_ora', validate:{required:true} }" options="{modal:true,title:'Immettere l\'orario di vaccinazione'}" />
+            </row>
+          </grid-layout>
+        </panel>
+
+        <panel bg="panel-danger">
+          <panel.header>
+            <radiobox id="p4" text="Istante di castrazione" value="P4" group="istanti" />
+          </panel.header>
+          <grid-layout bg="bg-warning" grid-col-defs="6 6">
+            <row>
+              <fgdate value="{path:'castr_data', validate:{required:true} }" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di castrazione'}" />
+            </row>
+            <row>
+              <fgtime value="{path:'castr_ora', validate:{required:true} }" options="{modal:true,title:'Immettere l\'orario di castrazione'}" />
+            </row>
+          </grid-layout>
+        </panel>
+      </stack>
+      
+    </stack>
+  </section>
+
+  <section name="footer">
+    <stack halign="right" inline="true">
+      <stack margin="0,32,0,0" inline="true">
+        <button text="Close" id="close" />
+      </stack>
+      <stack inline="true">
+        <button text="Reset" id="reset" />
+        <button text="Submit" id="submit" />
+      </stack>
+    </stack>
+  </section>
+</auForm>
