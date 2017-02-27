@@ -7,6 +7,8 @@ Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "auForms", "auForms\auForms.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "auFormsConverter", "auFormsConverter\auFormsConverter.csproj", "{58061CE1-E1E8-436C-823C-F6147ED4023D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "auFormsConverterWPF", "auFormsConverterWPF\auFormsConverterWPF.csproj", "{DA50498D-BCD1-464F-B1AD-C7BCC82B290A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{58061CE1-E1E8-436C-823C-F6147ED4023D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58061CE1-E1E8-436C-823C-F6147ED4023D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58061CE1-E1E8-436C-823C-F6147ED4023D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA50498D-BCD1-464F-B1AD-C7BCC82B290A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA50498D-BCD1-464F-B1AD-C7BCC82B290A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA50498D-BCD1-464F-B1AD-C7BCC82B290A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA50498D-BCD1-464F-B1AD-C7BCC82B290A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
