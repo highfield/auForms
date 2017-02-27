@@ -47,7 +47,6 @@
     <Compile Include="public\libs\bootstrap-multiselect-2.0\js\bootstrap-multiselect.js" />
     <Compile Include="public\libs\bootstrap3-dialog\js\bootstrap-dialog.js" />
     <Compile Include="public\libs\bootstrap3-dialog\js\bootstrap-dialog.min.js" />
-    <Compile Include="public\libs\gridstack\gridstack.jQueryUI.js" />
     <Compile Include="public\libs\gridstack\gridstack.jQueryUI.min.js" />
     <Compile Include="public\libs\gridstack\gridstack.js" />
     <Compile Include="public\libs\gridstack\gridstack.min.js" />
@@ -215,9 +214,7 @@
     <Content Include="public\libs\fg-timedropper\timedropper.css" />
     <Content Include="public\libs\fg-timedropper\timedropper.min.css" />
     <Content Include="public\libs\jquery-linedtextarea\jquery-linedtextarea-license.txt" />
-    <Content Include="public\libs\jquery-linedtextarea\jquery-linedtextarea.css" />
     <Content Include="public\libs\jquery-linedtextarea\jquery-linedtextarea.html" />
-    <Content Include="public\libs\MLMenu\mlpushmenu.css" />
     <Content Include="public\libs\mlp-menu\jquery.multilevelpushmenu.css" />
     <Content Include="public\libs\mlp-menu\jquery.multilevelpushmenu.min.css" />
     <Content Include="public\libs\prettyCheckable\.gitignore" />
@@ -265,8 +262,10 @@
     <Folder Include="public\libs\bootstrap3-dialog\js\" />
     <Folder Include="public\libs\bootstrap3-dialog\less\" />
     <Folder Include="public\libs\auForms\" />
-    <Folder Include="public\libs\gridstack\" />
     <Folder Include="public\libs\auForms2\" />
+    <Folder Include="public\libs\gridstack\" />
+    <Folder Include="public\libs\jquery-linedtextarea\" />
+    <Folder Include="public\libs\MLMenu\" />
     <Folder Include="public\libs\perfect-scrollbar\" />
     <Folder Include="public\libs\perfect-scrollbar\css\" />
     <Folder Include="public\libs\perfect-scrollbar\js\" />
@@ -278,10 +277,8 @@
     <Folder Include="public\libs\fg-datedropper\src\" />
     <Folder Include="public\libs\fg-timedropper\" />
     <Folder Include="public\libs\fg-datedropper\" />
-    <Folder Include="public\libs\jquery-linedtextarea\" />
     <Folder Include="public\libs\numeral-2.0.4\" />
     <Folder Include="public\libs\numeral-2.0.4\locales\" />
-    <Folder Include="public\libs\MLMenu\" />
     <Folder Include="public\libs\mlp-menu\" />
     <Folder Include="public\libs\prettyCheckable\" />
     <Folder Include="public\libs\prettyCheckable\dev\" />
