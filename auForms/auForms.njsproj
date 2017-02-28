@@ -47,7 +47,6 @@
     <Compile Include="public\libs\bootstrap-multiselect-2.0\js\bootstrap-multiselect.js" />
     <Compile Include="public\libs\bootstrap3-dialog\js\bootstrap-dialog.js" />
     <Compile Include="public\libs\bootstrap3-dialog\js\bootstrap-dialog.min.js" />
-    <Compile Include="public\libs\gridstack\gridstack.jQueryUI.min.js" />
     <Compile Include="public\libs\gridstack\gridstack.js" />
     <Compile Include="public\libs\gridstack\gridstack.min.js" />
     <Compile Include="public\libs\perfect-scrollbar\js\perfect-scrollbar.jquery.js" />
@@ -148,7 +147,6 @@
     <Compile Include="public\libs\numeral-2.0.4\locales\tr.min.js" />
     <Compile Include="public\libs\numeral-2.0.4\locales\uk-ua.min.js" />
     <Compile Include="public\libs\numeral-2.0.4\numeral.min.js" />
-    <Compile Include="public\libs\MLMenu\mlpushmenu.js" />
     <Compile Include="public\libs\mlp-menu\jquery.multilevelpushmenu.js" />
     <Compile Include="public\libs\mlp-menu\jquery.multilevelpushmenu.min.js" />
     <Compile Include="public\libs\prettyCheckable\dev\prettyCheckable.js" />
@@ -161,7 +159,6 @@
     <Compile Include="bin\www" />
     <Content Include="package.json" />
     <Content Include="public\css\styles.css" />
-    <Content Include="public\fonts\codropsicons\codropsicons.eot" />
     <Content Include="public\fonts\codropsicons\codropsicons.svg" />
     <Content Include="public\fonts\codropsicons\codropsicons.ttf" />
     <Content Include="public\fonts\codropsicons\codropsicons.woff" />
@@ -214,7 +211,6 @@
     <Content Include="public\libs\fg-timedropper\timedropper.css" />
     <Content Include="public\libs\fg-timedropper\timedropper.min.css" />
     <Content Include="public\libs\jquery-linedtextarea\jquery-linedtextarea-license.txt" />
-    <Content Include="public\libs\jquery-linedtextarea\jquery-linedtextarea.html" />
     <Content Include="public\libs\mlp-menu\jquery.multilevelpushmenu.css" />
     <Content Include="public\libs\mlp-menu\jquery.multilevelpushmenu.min.css" />
     <Content Include="public\libs\prettyCheckable\.gitignore" />
@@ -242,8 +238,6 @@
   <ItemGroup>
     <Folder Include="bin\" />
     <Folder Include="public\" />
-    <Folder Include="public\fonts\" />
-    <Folder Include="public\fonts\codropsicons\" />
     <Folder Include="public\fonts\linecons\" />
     <Folder Include="public\js\" />
     <Folder Include="public\css\" />
@@ -263,9 +257,6 @@
     <Folder Include="public\libs\bootstrap3-dialog\less\" />
     <Folder Include="public\libs\auForms\" />
     <Folder Include="public\libs\auForms2\" />
-    <Folder Include="public\libs\gridstack\" />
-    <Folder Include="public\libs\jquery-linedtextarea\" />
-    <Folder Include="public\libs\MLMenu\" />
     <Folder Include="public\libs\perfect-scrollbar\" />
     <Folder Include="public\libs\perfect-scrollbar\css\" />
     <Folder Include="public\libs\perfect-scrollbar\js\" />
