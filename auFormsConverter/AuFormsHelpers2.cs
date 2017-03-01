@@ -16,6 +16,7 @@ namespace Cet.Aurora.Web.PageBuilder
             _cvInfoMap["row"] = new ConvInfo { Handler = ConvertRow, ElementsAllowed = "*" };
             _cvInfoMap["stack"] = new ConvInfo { Handler = ConvertStack, ElementsAllowed = "*" };
             _cvInfoMap["grid-layout"] = new ConvInfo { Handler = ConvertGridLayout, ElementsAllowed = "*" };
+            _cvInfoMap["host"] = new ConvInfo { Handler = ConvertHost };
             _cvInfoMap["icon"] = new ConvInfo { Handler = ConvertIcon };
             _cvInfoMap["textblock"] = new ConvInfo { Handler = ConvertTextBlock };
             _cvInfoMap["textbox"] = new ConvInfo { Handler = ConvertTextBox };
@@ -181,6 +182,8 @@ namespace Cet.Aurora.Web.PageBuilder
         {
             ConvertParamBool(ctx, xnode, jnode, "inline");
             ConvertParamString(ctx, xnode, jnode, "bg");
+            ConvertParamString(ctx, xnode, jnode, "overflow-y");
+            ConvertParamString(ctx, xnode, jnode, "height");
             ConvertGLColLabel(ctx, xnode, jnode);
             return jnode;
         }
@@ -206,6 +209,12 @@ namespace Cet.Aurora.Web.PageBuilder
         {
             ConvertParamString(ctx, xnode, jnode, "bg");
             ConvertParamString(ctx, xnode, jnode, "header");
+            return jnode;
+        }
+
+
+        static JObject ConvertHost(ConvContext ctx, XElement xnode, JObject jnode)
+        {
             return jnode;
         }
 

@@ -38,13 +38,17 @@
           <textblock id="msgerr" text="Devi confermare che Tigro è un porzèl!" />
         </row>
       </stack>
-      <stack id="page5" grid-col-defs="4 8">
+      <stack id="page5" grid-col-defs="4 8" overflow-y="auto">
         <row header="Messaggio 1">
           <textbox id="msg1" readonly="true" text="{conv:'ucase'}" />
         </row>
         <row header="Messaggio 2">
           <textblock id="msg2" text="{conv:'lcase'}" />
         </row>
+        <row header="Riassunto">
+          <host id="riass1" />
+        </row>
+        <host id="riass2" />
       </stack>
     </stack>
   </section>

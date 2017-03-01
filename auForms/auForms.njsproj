@@ -238,6 +238,8 @@
   <ItemGroup>
     <Folder Include="bin\" />
     <Folder Include="public\" />
+    <Folder Include="public\fonts\" />
+    <Folder Include="public\fonts\codropsicons\" />
     <Folder Include="public\fonts\linecons\" />
     <Folder Include="public\js\" />
     <Folder Include="public\css\" />
@@ -257,6 +259,8 @@
     <Folder Include="public\libs\bootstrap3-dialog\less\" />
     <Folder Include="public\libs\auForms\" />
     <Folder Include="public\libs\auForms2\" />
+    <Folder Include="public\libs\gridstack\" />
+    <Folder Include="public\libs\jquery-linedtextarea\" />
     <Folder Include="public\libs\perfect-scrollbar\" />
     <Folder Include="public\libs\perfect-scrollbar\css\" />
     <Folder Include="public\libs\perfect-scrollbar\js\" />

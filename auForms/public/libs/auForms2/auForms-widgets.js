@@ -35,11 +35,17 @@ AuFormsWidgets = (function ($) {
 
         AuForms.FProp(me, 'bg', config);
         AuForms.FProp(me, 'inline', config);
+        AuForms.FProp(me, 'overflow-y', config);
+        AuForms.FProp(me, 'height', config);
+
+        me.getHost = function () {
+            return me._targets.outer;
+        }
 
         me.build = function () {
             me._host.empty();
             var outer = $("<div>").css({
-                'overflow': 'hidden',
+                'overflow-x': 'hidden',
                 //margin: 0
             }).appendTo(me._host);
 
@@ -57,6 +63,11 @@ AuFormsWidgets = (function ($) {
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
                 me._applyCssProp(me._targets.outer, 'bg');
+
+                var oy = me._props['overflow-y'].get() || 'hidden';
+                me._targets.outer.css('overflow-y', oy);
+
+                me._targets.outer.css('height', me._props['height'].get());
 
                 var d = me._props['inline'].get() ? 'inline' : 'block';
                 me._targets.outer.css('display', d);
@@ -174,6 +185,29 @@ AuFormsWidgets = (function ($) {
             if (me._applyVisible(me._targets.outer)) {
                 me._applyCssProp(me._targets.outer, 'bg');
             }
+        }
+
+        return me;
+    }
+
+
+    /**
+    *   Host plug-in
+    **/
+    xbag.host = function (form, config) {
+        var me = AuForms.FNode(form, config);
+
+        me.getHost = function () {
+            return me._targets.outer;
+        }
+
+        me.build = function () {
+            me._host.empty();
+            var outer = me._host;
+
+            me._targets = {
+                outer: outer
+            };
         }
 
         return me;

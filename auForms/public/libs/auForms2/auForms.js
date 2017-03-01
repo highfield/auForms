@@ -584,7 +584,8 @@ var AuForms = (function ($) {
                 });
                 mb.find('.bootstrap-dialog-message').css({
                     'height': '100%',
-                    'overflow-y': 'auto'
+                    'overflow': 'hidden'
+                    //'overflow-y': 'auto'
                 });
             }
         }
@@ -594,7 +595,7 @@ var AuForms = (function ($) {
         };
 
         var me = {
-            body: $('<div>'),
+            body: $('<div>').css('height', '100%'),
             header: null,
             footer: null,
         }
@@ -670,11 +671,29 @@ var AuForms = (function ($) {
 
 
     function wizard(form, cfg) {
+        function initPages() {
+            for (var i = 0, f = false; i < cfg.pages.length; i++) {
+                var n = form.getNode(cfg.pages[i].id);
+                if (!n) continue;
+                var el = n.getHost();
+                while (el.css('height') !== '100%') {
+                    el.css('height', '100%');
+                    if (f) break;
+                    el = el.parent();
+                }
+                f = true;
+            }
+        }
+
         function update() {
             var p = getPage(pgid);
             cfg.pages.forEach(function (z) {
                 var n = form.getNode(z.id);
-                if (n) n.prop('visible').set(p && z.id === pgid);
+                if (n) {
+                    var vis = p && z.id === pgid;
+                    n.prop('visible').set(vis);
+                    n.getHost().parent().css('height', vis ? '100%' : '');
+                }
             });
 
             if (cfg.prev) {
@@ -740,6 +759,7 @@ var AuForms = (function ($) {
             if (a.destId) {
                 pgid = a.destId;
                 update();
+                eventProxy.trigger('enter', null, { pageId: pgid });
             }
         }
 
@@ -766,6 +786,7 @@ var AuForms = (function ($) {
                 pgid = a.destId;
                 if (seq.indexOf(a.destId) < 0) seq.push(a.destId);
                 update();
+                eventProxy.trigger('enter', null, { pageId: pgid });
             }
         }
 
@@ -822,7 +843,9 @@ var AuForms = (function ($) {
             if (!pgid && getPage(id)) {
                 pgid = id;
                 seq.push(id);
+                initPages();
                 update();
+                eventProxy.trigger('enter', null, { pageId: pgid });
             }
         }
 
@@ -834,15 +857,64 @@ var AuForms = (function ($) {
             eventProxy.unsub(src, hnd);
         }
 
-        //me.onPrev = $.noop;
-        //me.onNext = $.noop;
-
         me.setValid = function (v) {
             valok = v;
             update();
         }
 
         return me;
+    }
+
+
+    function table(ctr, layout, options) {
+        ctr.empty();
+
+        layout = layout || {};
+        options = options || {};
+
+        var cols = layout.cols || [];
+        var rows = layout.rows || [];
+        if (cols.length === 0) return;
+        if (!options.showHeader && !rows.length) return;
+
+        var thead, table = $('<table>').addClass('table table-condensed').appendTo(ctr);
+        if (options.showHeader) {
+            thead = $('<thead>').appendTo(table);
+            var tr = $('<tr>').appendTo(thead);
+
+            for (var x = 0; x < cols.length; x++) {
+                var c = cols[x];
+                var tc = $('<th>').text(c.title || c.id).appendTo(tr);
+                if (c.width) tc.attr('width', c.width);
+            }
+        }
+
+        var tbody = $('<tbody>').appendTo(table);
+        for (var y = 0; y < rows.length; y++) {
+            var r = rows[y], cells = r.cells || {};
+            var tr = $('<tr>').appendTo(tbody);
+            if (r.bg) tr.css('background-color', r.bg);
+
+            for (var x = 0; x < cols.length; x++) {
+                var colId = cols[x].id, cl = cells[colId] || {};
+                var tc = $('<td>').appendTo(tr);
+                if (r === 0 && !thead) {
+                    if (cols[x].width) tc.attr('width', cols[x].width);
+                }
+                if (cols[x].bg) tc.css('background-color', cols[x].bg);
+                if (cl && cl.v) {
+                    if (cl.b) {
+                        tc.append($('<b>').text(cl.v));
+                    }
+                    else {
+                        tc.text(cl.v);
+                    }
+                }
+                else {
+                    tc.html('&nbsp;');
+                }
+            }
+        }
     }
 
 
@@ -881,6 +953,7 @@ var AuForms = (function ($) {
         Form: Form,
         dialog: dialog,
         wizard: wizard,
+        table: table,
         controllers: {
             ajax: ajaxController
         }
