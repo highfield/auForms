@@ -25,6 +25,9 @@
         <row header="Lunghezza">
           <numbox value="{path:'lungh', validate:{ required:true, int:{min:10, max:200}} }" post="cm" bg="bg-info" />
         </row>
+        <row header="Colore">
+          <colorbox value="{path:'colore', validate:{ required:true} }" />
+        </row>
         <row header="Constatazione">
           <checkbox text="Tigro l'é un porzèl" checked="{path:'conferma', validate:{ checked:true} }" />
         </row>

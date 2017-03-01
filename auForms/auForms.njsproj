@@ -35,6 +35,8 @@
     <Compile Include="public\js\site.js" />
     <Compile Include="public\js\site_old.js" />
     <Compile Include="public\js\site2.js" />
+    <Compile Include="public\libs\tinycolor-1.4.1\tinycolor-min.js" />
+    <Compile Include="public\libs\pick-a-color-1.2.3\js\pick-a-color-1.2.3.min.js" />
     <Compile Include="public\libs\auDispatcher.js" />
     <Compile Include="public\libs\auForms2\auForms-validators.js" />
     <Compile Include="public\libs\auForms2\auForms-widgets.js" />
@@ -172,6 +174,8 @@
     <Content Include="public\fonts\linecons\Read Me.txt" />
     <Content Include="public\images\pic-123169078.jpg" />
     <Content Include="public\images\uva-bianca.jpg" />
+    <Content Include="public\libs\pick-a-color-1.2.3\css\pick-a-color-1.2.3.min.css" />
+    <Content Include="public\libs\pick-a-color-1.2.3\sample.html" />
     <Content Include="public\libs\auForms2\auForms.css" />
     <Content Include="public\libs\auForms\auForms.css" />
     <Content Include="public\libs\bootstrap-3.3.7-dist\css\bootstrap-theme.css" />
@@ -244,6 +248,10 @@
     <Folder Include="public\js\" />
     <Folder Include="public\css\" />
     <Folder Include="public\libs\" />
+    <Folder Include="public\libs\tinycolor-1.4.1\" />
+    <Folder Include="public\libs\pick-a-color-1.2.3\" />
+    <Folder Include="public\libs\pick-a-color-1.2.3\css\" />
+    <Folder Include="public\libs\pick-a-color-1.2.3\js\" />
     <Folder Include="public\libs\bootstrap-3.3.7-dist\" />
     <Folder Include="public\libs\bootstrap-3.3.7-dist\css\" />
     <Folder Include="public\libs\bootstrap-3.3.7-dist\fonts\" />

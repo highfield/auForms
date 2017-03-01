@@ -21,6 +21,7 @@ namespace Cet.Aurora.Web.PageBuilder
             _cvInfoMap["textblock"] = new ConvInfo { Handler = ConvertTextBlock };
             _cvInfoMap["textbox"] = new ConvInfo { Handler = ConvertTextBox };
             _cvInfoMap["numbox"] = new ConvInfo { Handler = ConvertNumBox };
+            _cvInfoMap["colorbox"] = new ConvInfo { Handler = ConvertColorBox };
             _cvInfoMap["textarea"] = new ConvInfo { Handler = ConvertTextArea };
             _cvInfoMap["checkbox"] = new ConvInfo { Handler = ConvertCheckBox };
             _cvInfoMap["radiobox"] = new ConvInfo { Handler = ConvertRadioBox };
@@ -256,6 +257,13 @@ namespace Cet.Aurora.Web.PageBuilder
             ConvertParamString(ctx, xnode, jnode, "post");
             ConvertStringOrJSON(ctx, xnode, jnode, "value");
             ConvertParamBool(ctx, xnode, jnode, "readonly");
+            return jnode;
+        }
+
+
+        static JObject ConvertColorBox(ConvContext ctx, XElement xnode, JObject jnode)
+        {
+            ConvertStringOrJSON(ctx, xnode, jnode, "value");
             return jnode;
         }
 
