@@ -6,12 +6,12 @@
   
   <section name="footer">
     <stack halign="right" inline="true">
-      <stack margin="0px 8px 0px 0px" inline="true">
+      <stack margin="0px 32px 0px 0px" inline="true">
         <button text="Bottone 1" icon="glyphicon glyphicon-eye-open" />
         <button text="Bottone 2" icon="glyphicon glyphicon-thumbs-up" />
       </stack>
       <stack inline="true">
-        <button text="Close 1" id="c1" />
+        <button text="Close 1" id="c1" margin="0px 8px 0px 0px" />
         <button text="Close 2" id="c2" />
       </stack>
     </stack>

@@ -68,6 +68,7 @@ AuFormsWidgets = (function ($) {
                 me._targets.outer.css('overflow-y', oy);
 
                 me._targets.outer.css('height', me._props['height'].get());
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
 
                 var d = me._props['inline'].get() ? 'inline' : 'block';
                 me._targets.outer.css('display', d);
@@ -109,6 +110,7 @@ AuFormsWidgets = (function ($) {
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
                 me._applyCssProp(me._targets.outer, 'bg');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -143,6 +145,7 @@ AuFormsWidgets = (function ($) {
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
                 me._applyCssProp(me._targets.outer, 'bg');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -210,6 +213,12 @@ AuFormsWidgets = (function ($) {
             };
         }
 
+        me.update = function () {
+            if (me._applyVisible(me._targets.outer)) {
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
+            }
+        }
+
         return me;
     }
 
@@ -234,6 +243,7 @@ AuFormsWidgets = (function ($) {
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
                 var vout = me._props['value'].get();
                 if (vout != vold) {
                     vold = vout;
@@ -280,6 +290,7 @@ AuFormsWidgets = (function ($) {
             if (me._applyVisible(me._targets.outer)) {
                 me._targets.outer.text(me._props['text'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -308,6 +319,7 @@ AuFormsWidgets = (function ($) {
             if (me._applyVisible(me._targets.outer)) {
                 me._targets.outer.text(me._props['text'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -320,6 +332,7 @@ AuFormsWidgets = (function ($) {
     **/
     xbag.textarea = function (form, config) {
         var me = AuForms.FNode(form, config);
+        var sem = AuForms.FTimedSemaphore();
 
         AuForms.FProp(me, 'text', config, { bidi: true });
 
@@ -330,6 +343,7 @@ AuFormsWidgets = (function ($) {
             if (config.readonly) inp.attr("readonly", "");
 
             inp.on('change blur keyup', function (e) {
+                sem.restart();
                 me._props['text'].set($(this).val());
             });
 
@@ -341,9 +355,10 @@ AuFormsWidgets = (function ($) {
 
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
-                me._targets.inp.val(me._props['text'].get());
+                if (!sem.isBusy()) me._targets.inp.val(me._props['text'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.attr('disabled', me._enabled() ? null : '');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -360,6 +375,7 @@ AuFormsWidgets = (function ($) {
     **/
     xbag.textbox = function (form, config) {
         var me = AuForms.FNode(form, config);
+        var sem = AuForms.FTimedSemaphore();
 
         AuForms.FProp(me, 'text', config, { bidi: true });
 
@@ -378,6 +394,7 @@ AuFormsWidgets = (function ($) {
             }
 
             inp.on('change blur keyup', function (e) {
+                sem.restart();
                 me._props['text'].set($(this).val());
             });
 
@@ -389,9 +406,10 @@ AuFormsWidgets = (function ($) {
 
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
-                me._targets.inp.val(me._props['text'].get());
+                if (!sem.isBusy()) me._targets.inp.val(me._props['text'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.attr('disabled', me._enabled() ? null : '');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -408,6 +426,7 @@ AuFormsWidgets = (function ($) {
     **/
     xbag.numbox = function (form, config) {
         var me = AuForms.FNode(form, config);
+        var sem = AuForms.FTimedSemaphore();
 
         AuForms.FProp(me, 'value', config, { bidi: true });
 
@@ -426,6 +445,7 @@ AuFormsWidgets = (function ($) {
             }
 
             inp.on('change blur keyup', function (e) {
+                sem.restart();
                 me._props['value'].set($(this).val());
             });
 
@@ -437,9 +457,10 @@ AuFormsWidgets = (function ($) {
 
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
-                me._targets.inp.val(me._props['value'].get());
+                if (!sem.isBusy()) me._targets.inp.val(me._props['value'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.attr('disabled', me._enabled() ? null : '');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -456,6 +477,7 @@ AuFormsWidgets = (function ($) {
     **/
     xbag.colorbox = function (form, config) {
         var me = AuForms.FNode(form, config);
+        var sem = AuForms.FTimedSemaphore();
 
         AuForms.FProp(me, 'value', config, { bidi: true });
 
@@ -485,6 +507,7 @@ AuFormsWidgets = (function ($) {
             }).detach().appendTo(grp);
 
             inp.on('change blur keyup', function (e) {
+                sem.restart();
                 me._props['value'].set($(this).val());
             });
 
@@ -496,9 +519,10 @@ AuFormsWidgets = (function ($) {
 
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
-                me._targets.inp.val(me._props['value'].get());
+                if (!sem.isBusy()) me._targets.inp.val(me._props['value'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.attr('disabled', me._enabled() ? null : '');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -546,6 +570,7 @@ AuFormsWidgets = (function ($) {
                 me._targets.inp.val(me._props['value'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.attr('disabled', me._enabled() ? null : '');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -596,6 +621,7 @@ AuFormsWidgets = (function ($) {
                 me._targets.inp.val(me._props['value'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.attr('disabled', me._enabled() ? null : '');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -664,6 +690,7 @@ AuFormsWidgets = (function ($) {
                 }
                 me._targets.tspan.text(me._props['text'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -744,6 +771,7 @@ AuFormsWidgets = (function ($) {
                 me._targets.inp.attr('value', me._props['value'].get());
                 me._targets.tspan.text(me._props['text'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -761,6 +789,7 @@ AuFormsWidgets = (function ($) {
     xbag.radioselect = function (form, config) {
         var me = AuForms.FNode(form, config);
         me._gname = AuForms.uidgen();
+        var sem = AuForms.FTimedSemaphore();
 
         AuForms.FProp(me, 'value', config, { bidi: true });
 
@@ -800,6 +829,7 @@ AuFormsWidgets = (function ($) {
 
             inputs.forEach(function (inp) {
                 inp.on('change blur keyup', function (e) {
+                    sem.restart();
                     inputs.forEach(function (inp) {
                         if (inp.prop('checked')) {
                             me._props['value'].set(inp.val());
@@ -817,16 +847,17 @@ AuFormsWidgets = (function ($) {
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
 
                 var vout = me._props['value'].get();
                 me._targets.inputs.forEach(function (inp) {
                     if (inp.prettyCheckable) {
                         inp.prettyCheckable(me._enabled() ? 'enable' : 'disable');
-                        inp.prettyCheckable(vout == inp.val() ? 'check' : 'uncheck');
+                        if (!sem.isBusy()) inp.prettyCheckable(vout == inp.val() ? 'check' : 'uncheck');
                     }
                     else {
                         inp.attr('disabled', me._enabled() ? null : '');
-                        inp.prop('checked', vout == inp.val());
+                        if (!sem.isBusy()) inp.prop('checked', vout == inp.val());
                     }
                 });
             }
@@ -881,6 +912,7 @@ AuFormsWidgets = (function ($) {
                 me._targets.inp.val(me._props['value'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.attr('disabled', me._enabled() ? null : '');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -961,6 +993,7 @@ AuFormsWidgets = (function ($) {
             if (me._applyVisible(me._targets.outer)) {
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.attr('disabled', me._enabled() ? null : '');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
 
                 var dc = me._props['controller'].get();
                 if (dc) {
@@ -1017,6 +1050,7 @@ AuFormsWidgets = (function ($) {
     **/
     xbag.multiselect = function (form, config) {
         var me = AuForms.FNode(form, config);
+        var sem = AuForms.FTimedSemaphore();
 
         AuForms.FProp(me, 'value', config, { bidi: true });
 
@@ -1052,6 +1086,7 @@ AuFormsWidgets = (function ($) {
             inp.multiselect(opts);
 
             inp.on('change blur keyup', function (e) {
+                sem.restart();
                 me._props['value'].set($(this).val());
             });
 
@@ -1065,9 +1100,10 @@ AuFormsWidgets = (function ($) {
 
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
-                me._targets.inp.multiselect('select', me._props['value'].get());
+                if (!sem.isBusy()) me._targets.inp.multiselect('select', me._props['value'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.multiselect(me._enabled() ? 'enable' : 'disable');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -1169,6 +1205,7 @@ AuFormsWidgets = (function ($) {
                 updateItems();
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.outer.attr('disabled', me._enabled() ? null : '');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
 
@@ -1189,6 +1226,7 @@ AuFormsWidgets = (function ($) {
         AuForms.FProp(me, 'text', config);
         AuForms.FProp(me, 'icon', config);
         AuForms.FProp(me, 'cssClass', config);
+        AuForms.FProp(me, 'width', config);
 
         me.build = function () {
             me._host.empty();
@@ -1209,6 +1247,8 @@ AuFormsWidgets = (function ($) {
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
                 me._targets.outer.attr('class', me._props['cssClass'].get() || 'btn btn-default');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
+                me._targets.outer.css('width', me._props['width'].get() || '');
                 me._targets.outer.empty();
                 var vtext = me._props['text'].get(), otext;
                 var vicon = me._props['icon'].get(), oicon;

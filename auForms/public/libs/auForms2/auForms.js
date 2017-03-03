@@ -550,6 +550,46 @@ var AuForms = (function ($) {
     }
 
 
+    function FDelay(callback, delay) {
+        var me = {}, tmr;
+
+        me.restart = function () {
+            me.cancel();
+            tmr = setTimeout(function () {
+                tmr = null;
+                callback();
+            }, delay);
+        }
+
+        me.cancel = function () {
+            if (tmr) clearTimeout(tmr);
+            tmr = null;
+        }
+
+        return me;
+    }
+
+
+    function FTimedSemaphore(delay) {
+        var me = {}, tmr, fbusy = false;
+        me.isBusy = function () { return fbusy; }
+
+        me.restart = function () {
+            me.cancel();
+            fbusy = true;
+            tmr = setTimeout(me.cancel, delay || 500);
+        }
+
+        me.cancel = function () {
+            if (tmr) clearTimeout(tmr);
+            tmr = null;
+            fbusy = false;
+        }
+
+        return me;
+    }
+
+
     function dialog(options) {
         function trigResize() {
             var dm = {};
@@ -951,6 +991,8 @@ var AuForms = (function ($) {
         FNode: FNode,
         FSection: FSection,
         Form: Form,
+        FDelay: FDelay,
+        FTimedSemaphore: FTimedSemaphore,
         dialog: dialog,
         wizard: wizard,
         table: table,

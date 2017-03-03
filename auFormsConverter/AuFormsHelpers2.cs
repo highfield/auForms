@@ -348,6 +348,7 @@ namespace Cet.Aurora.Web.PageBuilder
             ConvertStringOrJSON(ctx, xnode, jnode, "text");
             ConvertStringOrJSON(ctx, xnode, jnode, "icon");
             ConvertStringOrJSON(ctx, xnode, jnode, "cssClass");
+            ConvertParamString(ctx, xnode, jnode, "width");
             return jnode;
         }
 

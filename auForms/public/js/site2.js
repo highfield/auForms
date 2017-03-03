@@ -531,7 +531,7 @@ var samplesFactory = {};
 samplesFactory["buttonDemo_2+2"] = function (targets, options) {
     "use strict";
 
-    var layout = { "type": "form", "body": {}, "footer": { "type": "stack", "halign": "right", "inline": true, "nodes": [{ "type": "stack", "margin": "0px 8px 0px 0px", "inline": true, "nodes": [{ "type": "button", "text": "Bottone 1", "icon": "glyphicon glyphicon-eye-open" }, { "type": "button", "text": "Bottone 2", "icon": "glyphicon glyphicon-thumbs-up" }] }, { "type": "stack", "inline": true, "nodes": [{ "type": "button", "id": "c1", "text": "Close 1" }, { "type": "button", "id": "c2", "text": "Close 2" }] }] } };
+    var layout = { "type": "form", "body": {}, "footer": { "type": "stack", "halign": "right", "inline": true, "nodes": [{ "type": "stack", "margin": "0px 32px 0px 0px", "inline": true, "nodes": [{ "type": "button", "text": "Bottone 1", "icon": "glyphicon glyphicon-eye-open" }, { "type": "button", "text": "Bottone 2", "icon": "glyphicon glyphicon-thumbs-up" }] }, { "type": "stack", "inline": true, "nodes": [{ "type": "button", "id": "c1", "margin": "0px 8px 0px 0px", "text": "Close 1" }, { "type": "button", "id": "c2", "text": "Close 2" }] }] } };
 
     var form = AuForms.Form(targets, options);
     form.layout(AuFormsWidgets).load(layout);
