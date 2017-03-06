@@ -917,9 +917,9 @@ var AuForms = (function ($) {
         if (cols.length === 0) return;
         if (!options.showHeader && !rows.length) return;
 
-        var thead, table = $('<table>').addClass('table table-condensed').appendTo(ctr);
+        var thead, tbl = $('<table>').addClass('table table-condensed').appendTo(ctr);
         if (options.showHeader) {
-            thead = $('<thead>').appendTo(table);
+            thead = $('<thead>').appendTo(tbl);
             var tr = $('<tr>').appendTo(thead);
 
             for (var x = 0; x < cols.length; x++) {
@@ -929,7 +929,7 @@ var AuForms = (function ($) {
             }
         }
 
-        var tbody = $('<tbody>').appendTo(table);
+        var tbody = $('<tbody>').appendTo(tbl);
         for (var y = 0; y < rows.length; y++) {
             var r = rows[y], cells = r.cells || {};
             var tr = $('<tr>').appendTo(tbody);
@@ -955,6 +955,7 @@ var AuForms = (function ($) {
                 }
             }
         }
+        return tbl;
     }
 
 

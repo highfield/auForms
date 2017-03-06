@@ -446,7 +446,7 @@ AuFormsWidgets = (function ($) {
 
             inp.on('change blur keyup', function (e) {
                 sem.restart();
-                me._props['value'].set($(this).val());
+                me._props['value'].set(parseFloat($(this).val()));
             });
 
             me._targets = {
@@ -879,11 +879,10 @@ AuFormsWidgets = (function ($) {
 
         AuForms.FProp(me, 'value', config, { bidi: true });
 
-        me.setOptions = function (list) {
-            me._targets.inp.empty();
-            (list || []).forEach(function (opt) {
-                $("<option>").attr("value", opt.key).text(opt.value).appendTo(me._targets.inp);
-            });
+        var optItems = config.enum || [];
+        me.setOptionItems = function (list) {
+            optItems = list || [];
+            me.render(AuForms.RenderLevel.build);
         }
 
         me.build = function () {
@@ -891,9 +890,9 @@ AuFormsWidgets = (function ($) {
             var grp = $('<div>').appendTo(me._host);
             var inp = $("<select>").attr({ id: me._uid }).addClass('form-control').appendTo(grp);
             if (config.readonly) inp.attr("readonly", "");
-            //(config.enum || []).forEach(function (opt) {
-            //    $("<option>").attr("value", opt.key).text(opt.value).appendTo(inp);
-            //});
+            optItems.forEach(function (opt) {
+                $("<option>").attr("value", opt.key).text(opt.value).appendTo(inp);
+            });
 
             inp.on('change blur keyup', function (e) {
                 me._props['value'].set($(this).val());
@@ -903,8 +902,6 @@ AuFormsWidgets = (function ($) {
                 outer: grp,
                 inp: inp
             };
-
-            me.setOptions(config.enum);
         }
 
         me.update = function () {
@@ -933,11 +930,10 @@ AuFormsWidgets = (function ($) {
         AuForms.FProp(me, 'value', config, { bidi: true });
         AuForms.FProp(me, 'controller', config);
 
-        me.setOptions = function (list) {
-            me._targets.inp.empty();
-            (list || []).forEach(function (opt) {
-                $("<option>").attr("value", opt.key).text(opt.value).appendTo(me._targets.inp);
-            });
+        var optItems = config.enum || [];
+        me.setOptionItems = function (list) {
+            optItems = list || [];
+            me.render(AuForms.RenderLevel.build);
         }
 
         me.build = function () {
@@ -947,9 +943,9 @@ AuFormsWidgets = (function ($) {
                 'width': '100%'
             }).appendTo(grp);
             if (config.readonly) inp.attr("readonly", "");
-            //(config.enum || []).forEach(function (opt) {
-            //    $("<option>").attr("value", opt.key).text(opt.value).appendTo(inp);
-            //});
+            optItems.forEach(function (opt) {
+                $("<option>").attr("value", opt.key).text(opt.value).appendTo(inp);
+            });
             inp.select2({
                 theme: "bootstrap"
             });
@@ -985,8 +981,6 @@ AuFormsWidgets = (function ($) {
                 outer: grp,
                 inp: inp
             };
-
-            me.setOptions(config.enum);
         }
 
         me.update = function () {
@@ -1054,11 +1048,10 @@ AuFormsWidgets = (function ($) {
 
         AuForms.FProp(me, 'value', config, { bidi: true });
 
-        me.setOptions = function (list) {
-            me._targets.inp.empty();
-            (list || []).forEach(function (opt) {
-                $("<option>").attr("value", opt.key).text(opt.value).appendTo(me._targets.inp);
-            });
+        var optItems = config.enum || [];
+        me.setOptionItems = function (list) {
+            optItems = list || [];
+            me.render(AuForms.RenderLevel.build);
         }
 
         me.build = function () {
@@ -1066,9 +1059,9 @@ AuFormsWidgets = (function ($) {
             var grp = $('<div>').appendTo(me._host);
             var inp = $("<select>").attr({ id: me._uid, multiple: 'multiple' }).addClass('form-control').appendTo(grp);
             if (config.readonly) inp.attr("readonly", "");
-            //(config.enum || []).forEach(function (opt) {
-            //    $("<option>").attr("value", opt.key).text(opt.value).appendTo(inp);
-            //});
+            optItems.forEach(function (opt) {
+                $("<option>").attr("value", opt.key).text(opt.value).appendTo(inp);
+            });
 
             var opts = _.cloneDeep(config.options || {});
             opts.onInitialized = function (s, c) {
@@ -1094,8 +1087,6 @@ AuFormsWidgets = (function ($) {
                 outer: grp,
                 inp: inp
             };
-
-            me.setOptions(config.enum);
         }
 
         me.update = function () {
