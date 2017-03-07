@@ -883,10 +883,10 @@ samplesFactory.basicWizard = function (targets, options) {
             };
 
             var n1 = form.getNode('riass1');
-            AuForms.table(n1.getHost(), tt);
+            AuForms.table(n1.getHost().empty(), tt);
 
             var n2 = form.getNode('riass2');
-            AuForms.table(n2.getHost(), tt);
+            AuForms.table(n2.getHost().empty(), tt);
         }
     });
 

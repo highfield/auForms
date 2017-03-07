@@ -907,7 +907,30 @@ var AuForms = (function ($) {
 
 
     function table(ctr, layout, options) {
-        ctr.empty();
+        function buildCell(cell, tr, col) {
+            function content(ctr, val) {
+                if (_.isString(val) && val.length > 2 && val[0] === '<' && val[val.length - 1] === '>') {
+                    ctr.html(val);
+                }
+                else {
+                    ctr.text(val);
+                }
+            }
+
+            var tc = $('<td>').appendTo(tr);
+            if (col.bg) tc.css('background-color', col.bg);
+            if (cell == null) {
+                tc.html('&nbsp;');
+            }
+            else if (_.isObject(cell)) {
+                var inner = cell.b ? $('<b>').appendTo(tc) : tc;
+                content(inner, cell.v);
+            }
+            else {
+                content(tc, cell);
+            }
+            return tc;
+        }
 
         layout = layout || {};
         options = options || {};
@@ -917,7 +940,7 @@ var AuForms = (function ($) {
         if (cols.length === 0) return;
         if (!options.showHeader && !rows.length) return;
 
-        var thead, tbl = $('<table>').addClass('table table-condensed').appendTo(ctr);
+        var thead, tbl = $('<table>').addClass(options.tableClass || 'table table-condensed').appendTo(ctr);
         if (options.showHeader) {
             thead = $('<thead>').appendTo(tbl);
             var tr = $('<tr>').appendTo(thead);
@@ -931,27 +954,23 @@ var AuForms = (function ($) {
 
         var tbody = $('<tbody>').appendTo(tbl);
         for (var y = 0; y < rows.length; y++) {
-            var r = rows[y], cells = r.cells || {};
-            var tr = $('<tr>').appendTo(tbody);
-            if (r.bg) tr.css('background-color', r.bg);
-
-            for (var x = 0; x < cols.length; x++) {
-                var colId = cols[x].id, cl = cells[colId] || {};
-                var tc = $('<td>').appendTo(tr);
-                if (r === 0 && !thead) {
-                    if (cols[x].width) tc.attr('width', cols[x].width);
+            var r = rows[y], tr = $('<tr>').appendTo(tbody), tcs = [];
+            if (_.isObject(r)) {
+                if (r.bg) tr.css('background-color', r.bg);
+                var cells = r.cells || {};
+                for (var x = 0; x < cols.length; x++) {
+                    tcs.push(buildCell(cells[cols[x].id], tr, cols[x]));
                 }
-                if (cols[x].bg) tc.css('background-color', cols[x].bg);
-                if (cl && cl.v) {
-                    if (cl.b) {
-                        tc.append($('<b>').text(cl.v));
-                    }
-                    else {
-                        tc.text(cl.v);
-                    }
+            }
+            if (!tcs.length) {
+                r = _.isArray(r) ? r : [r];
+                for (var x = 0; x < cols.length; x++) {
+                    tcs.push(buildCell(x < r.length && r[x], tr, cols[x]));
                 }
-                else {
-                    tc.html('&nbsp;');
+            }
+            if (y === 0 && !thead) {
+                for (var x = 0; x < cols.length; x++) {
+                    if (cols[x].width) tcs[x].attr('width', cols[x].width);
                 }
             }
         }
