@@ -5,7 +5,9 @@
             t: 'transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd',
             a: 'webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend'
         },
+
         // I18N
+        /*
         i18n = {
             'en': {
                 name: 'English',
@@ -1142,6 +1144,7 @@
                 }
             }
         },
+        */
 
         // MAIN VARS
 
@@ -1277,9 +1280,9 @@
                 return n;
         },
         get_days_array = function () {
-            if (i18n[pickers[picker.id].lang].gregorian)
-                return [1, 2, 3, 4, 5, 6, 0];
-            else
+            //if (i18n[pickers[picker.id].lang].gregorian)
+            //    return [1, 2, 3, 4, 5, 6, 0];
+            //else
                 return [0, 1, 2, 3, 4, 5, 6];
         },
         get_ul = function (k) {
@@ -1332,18 +1335,22 @@
             }
         },
         picker_translate = function (v) {
-            pickers[picker.id].lang = Object.keys(i18n)[v];
-            picker_set_lang();
-            picker_set();
+            //pickers[picker.id].lang = Object.keys(i18n)[v];
+            //picker_set_lang();
+            //picker_set();
         },
         picker_set_lang = function () {
             var
                 picker_day_offset = get_days_array();
+            var ml = moment();
+            ml.locale(pickers[picker.id].lang);
             get_picker_els('.pick-lg .pick-lg-h li').each(function (i) {
-                $(this).html(i18n[pickers[picker.id].lang].weekdays.short[picker_day_offset[i]]);
+                $(this).html(ml.localeData().weekdaysShort()[picker_day_offset[i]]);
+                //$(this).html(i18n[pickers[picker.id].lang].weekdays.short[picker_day_offset[i]]);
             });
             get_picker_els('ul.pick.pick-m li').each(function () {
-                $(this).html(i18n[pickers[picker.id].lang].months.short[$(this).attr('value') - 1]);
+                $(this).html(ml.localeData().monthsShort()[$(this).attr('value') - 1]);
+                //$(this).html(i18n[pickers[picker.id].lang].months.short[$(this).attr('value') - 1]);
             });
         },
         picker_show = function () {
@@ -1368,12 +1375,15 @@
             //CURRENT VALUE
             pickers[picker.id].key[k].current = key_values.today < key_values.min && key_values.min || key_values.today;
 
+            var ml = moment();
+            ml.locale(pickers[picker.id].lang);
             for (i = key_values.min; i <= key_values.max; i++) {
                 var
                     html = i;
 
                 if (k == 'm')
-                    html = i18n[pickers[picker.id].lang].months.short[i - 1];
+                    html = ml.localeData().monthsShort()[i - 1];
+                    //html = i18n[pickers[picker.id].lang].months.short[i - 1];
                 if (k == 'l')
                     html = i18n[Object.keys(i18n)[i]].name;
 
@@ -1559,6 +1569,8 @@
                 picker_ul_transition('d', get_current('d'));
             }
 
+            var ml = moment();
+            ml.locale(pickers[picker.id].lang);
             get_picker_els('.pick-d li')
                 .removeClass('pick-wke')
                 .each(function () {
@@ -1567,7 +1579,8 @@
 
                     $(this)
                         .find('span')
-                        .html(i18n[pickers[picker.id].lang].weekdays.full[d]);
+                        .html(ml.localeData().weekdays()[d]);
+                        //.html(i18n[pickers[picker.id].lang].weekdays.full[d]);
 
                     if (d == 0 || d == 6)
                         $(this).addClass('pick-wke');
@@ -1675,21 +1688,24 @@
                 d = get_current('d'),
                 m = get_current('m'),
                 y = get_current('y'),
-                get_day = new Date(m + "/" + d + "/" + y).getDay(),
+                get_day = new Date(m + "/" + d + "/" + y).getDay();
 
-                str =
-                    pickers[picker.id].format
-                        .replace(/\b(d)\b/g, input_fill(d))
-                        .replace(/\b(m)\b/g, input_fill(m))
-                        .replace(/\b(S)\b/g, input_ordinal_suffix(d)) //new
-                        .replace(/\b(Y)\b/g, y)
-                        .replace(/\b(U)\b/g, get_unix(get_current_full())) //new
-                        .replace(/\b(D)\b/g, i18n[pickers[picker.id].lang].weekdays.short[get_day])
-                        .replace(/\b(l)\b/g, i18n[pickers[picker.id].lang].weekdays.full[get_day])
-                        .replace(/\b(F)\b/g, i18n[pickers[picker.id].lang].months.full[m - 1])
-                        .replace(/\b(M)\b/g, i18n[pickers[picker.id].lang].months.short[m - 1])
-                        .replace(/\b(n)\b/g, m)
-                        .replace(/\b(j)\b/g, d);
+            var ml = moment({ year: y, month: m, day: d });
+            ml.locale(pickers[picker.id].lang);
+            var str = ml.format('ll');
+                //str =
+                //    pickers[picker.id].format
+                //        .replace(/\b(d)\b/g, input_fill(d))
+                //        .replace(/\b(m)\b/g, input_fill(m))
+                //        .replace(/\b(S)\b/g, input_ordinal_suffix(d)) //new
+                //        .replace(/\b(Y)\b/g, y)
+                //        .replace(/\b(U)\b/g, get_unix(get_current_full())) //new
+                //        .replace(/\b(D)\b/g, i18n[pickers[picker.id].lang].weekdays.short[get_day])
+                //        .replace(/\b(l)\b/g, i18n[pickers[picker.id].lang].weekdays.full[get_day])
+                //        .replace(/\b(F)\b/g, i18n[pickers[picker.id].lang].months.full[m - 1])
+                //        .replace(/\b(M)\b/g, i18n[pickers[picker.id].lang].months.short[m - 1])
+                //        .replace(/\b(n)\b/g, m)
+                //        .replace(/\b(j)\b/g, d);
 
             picker
                 .input
@@ -1918,7 +1934,8 @@
             picker_fx_class = (input.data('fx') === false) ? '' : 'picker-fxs',
             picker_fx_mobile = (input.data('fx-mobile') === false) ? input.data('fx-mobile') : true,
             picker_init_set = (input.data('init-set') === false) ? false : true,
-            picker_lang = (input.data('lang') && (input.data('lang') in i18n)) ? input.data('lang') : 'en',
+            //picker_lang = (input.data('lang') && (input.data('lang') in i18n)) ? input.data('lang') : 'en',
+            picker_lang = input.data('lang') || 'en',
             picker_large = (input.data('large-mode') === true) ? true : false,
             picker_large_class = (input.data('large-default') === true && picker_large === true) ? 'picker-lg' : '',
             picker_lock = (input.data('lock') == 'from' || input.data('lock') == 'to') ? input.data('lock') : false,
@@ -1967,12 +1984,12 @@
                     current: picker_min_year,
                     today: new Date().getFullYear()
                 },
-                l: {
-                    min: 0,
-                    max: Object.keys(i18n).length - 1,
-                    current: 0,
-                    today: 0
-                }
+                //l: {
+                //    min: 0,
+                //    max: Object.keys(i18n).length - 1,
+                //    current: 0,
+                //    today: 0
+                //}
             },
             translate: picker_translate_mode
         };
@@ -2042,8 +2059,11 @@
                 picker_day_offset = get_days_array();
 
             for (var i = 0; i < 7; i++) {
+                var ml = moment();
+                ml.locale(pickers[picker.id].lang);
                 $('<li>', {
-                    html: i18n[pickers[picker.id].lang].weekdays.short[picker_day_offset[i]]
+                    html: ml.localeData().weekdaysShort()[picker_day_offset[i]]
+                    //html: i18n[pickers[picker.id].lang].weekdays.short[picker_day_offset[i]]
                 })
                     .appendTo(get_picker_els('.pick-lg .pick-lg-h'))
             }

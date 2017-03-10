@@ -427,6 +427,7 @@ AuFormsWidgets = (function ($) {
     xbag.numbox = function (form, config) {
         var me = AuForms.FNode(form, config);
         var sem = AuForms.FTimedSemaphore();
+        var fmt = AuForms.formats.numeric;
 
         AuForms.FProp(me, 'value', config, { bidi: true });
 
@@ -437,7 +438,7 @@ AuFormsWidgets = (function ($) {
                 grp.addClass('input-group');
                 $('<span>').addClass('input-group-addon').text(config.pre).appendTo(grp);
             }
-            var inp = $("<input>").attr({ type: 'number', id: me._uid }).addClass('form-control').appendTo(grp);
+            var inp = $("<input>").attr({ type: 'text', id: me._uid }).addClass('form-control').appendTo(grp);
             if (config.readonly) inp.attr("readonly", "");
             if (config.post) {
                 grp.addClass('input-group');
@@ -446,7 +447,9 @@ AuFormsWidgets = (function ($) {
 
             inp.on('change blur keyup', function (e) {
                 sem.restart();
-                me._props['value'].set(parseFloat($(this).val()));
+                var t = $(this).val();
+                var num = fmt ? fmt.from(t) : parseFloat(t);
+                me._props['value'].set(num);
             });
 
             me._targets = {
@@ -457,7 +460,12 @@ AuFormsWidgets = (function ($) {
 
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
-                if (!sem.isBusy()) me._targets.inp.val(me._props['value'].get());
+                if (!sem.isBusy()) {
+                    var num = me._props['value'].get();
+                    var t = fmt ? fmt.to(num) : (num || 0).toString();
+                    if (!_.isString(t)) t = '';
+                    me._targets.inp.val(t);
+                }
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.attr('disabled', me._enabled() ? null : '');
                 me._targets.outer.css('margin', me._props['margin'].get() || '');
@@ -539,6 +547,8 @@ AuFormsWidgets = (function ($) {
     **/
     xbag.fgtime = function (form, config) {
         var me = AuForms.FNode(form, config);
+        var fmt = AuForms.formats.datetime;
+        var api;
 
         AuForms.FProp(me, 'value', config, { bidi: true });
 
@@ -553,10 +563,13 @@ AuFormsWidgets = (function ($) {
             }).appendTo(grp);
 
             var opts = _.cloneDeep(config.options || {});
-            inp.timeDropper(opts);
+            opts.locale = fmt.locale;
+            inp.fgTimeDropper(opts);
+            api = inp.data('fgTimeDropper');
 
             inp.on('change blur keyup', function (e) {
-                me._props['value'].set($(this).val());
+                var m = moment({ hour: api.getHour(), minute: api.getMinute() });
+                me._props['value'].set(m.toISOString());
             });
 
             me._targets = {
@@ -567,7 +580,10 @@ AuFormsWidgets = (function ($) {
 
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
-                me._targets.inp.val(me._props['value'].get());
+                var dt = me._props['value'].get();
+                var m = moment(dt);
+                api.setHour(m.hour());
+                api.setMinute(m.minute());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.attr('disabled', me._enabled() ? null : '');
                 me._targets.outer.css('margin', me._props['margin'].get() || '');
@@ -587,6 +603,7 @@ AuFormsWidgets = (function ($) {
     **/
     xbag.fgdate = function (form, config) {
         var me = AuForms.FNode(form, config);
+        var fmt = AuForms.formats.datetime;
 
         AuForms.FProp(me, 'value', config, { bidi: true });
 
@@ -601,13 +618,17 @@ AuFormsWidgets = (function ($) {
             }).appendTo(grp);
 
             var opts = config.options || {};
+            opts.lang = fmt.locale;
             for (var k in opts) {
                 inp.attr("data-" + k, opts[k]);
             }
             inp.dateDropper(opts);
 
             inp.on('change blur keyup', function (e) {
-                me._props['value'].set($(this).val());
+                var t = $(this).val();
+                var m = moment(t, 'll', fmt.locale);
+                //var dt = fmt ? fmt(t) : t;
+                me._props['value'].set(m.toISOString());
             });
 
             me._targets = {
@@ -618,7 +639,11 @@ AuFormsWidgets = (function ($) {
 
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
-                me._targets.inp.val(me._props['value'].get());
+                var dt = me._props['value'].get();
+                var m = moment(dt);
+                m.locale(fmt.locale);
+                me._targets.inp.val(m.format('ll'));
+                //me._targets.inp.val(fmt ? fmt.format('ll') : dt);
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.attr('disabled', me._enabled() ? null : '');
                 me._targets.outer.css('margin', me._props['margin'].get() || '');
@@ -680,13 +705,14 @@ AuFormsWidgets = (function ($) {
 
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
+                var ena = me._enabled() && !config.readonly;
                 if (me._targets.inp.prettyCheckable) {
                     me._targets.inp.prettyCheckable(me._props['checked'].get() ? 'check' : 'uncheck');
-                    me._targets.inp.prettyCheckable(me._enabled() ? 'enable' : 'disable');
+                    me._targets.inp.prettyCheckable(ena ? 'enable' : 'disable');
                 }
                 else {
                     me._targets.inp.prop('checked', !!me._props['checked'].get());
-                    me._targets.inp.attr('disabled', me._enabled() ? null : '');
+                    me._targets.inp.attr('disabled', ena ? null : '');
                 }
                 me._targets.tspan.text(me._props['text'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
@@ -707,6 +733,7 @@ AuFormsWidgets = (function ($) {
     **/
     xbag.radiobox = function (form, config) {
         var me = AuForms.FNode(form, config);
+        me._gname = config.group;
 
         AuForms.FProp(me, 'checked', config, { bidi: true });
         AuForms.FProp(me, 'value', config);
@@ -717,7 +744,7 @@ AuFormsWidgets = (function ($) {
             var grp = $('<div>').addClass("radio").appendTo(me._host);
             var inp = $("<input>").attr({
                 type: 'radio',
-                name: config.group,
+                name: me._gname,
                 id: me._uid
             }).addClass('form-control').appendTo(grp);
             if (config.readonly) inp.attr("readonly", "");
@@ -771,7 +798,7 @@ AuFormsWidgets = (function ($) {
                 me._targets.inp.attr('value', me._props['value'].get());
                 me._targets.tspan.text(me._props['text'].get());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
-                me._targets.outer.css('margin', me._props['margin'].get() || '');
+                me._targets.outer.css('margin', me._props['margin'].get() || '0px');
             }
         }
 

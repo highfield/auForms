@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<auForm>
+  <section name="body">
+    <row header="DS" grid-col-defs="6 6">
+      <grid-layout>
+        <row>
+          <row.header>
+            <radiobox id="RD" text="Default" value="0" group="G" font="{bold:true}" />
+          </row.header>
+          <host id="HD" />
+        </row>
+        <row>
+          <row.header>
+            <radiobox id="RC" text="Custom" value="1" group="G" font="{bold:true}" />
+          </row.header>
+          <host id="HC" />
+        </row>
+      </grid-layout>
+    </row>
+  </section>
+</auForm>

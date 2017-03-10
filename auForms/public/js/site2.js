@@ -492,18 +492,27 @@ $(document).ready(function () {
         }
         var dialog = AuForms.dialog(opts);
 
-        var layout = { "type": "form", "body": { "type": "stack", "nodes": [{ "type": "row", "header": "Esempio", "nodes": [{ "type": "select", "value": { "path": "sampleSelector" }, "enum": [{ "key": "", "value": "(none)" }, { "key": "buttonDemo_2+2", "value": "buttonDemo 2+2" }, { "key": "basicText", "value": "basicText" }, { "key": "basicValidation", "value": "basicValidation" }, { "key": "panels", "value": "panels" }, { "key": "basicWizard", "value": "basicWizard" }, { "key": "dynamicLayout", "value": "dynamicLayout" }, { "key": "iconery", "value": "iconery" }, { "key": "userPrefs", "value": "userPrefs" }] }] }, { "type": "row", "header": "Target", "nodes": [{ "type": "select", "value": { "path": "viewTarget" }, "enum": [{ "key": "page", "value": "page" }, { "key": "dialog", "value": "dialog" }, { "key": "sidebar", "value": "sidebar" }] }] }] }, "footer": { "type": "stack", "halign": "right", "inline": true, "nodes": [{ "type": "button", "id": "btnOpenWomen", "text": "Open 'Women'" }, { "type": "button", "id": "btnRemoveForm", "text": "Remove" }, { "type": "button", "id": "btnShowForm", "text": "Show" }] } };
+        var layout = { "type": "form", "body": { "type": "stack", "nodes": [{ "type": "row", "header": "Esempio", "nodes": [{ "type": "select", "value": { "path": "sampleSelector" }, "enum": [{ "key": "", "value": "(none)" }, { "key": "buttonDemo_2+2", "value": "buttonDemo 2+2" }, { "key": "basicText", "value": "basicText" }, { "key": "basicValidation", "value": "basicValidation" }, { "key": "panels", "value": "panels" }, { "key": "basicWizard", "value": "basicWizard" }, { "key": "dynamicLayout", "value": "dynamicLayout" }, { "key": "iconery", "value": "iconery" }, { "key": "settingsL1", "value": "settingsL1" }, { "key": "settingsL2", "value": "settingsL2" }, { "key": "userPrefs", "value": "userPrefs" }] }] }, { "type": "row", "header": "Target", "nodes": [{ "type": "select", "value": { "path": "viewTarget" }, "enum": [{ "key": "page", "value": "page" }, { "key": "dialog", "value": "dialog" }, { "key": "sidebar", "value": "sidebar" }] }] }, { "type": "panel", "bg": "panel-info", "header": "Preferenze", "nodes": [{ "type": "stack", "nodes": [{ "type": "row", "gcols": [4, 8], "header": "Separatore decimale", "nodes": [{ "type": "select", "value": { "path": "decimale" }, "enum": [{ "key": ".", "value": ". (punto)" }, { "key": ",", "value": ", (virgola)" }] }] }, { "type": "row", "gcols": [4, 8], "header": "Separatore migliaia", "nodes": [{ "type": "select", "value": { "path": "migliaia" }, "enum": [{ "key": "", "value": "(nessuno)" }, { "key": " ", "value": "(spazio)" }, { "key": ".", "value": ". (punto)" }, { "key": ",", "value": ", (virgola)" }] }] }, { "type": "row", "gcols": [4, 8], "header": "Formato data/ora", "nodes": [{ "type": "select", "value": { "path": "dataora" }, "enum": [{ "key": "", "value": "Default (Inglese USA)" }, { "key": "it", "value": "Italia" }, { "key": "de", "value": "Germania" }, { "key": "fr", "value": "Francia" }, { "key": "es", "value": "Spagna" }, { "key": "hu", "value": "Ungheria" }, { "key": "zh-cn", "value": "Cina" }, { "key": "ar", "value": "Arabo" }] }] }] }] }] }, "footer": { "type": "stack", "halign": "right", "inline": true, "nodes": [{ "type": "button", "id": "btnOpenWomen", "text": "Open 'Women'" }, { "type": "button", "id": "btnRemoveForm", "text": "Remove" }, { "type": "button", "id": "btnShowForm", "text": "Show" }] } };
         var form = AuForms.Form(dialog, {});
         form.layout(AuFormsWidgets).load(layout);
 
         form.on('btnShowForm.click', function (args) {
-            var h = viewTargetHandlers[form.getData().viewTarget || 'page'];
+            selectorCache = form.getData();
+            AuForms.formats.numeric = wNumb({
+                mark: selectorCache.decimale,
+                thousand: selectorCache.migliaia
+            });
+
+            AuForms.formats.datetime = {
+                locale: selectorCache.dataora
+            }
+
+            var h = viewTargetHandlers[selectorCache.viewTarget || 'page'];
             h && h(function (targets, options) {
-                var sample = form.getData().sampleSelector;
+                var sample = selectorCache.sampleSelector;
                 var fn = sample && samplesFactory[sample];
                 return fn && fn(targets, options || {});
             });
-            selectorCache = form.getData();
             dialog.close();
         });
 
@@ -523,8 +532,54 @@ $(document).ready(function () {
         dialog.open();
     });
 
+
+    //define the fictional settings model
+    mySettings.addLevel('app', 0);
+    mySettings.addLevel('domain', 10);
+    mySettings.addLevel('user', 20);
+
+    mySettings.addItem(AuSettings.InhItem('cognome', {
+        description: 'Cognome',
+        order: 10,
+        meta: { presenter: ZText }
+    }));
+
+    mySettings.addItem(AuSettings.InhItem('nome', {
+        description: 'Nome',
+        order: 9,
+        meta: { presenter: ZText }
+    }));
+
+    mySettings.addItem(AuSettings.InhItem('conferma', {
+        description: "L'é un porzèl",
+        order: 20,
+        meta: { presenter: ZCheck }
+    }));
+
+    mySettings.addItem(AuSettings.InhItem('razza', {
+        description: "Razza",
+        order: 17,
+        meta: { presenter: ZSelect }
+    }));
+
+    mySettings.addItem(AuSettings.InhItem('peso', {
+        description: "Peso",
+        order: 15,
+        meta: { presenter: ZNum }
+    }));
+
+    //set-up some inheritable items as fictional settings
+    mySettings.setLevelData('app', {
+        nome: { value: 'Tigro' },
+        cognome: { value: 'Porzèl' },
+        peso: { value: 5.5 },
+        razza: { value: 'mc' },
+        conferma: { value: true },
+    });
 });
 
+
+var mySettings = AuSettings.InhBag();
 var samplesFactory = {};
 
 
@@ -664,7 +719,9 @@ samplesFactory.basicValidation = function (targets, options) {
         razza: 'mc',
         disastri: ['cusc', 'div'],
         note: "Povero martire di Betty...",
-        citta: 26
+        citta: 26,
+        nato_ora: '2016-05-12T11:14:39+01:00',
+        nato_data: '2016-05-12T11:14:39+01:00',
     };
     form.load(data);
 }
@@ -1013,3 +1070,138 @@ samplesFactory.iconery = function (targets, options) {
 
 }
 
+
+
+samplesFactory.settingsL1 = function (targets, options) {
+    "use strict";
+    settings_common(targets, options, 'domain');
+}
+
+samplesFactory.settingsL2 = function (targets, options) {
+    "use strict";
+    settings_common(targets, options, 'user');
+}
+
+
+function settings_common(targets, options, level) {
+    "use strict";
+
+    var az = [], prevLevel = mySettings.getPrevLevelName(level);
+    var layout = {
+        "type": "form",
+        "body": {
+            "type": "stack",
+            "overflow-y": "auto",
+            "height": "100%",
+            "nodes": []
+        },
+        "footer": {
+            "type": "stack",
+            "halign": "right",
+            "inline": true,
+            "nodes": [
+                {
+                    "type": "button",
+                    "id": "save",
+                    "text": "Save",
+                    "margin": "0px 30px 0px 0px",
+                }, {
+                    "type": "button",
+                    "id": "close",
+                    "text": "Close"
+                }]
+        }
+    };
+
+    mySettings.getItems().forEach(function (i) {
+        var z = i.getMeta().presenter();
+        layout.body.nodes.push(z.getLayout(i));
+        az.push(z);
+    });
+
+    var form = AuForms.Form(targets, options);
+    form.layout(AuFormsWidgets).load(layout);
+
+    az.forEach(function (z) {
+        z.manage(form);
+    });
+
+    var data = {
+        dd: mySettings.getLevelValues(prevLevel),
+        cd: mySettings.getLevelData(level)
+    };
+    form.load(data);
+    console.log(data);
+
+    form.on('save.click', function (args) {
+        var fd = form.getData();
+        console.log(fd);
+        mySettings.setLevelData(level, fd.cd);
+        var ld = mySettings.getLevelData(level);
+        console.log(ld);
+    });
+
+    form.on('close.click', function (args) {
+        if (targets.close) {
+            targets.close();
+        }
+        else {
+            alert('close!');
+        }
+    });
+}
+
+
+function ZText() {
+    var me = AuForms.InhItemPresenterBase();
+    me.getHost = function (custom, path) {
+        return {
+            type: 'textbox',
+            text: { path: path }
+        };
+    }
+    return me;
+}
+
+function ZNum() {
+    var me = AuForms.InhItemPresenterBase();
+    me.getHost = function (custom, path) {
+        return {
+            type: 'numbox',
+            value: { path: path }
+        };
+    }
+    return me;
+}
+
+function ZCheck() {
+    var me = AuForms.InhItemPresenterBase();
+    me.getHost = function (custom, path) {
+        return {
+            type: 'checkbox',
+            checked: { path: path }
+        };
+    }
+    return me;
+}
+
+function ZSelect() {
+    var me = AuForms.InhItemPresenterBase();
+    me.getHost = function (custom, path) {
+        return {
+            type: 'select',
+            value: { path: path },
+            'enum': [
+                { "key": "sib", "value": "Siberiano" },
+                { "key": "eur", "value": "Europeo" },
+                { "key": "nor", "value": "Norvegese delle foreste" },
+                { "key": "siam", "value": "Siamese" },
+                { "key": "mc", "value": "Maine-coon" },
+                { "key": "rag", "value": "Rag-doll" },
+                { "key": "bir", "value": "Birmano" },
+                { "key": "per", "value": "Persiano" }
+            ]
+        };
+    }
+    return me;
+}

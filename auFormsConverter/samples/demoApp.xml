@@ -12,6 +12,8 @@
           <option key="basicWizard">basicWizard</option>
           <option key="dynamicLayout">dynamicLayout</option>
           <option key="iconery">iconery</option>
+          <option key="settingsL1">settingsL1</option>
+          <option key="settingsL2">settingsL2</option>
           <option key="userPrefs">userPrefs</option>
         </select>
       </row>
@@ -22,6 +24,37 @@
           <option key="sidebar">sidebar</option>
         </select>
       </row>
+
+      <panel header="Preferenze" bg="panel-info">
+        <stack grid-col-defs="4 8">
+          <row header="Separatore decimale">
+            <select value="{path:'decimale' }">
+              <option key=".">. (punto)</option>
+              <option key=",">, (virgola)</option>
+            </select>
+          </row>
+          <row header="Separatore migliaia">
+            <select value="{path:'migliaia' }">
+              <option key="">(nessuno)</option>
+              <option key=" ">(spazio)</option>
+              <option key=".">. (punto)</option>
+              <option key=",">, (virgola)</option>
+            </select>
+          </row>
+          <row header="Formato data/ora">
+            <select value="{path:'dataora' }">
+              <option key="">Default (Inglese USA)</option>
+              <option key="it">Italia</option>
+              <option key="de">Germania</option>
+              <option key="fr">Francia</option>
+              <option key="es">Spagna</option>
+              <option key="hu">Ungheria</option>
+              <option key="zh-cn">Cina</option>
+              <option key="ar-ma">Marocco</option>
+            </select>
+          </row>
+        </stack>
+      </panel>
     </stack>
   </section>
 

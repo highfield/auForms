@@ -116,7 +116,7 @@ var AuForms = (function ($) {
             owner.render && owner.render(RenderLevel.update);
         }
 
-        var me = {}, initok, vraw, vout, spath, conv, bidi, valids = [], valok = true;
+        var me = {}, initok, dirty, vraw, vout, spath, conv, bidi, valids = [], valok = true;
 
         defaults = defaults || {};
         if (defaults.vraw != null) vraw = defaults.vraw;
@@ -125,11 +125,11 @@ var AuForms = (function ($) {
         me.getName = function () { return name; }
         me.isValid = function () { return valok; }
         me.getConv = function () { return conv; }
-        me.setConv = function (v) { conv = v; }
+        me.setConv = function (v) { conv = v; dirty = true; }
 
         me.get = function () { return vout; }
         me.set = function (v) {
-            if (!initok || vout === v) return;
+            if (!initok || (vout === v && !dirty)) return;
             vout = v;
             if (bidi) {
                 if (!me.validate()) return;
@@ -143,16 +143,18 @@ var AuForms = (function ($) {
                 vraw = vout;
             }
             hchanged();
+            dirty = false;
         }
 
         me.getRaw = function () { return vraw; }
         me.setRaw = function (vr) {
-            if (vraw === vr) return;
+            if (vraw === vr && !dirty) return;
             vraw = vr;
             if (initok) {
                 vout = conv ? conv.toTarget(vraw) : vraw;
                 hchanged();
             }
+            dirty = false;
         }
 
         me.load = function () {
@@ -978,6 +980,95 @@ var AuForms = (function ($) {
     }
 
 
+    function InhItemPresenterBase() {
+        var me = {}, fname;
+        var defaultCheckName, defaultHostName, customCheckName, customHostName;
+
+        me.getLayout = function (item) {
+            fname = item.getFieldName();
+            defaultCheckName = "RD_" + fname;
+            defaultHostName = "HD_" + fname;
+            customCheckName = "RC_" + fname;
+            customHostName = "HC_" + fname;
+
+            var partial = {
+                "type": "panel",
+                "bg": "panel-info",
+                "header": item.getDescription(),
+                "nodes": [
+                    {
+                        "type": "grid-layout",
+                        "nodes": [
+                            {
+                                "type": "row",
+                                "gcols": [5, 7],
+                                "header": {
+                                    "type": "radiobox",
+                                    "id": defaultCheckName,
+                                    "text": "Default",
+                                    "value": false,
+                                    "group": "G_" + fname,
+                                    "font": { "bold": true },
+                                    "checked": { "path": "cd." + fname + ".hasv" }
+                                }, "nodes": [
+                                    {
+                                        "id": defaultHostName
+                                    }]
+                            }, {
+                                "type": "row",
+                                "gcols": [5, 7],
+                                "header": {
+                                    "type": "radiobox",
+                                    "id": customCheckName,
+                                    "text": "Custom",
+                                    "value": true,
+                                    "group": "G_" + fname,
+                                    "font": { "bold": true },
+                                    "checked": { "path": "cd." + fname + ".hasv" }
+                                }, "nodes": [
+                                    {
+                                        "id": customHostName
+                                    }]
+                            }]
+                    }]
+            };
+
+            var dh = me.getHost(false, 'dd.' + fname + '.value');
+            dh.enabled = false;
+            _.merge(partial.nodes[0].nodes[0].nodes[0], dh);
+
+            var ch = me.getHost(true, 'cd.' + fname + '.value');
+            _.merge(partial.nodes[0].nodes[1].nodes[0], ch);
+            return partial;
+        }
+
+        me.getHost = function (custom, path) { return {}; }
+
+        me.manage = function (form) {
+            function update() {
+                var en = form.getNode(customCheckName).prop('checked').get();
+                form.getNode(customHostName).prop('enabled').set(en);
+            }
+
+            form.getNode(defaultCheckName).prop('checked').setConv({
+                toTarget: function (vraw) {
+                    return !vraw;
+                },
+                toSource: function (vout) {
+                    return !vout;
+                }
+            });
+
+            form.on(customCheckName + ".checked", function (args) {
+                update();
+            });
+            update();
+        }
+
+        return me;
+    }
+
+
     function ajaxController(url) {
         var me = {};
 
@@ -1016,8 +1107,11 @@ var AuForms = (function ($) {
         dialog: dialog,
         wizard: wizard,
         table: table,
+        InhItemPresenterBase: InhItemPresenterBase,
         controllers: {
             ajax: ajaxController
+        },
+        formats: {
         }
     }
 })(jQuery);
