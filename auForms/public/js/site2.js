@@ -579,6 +579,10 @@ $(document).ready(function () {
 
 
     var dtpOptions = {
+        lang: 'it',
+        modal: true,
+        large: true,
+        fx: true
     }
     $('#dtp1').fgDateDropper(dtpOptions);
 });
