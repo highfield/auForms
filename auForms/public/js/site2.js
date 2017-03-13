@@ -576,6 +576,11 @@ $(document).ready(function () {
         razza: { value: 'mc' },
         conferma: { value: true },
     });
+
+
+    var dtpOptions = {
+    }
+    $('#dtp1').fgDateDropper(dtpOptions);
 });
 
 

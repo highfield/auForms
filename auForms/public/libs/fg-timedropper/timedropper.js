@@ -28,10 +28,10 @@
 
         function create() {
             container = $(
-                '<div class="td-wrap td-n2' + (me.options.modal ? " td-wrap-modal" : "") + '">' +
-                '    <div class="td-clock td-init">' +
-                '        <div class="td-deg td-n">' +
-                '            <div class="td-select">' +
+                '<div class="fg-time-wrap fg-time-n2' + (me.options.modal ? " fg-time-wrap-modal" : "") + '">' +
+                '    <div class="fg-time-clock fg-time-init">' +
+                '        <div class="fg-time-deg fg-time-n">' +
+                '            <div class="fg-time-select">' +
                 '                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 100 35.4" enable-background="new 0 0 100 35.4" xml:space="preserve">' +
                 '                    <g fill="none" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10">' +
                 '                        <path d="M98.1,33C85.4,21.5,68.5,14.5,50,14.5S14.6,21.5,1.9,33"/>' +
@@ -43,55 +43,55 @@
                 '                </svg>' +
                 '            </div>' +
                 '        </div>' +
-                '        <div class="td-lancette"><div/><div/></div>' +
-                '        <div class="td-time"></div>' +
-                '        <div class="td-pad td-hour"></div>' +
-                '        <div class="td-pad td-minute"></div>' +
+                '        <div class="fg-time-lancette"><div/><div/></div>' +
+                '        <div class="fg-time-time"></div>' +
+                '        <div class="fg-time-pad fg-time-hour"></div>' +
+                '        <div class="fg-time-pad fg-time-minute"></div>' +
                 '    </div>' +
                 '</div >'
             ).appendTo($('body'));
 
             if (me.options.modal && me.options.title) {
-                $('<div>').addClass('td-title').text(me.options.title).appendTo(container);
+                $('<div>').addClass('fg-time-title').text(me.options.title).appendTo(container);
             }
 
-            container.find('.td-clock').css({
+            container.find('.fg-time-clock').css({
                 'color': me.options.textColor,
                 'background': me.options.backgroundColor,
                 'box-shadow': '0 0 0 1px ' + me.options.borderColor + ',0 0 0 8px rgba(0, 0, 0, 0.05)'
             });
-            container.find('.td-pad-on').css({
+            container.find('.fg-time-pad-on').css({
                 'border-bottom-color': me.options.primaryColor
             });
-            container.find('.td-clock:before').css({
+            container.find('.fg-time-clock:before').css({
                 'border-color': me.options.borderColor,
                 'background': me.options.backgroundColor,
             });
-            container.find('.td-select:after').css({
+            container.find('.fg-time-select:after').css({
                 'box-shadow': '0 0 0 1px ' + me.options.borderColor,
                 'background': me.options.backgroundColor,
             });
-            container.find('.td-lancette').css({
+            container.find('.fg-time-lancette').css({
                 'border': '2px solid ' + me.options.primaryColor,
                 'opacity': 0.1
             });
-            container.find('.td-lancette div:after').css({
+            container.find('.fg-time-lancette div:after').css({
                 'background': me.options.primaryColor
             });
-            container.find('.td-bulletpoint div:after').css({
+            container.find('.fg-time-bulletpoint div:after').css({
                 'background': me.options.primaryColor,
                 'opacity': 0.1
             });
             container.find('svg').attr('style', "stroke:" + me.options.borderColor);
 
-            container.find('.td-hour').on('click', function (e) {
+            container.find('.fg-time-hour').on('click', function (e) {
                 select('h');
             });
-            container.find('.td-minute').on('click', function (e) {
+            container.find('.fg-time-minute').on('click', function (e) {
                 select('m');
             });
 
-            container.find('.td-deg').on('touchstart mousedown', function (e) {
+            container.find('.fg-time-deg').on('touchstart mousedown', function (e) {
                 e.preventDefault();
                 drag = dragger();
                 drag.begin();
@@ -103,15 +103,15 @@
 
             $(document).on('touchend mouseup', mouseup);
 
-            container.removeClass('td-fadeout');
-            container.addClass('td-show').addClass('td-' + me.options.init_animation);
+            container.removeClass('fg-time-fadeout');
+            container.addClass('fg-time-' + me.options.init_animation);
 
-            overlay = $('<div>').addClass('td-overlay').appendTo('body');
+            overlay = $('<div>').addClass('fg-time-overlay').appendTo('body');
             overlay.on("click", overclick);
 
-            var clock = container.children('.td-clock');
+            var clock = container.children('.fg-time-clock');
             if (me.options.modal) {
-                overlay.addClass("td-overlay-modal");
+                overlay.addClass("fg-time-overlay-modal");
             }
             else {
                 var inputOffset = me.$elem.offset();
@@ -122,14 +122,14 @@
                 });
             }
 
-            if (clock.hasClass('td-init')) {
+            if (clock.hasClass('fg-time-init')) {
                 tmr_alert = setInterval(function () {
-                    container.find('.td-select').addClass('td-alert');
+                    container.find('.fg-time-select').addClass('fg-time-alert');
                     setTimeout(function () {
-                        container && container.find('.td-select').removeClass('td-alert');
+                        container && container.find('.fg-time-select').removeClass('fg-time-alert');
                     }, 1000);
                 }, 2000);
-                clock.removeClass('td-init');
+                clock.removeClass('fg-time-init');
             }
         }
 
@@ -137,7 +137,7 @@
         //TODO
         function wheel(e) {
             e.preventDefault();
-            container.find('.td-deg').removeClass('td-n');
+            container.find('.fg-time-deg').removeClass('fg-time-n');
             if (e.originalEvent.wheelDelta > 0) {
                 if (wheel_deg <= 360) {
                     if (e.originalEvent.wheelDelta <= 120) wheel_deg++
@@ -158,19 +158,17 @@
 
 
         function mouseup() {
-            container.find('.td-deg').addClass('td-n');
-            container.find('.td-select').addClass('td-rubber');
+            container.find('.fg-time-deg').addClass('fg-time-n');
             if (drag) drag.end();
             drag = null;
         }
 
 
         function overclick() {
-            container.addClass('td-fadeout').removeClass('td-' + me.options.init_animation);
-            overlay.addClass('td-fadeout').removeClass('td-' + me.options.init_animation);
+            container.addClass('fg-time-fadeout').removeClass('fg-time-' + me.options.init_animation);
+            overlay.addClass('fg-time-fadeout').removeClass('fg-time-' + me.options.init_animation);
             setTimeout(function () {
                 clearInterval(tmr_alert);
-                container.removeClass('td-show');
                 overlay.remove();
                 $(document).off('touchend mouseup', mouseup);
                 if (drag) drag.end();
@@ -207,14 +205,14 @@
             me.$elem.val(t).trigger("change");
 
             if (container) {
-                container.find('.td-time').text(t);
+                container.find('.fg-time-time').text(t);
 
-                var spans = container.find('.td-pad').removeClass('td-pad-on');
-                spans.eq(selected === 'm' ? 1 : 0).addClass('td-pad-on');
+                var spans = container.find('.fg-time-pad').removeClass('fg-time-pad-on');
+                spans.eq(selected === 'm' ? 1 : 0).addClass('fg-time-pad-on');
 
-                container.find('.td-deg').css('transform', 'rotate(' + angles.knob + 'deg)');
+                container.find('.fg-time-deg').css('transform', 'rotate(' + angles.knob + 'deg)');
 
-                var lanc = container.find('.td-lancette div');
+                var lanc = container.find('.fg-time-lancette div');
                 lanc.eq(0).css('transform', 'rotate(' + angles.hour + 'deg)');
                 lanc.eq(1).css('transform', 'rotate(' + angles.minute + 'deg)');
             }
@@ -247,8 +245,7 @@
                 begin: function (e) {
                     oangle = angles.knob;
                     iangle = -1;
-                    container.find('.td-deg').removeClass('td-n');
-                    container.find('.td-select').removeClass('td-rubber');
+                    container.find('.fg-time-deg').removeClass('fg-time-n');
 
                     var offset = container.offset();
                     center = {
@@ -257,7 +254,6 @@
                     };
 
                     $(window).on('touchmove mousemove', handler);
-                    container.removeClass('td-rubber');
                 },
 
                 end: function () {
@@ -297,7 +293,7 @@
 
             me.$elem.prop({
                 'readonly': true
-            }).addClass('td-input');
+            }).addClass('fg-time-input');
 
             me.$elem.focus(function (e) {
                 e.preventDefault();

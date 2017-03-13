@@ -36,6 +36,7 @@
     <Compile Include="public\js\site_old.js" />
     <Compile Include="public\js\site2.js" />
     <Compile Include="public\libs\auSettings.js" />
+    <Compile Include="public\libs\fg-datedropper\trash.js" />
     <Compile Include="public\libs\moment-with-locales.min.js" />
     <Compile Include="public\libs\tinycolor-1.4.1\tinycolor-min.js" />
     <Compile Include="public\libs\pick-a-color-1.2.3\js\pick-a-color-1.2.3.min.js" />
