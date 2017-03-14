@@ -582,7 +582,8 @@ $(document).ready(function () {
         lang: 'it',
         modal: true,
         large: true,
-        fx: true
+        fx: true,
+        jump: 10
     }
     $('#dtp1').fgDateDropper(dtpOptions);
 });

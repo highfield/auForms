@@ -25,47 +25,6 @@
 
     function DateDropper() {
 
-        function create() {
-            picker = $('<div>').addClass('fg-date').addClass(me.options.theme || 'primary').appendTo('body');
-            if (me.options.modal) picker.addClass('fg-date-modal');
-            if (me.options.fx) picker.addClass('picker-fxs');
-            if (me.options.large && me.options['large-default']) picker.addClass('picker-lg');
-            var inner = $('<div>').addClass('picker').appendTo(picker);
-
-            if (me.options.modal && me.options.title) {
-                $('<div>').addClass('fg-date-title').text(me.options.title).appendTo(picker);
-            }
-
-            ['m', 'd', 'y'].forEach(function (k) {
-                $('<ul>').addClass('pick pick-' + k).attr('data-k', k).appendTo(inner);
-                picker_render_ul(k);
-            });
-
-            if (me.options.large) {
-                //calendar
-                var cc = $('<div>').addClass('pick-lg').insertBefore(picker.find('.pick-d'));
-                var uh = $('<ul>').addClass('pick-lg-h').appendTo(cc);
-                var ub = $('<ul>').addClass('pick-lg-b').appendTo(cc);
-
-                for (var i = 0; i < 7; i++) {
-                    $('<li>').text(dttemp.localeData().weekdaysShort()[i]).appendTo(uh)
-                }
-                for (var i = 0; i < 42; i++) {
-                    $('<li>').appendTo(ub)
-                }
-            }
-
-            //buttons
-            var pb = $('<div>').addClass('pick-btns').appendTo(inner);
-            $('<div>').addClass('pick-submit').appendTo(pb);
-            if (me.options.large) {
-                $('<div>').addClass('pick-btn pick-btn-sz').appendTo(pb);
-            }
-
-            hookevents('on');
-        }
-
-
         function hookevents(mode) {
             // CSS EVENT DETECT
             var csse = {
@@ -221,7 +180,7 @@
         function hSubmit() {
             dtcurr = dttemp;
             picker_hide();
-            input_change_value();
+            input_change_value(true);
         }
 
         function hResize() {
@@ -234,6 +193,325 @@
          * Support functions
          */
 
+        function picker_show() {
+            dttemp = dtcurr.clone();
+            create();
+            is_fx_mobile();
+            picker_offset();
+            if (picker.hasClass('picker-lg')) picker_render_calendar();
+            picker_fills();
+            picker.addClass('picker-focus');
+
+            if (picker.hasClass('fg-date-modal')) {
+                $('body').append('<div class="fg-date-modal-overlay"></div>')
+            }
+        }
+
+
+        function picker_hide() {
+            if (!is_valid()) {
+                //picker.removeClass('picker-focus');
+                //if (picker.hasClass('fg-date-modal')) {
+                //    $('.fg-date-modal-overlay').remove();
+                //}
+                $('.fg-date-modal-overlay').remove();
+                hookevents('off');
+                picker.remove();
+                picker = null;
+            }
+        }
+
+
+        function create() {
+            picker = $('<div>').addClass('fg-date').addClass(me.options.theme || 'primary').appendTo('body');
+            if (me.options.modal) picker.addClass('fg-date-modal');
+            if (me.options.fx) picker.addClass('picker-fxs');
+            if (me.options.large && me.options['large-default']) picker.addClass('picker-lg');
+            var inner = $('<div>').addClass('picker').appendTo(picker);
+
+            if (me.options.modal && me.options.title) {
+                $('<div>').addClass('fg-date-title').text(me.options.title).appendTo(picker);
+            }
+
+            ['m', 'd', 'y'].forEach(function (k) {
+                $('<ul>').addClass('pick pick-' + k).attr('data-k', k).appendTo(inner);
+                picker_render_ul(k);
+            });
+
+            if (me.options.large) {
+                //calendar
+                var cc = $('<div>').addClass('pick-lg').insertBefore(picker.find('.pick-d'));
+                var uh = $('<ul>').addClass('pick-lg-h').appendTo(cc);
+                var ub = $('<ul>').addClass('pick-lg-b').appendTo(cc);
+
+                for (var i = 0; i < 7; i++) {
+                    $('<li>').text(dttemp.localeData().weekdaysShort()[i]).appendTo(uh)
+                }
+                for (var i = 0; i < 42; i++) {
+                    $('<li>').appendTo(ub)
+                }
+            }
+
+            //buttons
+            var pb = $('<div>').addClass('pick-btns').appendTo(inner);
+            $('<div>').addClass('pick-submit').appendTo(pb);
+            if (me.options.large) {
+                $('<div>').addClass('pick-btn pick-btn-sz').appendTo(pb);
+            }
+
+            hookevents('on');
+        }
+
+
+        function picker_offset() {
+            if (!picker.hasClass('fg-date-modal')) {
+                var left = me.$elem.offset().left + me.$elem.outerWidth() / 2;
+                var top = me.$elem.offset().top + me.$elem.outerHeight();
+                picker.css({
+                    'left': left,
+                    'top': top
+                });
+            }
+        }
+
+
+        function picker_render_ul(k) {
+            var ul = get_ul(k);
+            for (var i = LT[k].min; i <= LT[k].max; i++) {
+                var html = i;
+                switch (k) {
+                    case 'd': html += '<span></span>'; break;
+                    case 'm': html = moment.monthsShort()[i - 1]; break;
+                }
+                $('<li>', {
+                    value: i,
+                    html: html
+                }).appendTo(ul);
+            }
+
+            //PREV BUTTON
+            var prev = $('<div>').addClass('pick-arw pick-arw-s1 pick-arw-l').appendTo(ul);
+            $('<i>').addClass('pick-i-l').appendTo(prev);
+
+            //NEXT BUTTON
+            $('<div>', {
+                class: 'pick-arw pick-arw-s1 pick-arw-r',
+                html: $('<i>', {
+                    class: 'pick-i-r'
+                })
+            }).appendTo(ul);
+
+            if (k === 'y') {
+                //PREV BUTTON
+                $('<div>', {
+                    class: 'pick-arw pick-arw-s2 pick-arw-l',
+                    html: $('<i>', {
+                        class: 'pick-i-l'
+                    })
+                }).appendTo(ul);
+
+                //NEXT BUTTON
+                $('<div>', {
+                    class: 'pick-arw pick-arw-s2 pick-arw-r',
+                    html: $('<i>', {
+                        class: 'pick-i-r'
+                    })
+                }).appendTo(ul);
+            }
+
+            picker_ul_transition(k, get_current(k));
+        }
+
+
+        function picker_render_calendar() {
+            var w = picker.find('.pick-lg-b');
+            w.find('li')
+                .empty()
+                .removeClass('pick-n pick-b pick-a pick-v pick-lk pick-sl pick-h')
+                .attr('data-value', '');
+
+            var index = 0;
+            var dt = dttemp.clone().startOf('month'), cm = dt.month();
+            var dmo = dttemp.daysInMonth();
+            //var
+            //    //_C = new Date(get_current_full()),
+            //    _S = new Date(get_current_full()),
+            //    _L = new Date(get_current_full()),
+            //    _NUM = function (d) {
+            //        var
+            //            m = d.getMonth(),
+            //            y = d.getFullYear();
+            //        var l = ((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0));
+            //        return [31, (l ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m];
+            //    };
+
+            //_L.setMonth(_L.getMonth() - 1);
+            //_S.setDate(1);
+
+            //var
+            //    o = _S.getDay() - 1;
+            //if (o < 0)
+            //    o = 6;
+            //if (i18n[pickers[picker.id].lang].gregorian) {
+            //    o--;
+            //    if (o < 0)
+            //        o = 6;
+            //}
+
+            if (dt.weekday() !== 0) {
+                //before
+                while (dt.weekday() !== 0) dt.add(-1, 'd');
+                while (dt.date() !== 1) {
+                    w.find('li').eq(index).text(dt.date()).addClass('pick-b pick-n pick-h');
+                    dt.add(1, 'd');
+                    index++;
+                }
+            }
+
+            //current
+            while (dt.month() === cm) {
+                w.find('li').eq(index).text(dt.date()).addClass('pick-n pick-v').attr('data-value', dt.date());
+                dt.add(1, 'd');
+                index++;
+            }
+
+            //after
+            while (index < 42) {
+                w.find('li').eq(index).text(dt.date()).addClass('pick-a pick-n pick-h');
+                dt.add(1, 'd');
+                index++;
+            }
+
+            if (0 && pickers[picker.id].lock) {
+                if (pickers[picker.id].lock === 'from') {
+                    if (get_current('y') <= get_today('y')) {
+                        if (get_current('m') == get_today('m')) {
+                            get_picker_els('.pick-lg .pick-lg-b li.pick-v[data-value="' + get_today('d') + '"]')
+                                .prevAll('li')
+                                .addClass('pick-lk')
+                        }
+                        else {
+                            if (get_current('m') < get_today('m')) {
+                                get_picker_els('.pick-lg .pick-lg-b li')
+                                    .addClass('pick-lk')
+                            }
+                            else if (get_current('m') > get_today('m') && get_current('y') < get_today('y')) {
+                                get_picker_els('.pick-lg .pick-lg-b li')
+                                    .addClass('pick-lk')
+                            }
+                        }
+                    }
+                }
+                else {
+                    if (get_current('y') >= get_today('y')) {
+                        if (get_current('m') == get_today('m')) {
+                            get_picker_els('.pick-lg .pick-lg-b li.pick-v[data-value="' + get_today('d') + '"]')
+                                .nextAll('li')
+                                .addClass('pick-lk')
+                        }
+                        else {
+                            if (get_current('m') > get_today('m')) {
+                                get_picker_els('.pick-lg .pick-lg-b li')
+                                    .addClass('pick-lk')
+                            }
+                            else if (get_current('m') < get_today('m') && get_current('y') > get_today('y')) {
+                                get_picker_els('.pick-lg .pick-lg-b li')
+                                    .addClass('pick-lk')
+                            }
+                        }
+                    }
+                }
+            }
+            if (0 && pickers[picker.id].disabledays) {
+                $.each(pickers[picker.id].disabledays, function (i, v) {
+                    if (v && is_date(v)) {
+                        var
+                            d = new Date(v * 1000);
+                        if (d.getMonth() + 1 == get_current('m') && d.getFullYear() == get_current('y'))
+                            get_picker_els('.pick-lg .pick-lg-b li.pick-v[data-value="' + d.getDate() + '"]')
+                                .addClass('pick-lk');
+                    }
+                });
+            }
+
+            picker.find('.pick-lg-b li.pick-v[data-value=' + get_current('d') + ']').addClass('pick-sl');
+        }
+
+
+        function picker_fills() {
+            var m = get_current('m');
+            var y = get_current('y');
+            LT.d.max = dttemp.daysInMonth();;
+
+            picker.find('.pick-d li')
+                .removeClass('pick-wke')
+                .each(function () {
+                    var d = new Date(m + "/" + $(this).attr('value') + "/" + y).getDay();
+                    $(this).find('span').html(moment.weekdays()[d]);
+                    if (d === 0 || d === 6) $(this).addClass('pick-wke');
+
+                });
+
+            if (picker.hasClass('picker-lg')) {
+                picker.find('.pick-lg-b li').removeClass('pick-wke');
+                picker.find('.pick-lg-b li.pick-v')
+                    .each(function () {
+                        var d = new Date(m + "/" + $(this).attr('data-value') + "/" + y).getDay();
+                        if (d == 0 || d == 6) $(this).addClass('pick-wke');
+
+                    });
+            }
+        }
+
+
+        function picker_ul_transition(k, i) {
+            var ul = get_ul(k);
+            ul.find('li').removeClass('pick-sl pick-bfr pick-afr');
+
+            if (i === get_eq(k, 'last')) {
+                var li = ul.find('li[value="' + get_eq(k, 'first') + '"]');
+                li.clone().insertAfter(ul.find('li[value=' + i + ']'));
+                li.remove();
+            }
+            if (i === get_eq(k, 'first')) {
+                var li = ul.find('li[value="' + get_eq(k, 'last') + '"]');
+                li.clone().insertBefore(ul.find('li[value=' + i + ']'));
+                li.remove();
+            }
+
+            ul.find('li[value=' + i + ']').addClass('pick-sl');
+            ul.find('li.pick-sl').nextAll('li').addClass('pick-afr');
+            ul.find('li.pick-sl').prevAll('li').addClass('pick-bfr');
+        }
+
+
+        function picker_ul_turn(k, dir) {
+            var mk = k === 'm' ? 'M' : k;
+            var temp = dttemp.clone();
+            temp.add(dir, mk);
+            temp = moment.max(temp, dtmin.clone());
+            dttemp = moment.min(temp, dtmax.clone());
+
+            ['d', 'm', 'y'].forEach(function (kk) {
+                picker_ul_transition(kk, get_current(kk));
+            });
+            console.log(dttemp.toISOString());
+        }
+
+
+        function picker_alert() {
+            picker.addClass('picker-rmbl');
+        }
+
+
+        function picker_large_onoff() {
+            if (me.options.large) {
+                picker.toggleClass('picker-lg');
+                picker_render_calendar();
+            }
+        }
+
+
         function is_fx_mobile() {
             if (picker && me.options.fx && !me.options.fxmobile) {
                 if ($(window).width() < 480)
@@ -244,8 +522,8 @@
         }
 
 
-        function is_locked() {
-            return false;
+        function is_valid() {
+            return true;
             //if (me.options.lock) {
             //    if (me.options.lock == 'from') {
             //        if (unix_current < unix_today) {
@@ -344,277 +622,10 @@
         }
 
 
-        function picker_large_onoff() {
-            if (me.options.large) {
-                picker.toggleClass('picker-lg');
-                picker_render_calendar();
-            }
-        }
-
-
-        function picker_offset() {
-            if (!picker.hasClass('fg-date-modal')) {
-                var left = me.$elem.offset().left + me.$elem.outerWidth() / 2;
-                var top = me.$elem.offset().top + me.$elem.outerHeight();
-                picker.css({
-                    'left': left,
-                    'top': top
-                });
-            }
-        }
-
-
-        function picker_show() {
-            if (picker.hasClass('picker-lg')) picker_render_calendar();
-            picker_fills();
-            picker.addClass('picker-focus');
-        }
-
-
-        function picker_hide() {
-            if (!is_locked()) {
-                picker.removeClass('picker-focus');
-                if (picker.hasClass('fg-date-modal')) {
-                    $('.fg-date-modal-overlay').remove();
-                }
-                hookevents('off');
-                picker.remove();
-                picker = null;
-            }
-        }
-
-
-        function picker_render_ul(k) {
-            var ul = get_ul(k);
-            for (var i = LT[k].min; i <= LT[k].max; i++) {
-                var html = i;
-                switch (k) {
-                    case 'd': html += '<span></span>'; break;
-                    case 'm': html = moment.monthsShort()[i - 1]; break;
-                }
-                $('<li>', {
-                    value: i,
-                    html: html
-                }).appendTo(ul);
-            }
-
-            //PREV BUTTON
-            var prev = $('<div>').addClass('pick-arw pick-arw-s1 pick-arw-l').appendTo(ul);
-            $('<i>').addClass('pick-i-l').appendTo(prev);
-
-            //NEXT BUTTON
-            $('<div>', {
-                class: 'pick-arw pick-arw-s1 pick-arw-r',
-                html: $('<i>', {
-                    class: 'pick-i-r'
-                })
-            }).appendTo(ul);
-
-            if (k === 'y') {
-                //PREV BUTTON
-                $('<div>', {
-                    class: 'pick-arw pick-arw-s2 pick-arw-l',
-                    html: $('<i>', {
-                        class: 'pick-i-l'
-                    })
-                }).appendTo(ul);
-
-                //NEXT BUTTON
-                $('<div>', {
-                    class: 'pick-arw pick-arw-s2 pick-arw-r',
-                    html: $('<i>', {
-                        class: 'pick-i-r'
-                    })
-                }).appendTo(ul);
-            }
-
-            picker_ul_transition(k, get_current(k));
-        }
-
-
-        function picker_render_calendar() {
-            var index = 0;
-            var w = picker.find('.pick-lg-b');
-            w.find('li')
-                .empty()
-                .removeClass('pick-n pick-b pick-a pick-v pick-lk pick-sl pick-h')
-                .attr('data-value', '');
-
-            var
-                //_C = new Date(get_current_full()),
-                _S = new Date(get_current_full()),
-                _L = new Date(get_current_full()),
-                _NUM = function (d) {
-                    var
-                        m = d.getMonth(),
-                        y = d.getFullYear();
-                    var l = ((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0));
-                    return [31, (l ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m];
-                };
-
-            _L.setMonth(_L.getMonth() - 1);
-            _S.setDate(1);
-
-            var
-                o = _S.getDay() - 1;
-            if (o < 0)
-                o = 6;
-            if (i18n[pickers[picker.id].lang].gregorian) {
-                o--;
-                if (o < 0)
-                    o = 6;
-            }
-
-            //before
-            for (var i = _NUM(_L) - o; i <= _NUM(_L); i++) {
-                w.find('li').eq(index)
-                    .html(i)
-                    .addClass('pick-b pick-n pick-h');
-                index++;
-            }
-            //current
-            for (var i = 1; i <= _NUM(_S); i++) {
-                w.find('li').eq(index)
-                    .html(i)
-                    .addClass('pick-n pick-v')
-                    .attr('data-value', i);
-                index++;
-            }
-            //after
-            if (w.find('li.pick-n').length < 42) {
-                var
-                    e = 42 - w.find('li.pick-n').length;
-                for (var i = 1; i <= e; i++) {
-                    w.find('li').eq(index).html(i)
-                        .addClass('pick-a pick-n pick-h');
-                    index++;
-                }
-            }
-            if (pickers[picker.id].lock) {
-                if (pickers[picker.id].lock === 'from') {
-                    if (get_current('y') <= get_today('y')) {
-                        if (get_current('m') == get_today('m')) {
-                            get_picker_els('.pick-lg .pick-lg-b li.pick-v[data-value="' + get_today('d') + '"]')
-                                .prevAll('li')
-                                .addClass('pick-lk')
-                        }
-                        else {
-                            if (get_current('m') < get_today('m')) {
-                                get_picker_els('.pick-lg .pick-lg-b li')
-                                    .addClass('pick-lk')
-                            }
-                            else if (get_current('m') > get_today('m') && get_current('y') < get_today('y')) {
-                                get_picker_els('.pick-lg .pick-lg-b li')
-                                    .addClass('pick-lk')
-                            }
-                        }
-                    }
-                }
-                else {
-                    if (get_current('y') >= get_today('y')) {
-                        if (get_current('m') == get_today('m')) {
-                            get_picker_els('.pick-lg .pick-lg-b li.pick-v[data-value="' + get_today('d') + '"]')
-                                .nextAll('li')
-                                .addClass('pick-lk')
-                        }
-                        else {
-                            if (get_current('m') > get_today('m')) {
-                                get_picker_els('.pick-lg .pick-lg-b li')
-                                    .addClass('pick-lk')
-                            }
-                            else if (get_current('m') < get_today('m') && get_current('y') > get_today('y')) {
-                                get_picker_els('.pick-lg .pick-lg-b li')
-                                    .addClass('pick-lk')
-                            }
-                        }
-                    }
-                }
-            }
-            if (pickers[picker.id].disabledays) {
-                $.each(pickers[picker.id].disabledays, function (i, v) {
-                    if (v && is_date(v)) {
-                        var
-                            d = new Date(v * 1000);
-                        if (d.getMonth() + 1 == get_current('m') && d.getFullYear() == get_current('y'))
-                            get_picker_els('.pick-lg .pick-lg-b li.pick-v[data-value="' + d.getDate() + '"]')
-                                .addClass('pick-lk');
-                    }
-                });
-            }
-
-            get_picker_els('.pick-lg-b li.pick-v[data-value=' + get_current('d') + ']').addClass('pick-sl');
-        }
-
-
-        function picker_fills() {
-            var m = get_current('m');
-            var y = get_current('y');
-            LT.d.max = dttemp.daysInMonth();;
-
-            picker.find('.pick-d li')
-                .removeClass('pick-wke')
-                .each(function () {
-                    var d = new Date(m + "/" + $(this).attr('value') + "/" + y).getDay();
-                    $(this).find('span').html(moment.weekdays()[d]);
-                    if (d === 0 || d === 6) $(this).addClass('pick-wke');
-
-                });
-
-            if (picker.hasClass('picker-lg')) {
-                picker.find('.pick-lg-b li').removeClass('pick-wke');
-                picker.find('.pick-lg-b li.pick-v')
-                    .each(function () {
-                        var d = new Date(m + "/" + $(this).attr('data-value') + "/" + y).getDay();
-                        if (d == 0 || d == 6) $(this).addClass('pick-wke');
-
-                    });
-            }
-        }
-
-
-        function picker_ul_transition(k, i) {
-            var ul = get_ul(k);
-            ul.find('li').removeClass('pick-sl pick-bfr pick-afr');
-
-            if (i === get_eq(k, 'last')) {
-                var li = ul.find('li[value="' + get_eq(k, 'first') + '"]');
-                li.clone().insertAfter(ul.find('li[value=' + i + ']'));
-                li.remove();
-            }
-            if (i === get_eq(k, 'first')) {
-                var li = ul.find('li[value="' + get_eq(k, 'last') + '"]');
-                li.clone().insertBefore(ul.find('li[value=' + i + ']'));
-                li.remove();
-            }
-
-            ul.find('li[value=' + i + ']').addClass('pick-sl');
-            ul.find('li.pick-sl').nextAll('li').addClass('pick-afr');
-            ul.find('li.pick-sl').prevAll('li').addClass('pick-bfr');
-        }
-
-
-        function picker_ul_turn(k, dir) {
-            var mk = k === 'm' ? 'M' : k;
-            var temp = dttemp.clone();
-            temp.add(dir, mk);
-            temp = moment.max(temp, dtmin.clone());
-            dttemp = moment.min(temp, dtmax.clone());
-
-            ['d', 'm', 'y'].forEach(function (kk) {
-                picker_ul_transition(kk, get_current(kk));
-            });
-            console.log(dttemp.toISOString());
-        }
-
-
-        function picker_alert() {
-            picker.addClass('picker-rmbl');
-        }
-
-
-        function input_change_value() {
+        function input_change_value(raise) {
             var str = dtcurr.format('ll');
-            me.$elem.val(str).change();
+            me.$elem.val(str);
+            if (raise) me.$elem.change();
         }
 
 
@@ -651,20 +662,12 @@
             });
 
             me.$elem.click(function (e) {
-                dttemp = dtcurr.clone();
-                create();
-                is_fx_mobile();
-                picker_offset();
                 picker_show();
-
-                if (picker.hasClass('fg-date-modal')) {
-                    $('body').append('<div class="fg-date-modal-overlay"></div>')
-                }
             });
 
             dtcurr = moment();
             dtcurr.locale(me.options.lang);
-            input_change_value();
+            input_change_value(false);
         }
 
         return me;
