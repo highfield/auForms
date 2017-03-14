@@ -63,7 +63,6 @@
     <Compile Include="public\libs\bootstrap-multiselect-2.0\js\bootstrap-multiselect.js" />
     <Compile Include="public\libs\bootstrap3-dialog\js\bootstrap-dialog.js" />
     <Compile Include="public\libs\bootstrap3-dialog\js\bootstrap-dialog.min.js" />
-    <Compile Include="public\libs\gridstack\gridstack.js" />
     <Compile Include="public\libs\gridstack\gridstack.min.js" />
     <Compile Include="public\libs\perfect-scrollbar\js\perfect-scrollbar.jquery.js" />
     <Compile Include="public\libs\perfect-scrollbar\js\perfect-scrollbar.jquery.min.js" />
@@ -252,7 +251,6 @@
     <Folder Include="public\libs\bootstrap3-dialog\less\" />
     <Folder Include="public\libs\auForms\" />
     <Folder Include="public\libs\auForms2\" />
-    <Folder Include="public\libs\gridstack\" />
     <Folder Include="public\libs\jquery-linedtextarea\" />
     <Folder Include="public\libs\perfect-scrollbar\" />
     <Folder Include="public\libs\perfect-scrollbar\css\" />
