@@ -581,9 +581,10 @@ AuFormsWidgets = (function ($) {
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
                 var dt = me._props['value'].get();
-                var m = moment(dt);
-                api.setHour(m.hour());
-                api.setMinute(m.minute());
+                api.from(dt);
+                //var m = moment(dt);
+                //api.setHour(m.hour());
+                //api.setMinute(m.minute());
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.attr('disabled', me._enabled() ? null : '');
                 me._targets.outer.css('margin', me._props['margin'].get() || '');
@@ -604,6 +605,7 @@ AuFormsWidgets = (function ($) {
     xbag.fgdate = function (form, config) {
         var me = AuForms.FNode(form, config);
         var fmt = AuForms.formats.datetime;
+        var api;
 
         AuForms.FProp(me, 'value', config, { bidi: true });
 
@@ -618,15 +620,14 @@ AuFormsWidgets = (function ($) {
             }).appendTo(grp);
 
             var opts = config.options || {};
-            opts.lang = fmt.locale;
-            for (var k in opts) {
-                inp.attr("data-" + k, opts[k]);
-            }
-            inp.dateDropper(opts);
+            opts.locale = fmt.locale;
+            inp.fgDateDropper(opts);
+            api = inp.data('fgDateDropper');
 
             inp.on('change blur keyup', function (e) {
-                var t = $(this).val();
-                var m = moment(t, 'll', fmt.locale);
+                var m = moment({ year: api.getYear(), month: api.getMonth(), date: api.getDate() });
+                //var t = $(this).val();
+                //var m = moment(t, 'll', fmt.locale);
                 //var dt = fmt ? fmt(t) : t;
                 me._props['value'].set(m.toISOString());
             });
@@ -640,12 +641,104 @@ AuFormsWidgets = (function ($) {
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
                 var dt = me._props['value'].get();
-                var m = moment(dt);
-                m.locale(fmt.locale);
-                me._targets.inp.val(m.format('ll'));
+                api.from(dt);
+                //var m = moment(dt);
+                //m.locale(fmt.locale);
+                //me._targets.inp.val(m.format('ll'));
                 //me._targets.inp.val(fmt ? fmt.format('ll') : dt);
                 me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
                 me._targets.inp.attr('disabled', me._enabled() ? null : '');
+                me._targets.outer.css('margin', me._props['margin'].get() || '');
+            }
+        }
+
+        me.validate = function () {
+            me._applyValidate('value');
+        }
+
+        return me;
+    }
+
+
+    /**
+    *   Date/time combo-input plug-in
+    **/
+    xbag.fgdatetime = function (form, config) {
+        function hchange() {
+            var m = moment({
+                year: apid.getYear(),
+                month: apid.getMonth(),
+                date: apid.getDate(),
+                hour: apit.getHour(),
+                minute: apit.getMinute()
+            });
+            me._props['value'].set(m.toISOString());
+        }
+
+        var me = AuForms.FNode(form, config);
+        var fmt = AuForms.formats.datetime;
+        var apid, apit;
+
+        AuForms.FProp(me, 'value', config, { bidi: true });
+
+        me.build = function () {
+            me._host.empty();
+            var outer = $('<div>').css({ display: 'table' }).appendTo(me._host);
+            var celld = $('<div>').css({
+                display: 'table-cell',
+                'padding-right': 2
+            }).appendTo(outer);
+            var cellt = $('<div>').css({
+                display: 'table-cell',
+                'padding-left': 2
+            }).appendTo(outer);
+
+            var grpd = $('<div>').addClass('input-group').appendTo(celld);
+            var inpd = $("<input>").attr({ type: 'text', id: me._uid + '__d' }).addClass('form-control').appendTo(grpd);
+            if (config.readonly) inpd.attr("readonly", "");
+            $('<span>').addClass('input-group-addon glyphicon glyphicon-calendar').css({
+                top: 0,
+                'font-size': '1.2em'
+            }).appendTo(grpd);
+
+            var optd = _.cloneDeep(config.options || {});
+            optd.locale = fmt.locale;
+            if (optd.modal !== false) optd.modal = true;
+            inpd.fgDateDropper(optd);
+            apid = inpd.data('fgDateDropper');
+
+            var grpt = $('<div>').addClass('input-group').appendTo(cellt);
+            var inpt = $("<input>").attr({ type: 'text', id: me._uid + '__t' }).addClass('form-control').appendTo(grpt);
+            if (config.readonly) inpd.attr("readonly", "");
+            $('<span>').addClass('input-group-addon glyphicon glyphicon-time').css({
+                top: 0,
+                'font-size': '1.2em'
+            }).appendTo(grpt);
+
+            var optt = _.cloneDeep(config.options || {});
+            optt.locale = fmt.locale;
+            if (optt.modal !== false) optt.modal = true;
+            inpt.fgTimeDropper(optt);
+            apit = inpt.data('fgTimeDropper');
+
+            inpd.on('change blur keyup', hchange);
+            inpt.on('change blur keyup', hchange);
+
+            me._targets = {
+                outer: outer,
+                inpd: inpd,
+                inpt: inpt
+            };
+        }
+
+        me.update = function () {
+            if (me._applyVisible(me._targets.outer)) {
+                var dt = me._props['value'].get();
+                apid.from(dt);
+                apit.from(dt);
+                me._targets.outer.css('opacity', me._enabled() ? '' : 0.5);
+                me._targets.inpd.attr('disabled', me._enabled() ? null : '');
+                me._targets.inpt.attr('disabled', me._enabled() ? null : '');
                 me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }

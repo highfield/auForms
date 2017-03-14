@@ -77,12 +77,15 @@
         <row header="Data di nascita">
           <fgdate value="{path:'nato_data', validate:{required:true} }" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di nascita'}" />
         </row>
-        <row header="Orario di adozione">
+        <row header="Data/ora di adozione">
+          <fgdatetime value="{path:'adoz_dt', validate:{required:true} }" options="{title:'Immettere la data/ora di adozione'}" />
+        </row>
+        <!--<row header="Orario di adozione">
           <fgtime value="{path:'adoz_ora', validate:{required:true} }" options="{modal:true,title:'Immettere l\'orario di adozione'}" />
         </row>
         <row header="Data di adozione">
           <fgdate value="{path:'adoz_data', validate:{required:true} }" options="{modal:true,'large-mode': true, 'max-year':2030,title:'Immettere la data di adozione'}" />
-        </row>
+        </row>-->
         <row>
           <grid-layout bg="bg-info" grid-col-defs="6 6">
             <row header="Data di vaccinazione">

@@ -33,6 +33,7 @@ namespace Cet.Aurora.Web.PageBuilder
             _cvInfoMap["option"] = new ConvInfo { Handler = ConvertOption };
             _cvInfoMap["fgdate"] = new ConvInfo { Handler = ConvertPicker };
             _cvInfoMap["fgtime"] = new ConvInfo { Handler = ConvertPicker };
+            _cvInfoMap["fgdatetime"] = new ConvInfo { Handler = ConvertPicker };
             _cvInfoMap["button"] = new ConvInfo { Handler = ConvertButton };
             _cvInfoMap["panel"] = new ConvInfo { Handler = ConvertPanel, ElementsAllowed = "*" };
         }

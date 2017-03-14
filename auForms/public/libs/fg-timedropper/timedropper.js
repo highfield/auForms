@@ -104,7 +104,7 @@
             $(document).on('touchend mouseup', mouseup);
 
             container.removeClass('fg-time-fadeout');
-            container.addClass('fg-time-' + me.options.init_animation);
+            container.addClass('fg-time-show').addClass('fg-time-' + me.options.init_animation);
 
             overlay = $('<div>').addClass('fg-time-overlay').appendTo('body');
             overlay.on("click", overclick);
@@ -138,19 +138,19 @@
         function wheel(e) {
             e.preventDefault();
             container.find('.fg-time-deg').removeClass('fg-time-n');
-            if (e.originalEvent.wheelDelta > 0) {
-                if (wheel_deg <= 360) {
-                    if (e.originalEvent.wheelDelta <= 120) wheel_deg++
-                    else if (e.originalEvent.wheelDelta > 120) wheel_deg = wheel_deg + 20;
-                    if (wheel_deg > 360) wheel_deg = 0;
-                }
-            } else {
-                if (wheel_deg >= 0) {
-                    if (e.originalEvent.wheelDelta >= -120) wheel_deg--
-                    else if (e.originalEvent.wheelDelta < -120) wheel_deg = wheel_deg - 20;
-                    if (wheel_deg < 0) wheel_deg = 360;
-                }
-            }
+            //if (e.originalEvent.wheelDelta > 0) {
+            //    if (wheel_deg <= 360) {
+            //        if (e.originalEvent.wheelDelta <= 120) wheel_deg++
+            //        else if (e.originalEvent.wheelDelta > 120) wheel_deg = wheel_deg + 20;
+            //        if (wheel_deg > 360) wheel_deg = 0;
+            //    }
+            //} else {
+            //    if (wheel_deg >= 0) {
+            //        if (e.originalEvent.wheelDelta >= -120) wheel_deg--
+            //        else if (e.originalEvent.wheelDelta < -120) wheel_deg = wheel_deg - 20;
+            //        if (wheel_deg < 0) wheel_deg = 360;
+            //    }
+            //}
             //init_deg = -1;
             //event_deg = wheel_deg;
             //rotation(wheel_deg);
@@ -309,4 +309,4 @@
         return me;
     }
 
-} (jQuery));
+})(jQuery);

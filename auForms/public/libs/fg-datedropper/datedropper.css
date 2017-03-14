@@ -106,7 +106,7 @@
   -o-transform: translateX(-50%) rotate(45deg);
   border-top-left-radius: 4px;
 }
-.fg-date.picker-focus {
+.fg-date.fg-picker-focus {
   opacity: 1;
   visibility: visible;
   margin-top: 8px;
@@ -124,24 +124,24 @@
 .fg-date.fg-date-modal:before {
   display: none;
 }
-.fg-date .picker {
+.fg-date .fg-picker {
   overflow: hidden;
 }
-.fg-date .picker ul {
+.fg-date .fg-picker ul {
   margin: 0;
   padding: 0;
   list-style: none;
   cursor: pointer;
 }
-.fg-date .picker ul.pick {
+.fg-date .fg-picker ul.pick {
   position: relative;
   overflow: hidden;
   max-height: 100px;
 }
-.fg-date .picker ul.pick:nth-of-type(2) {
+.fg-date .fg-picker ul.pick:nth-of-type(2) {
   box-shadow: 0 1px rgba(0, 0, 0, 0.06);
 }
-.fg-date .picker ul.pick li {
+.fg-date .fg-picker ul.pick li {
   position: absolute;
   top: 0;
   left: 0;
@@ -151,19 +151,19 @@
   opacity: .5;
   display: block;
 }
-.fg-date .picker ul.pick li.pick-afr {
+.fg-date .fg-picker ul.pick li.pick-afr {
   -webkit-transform: translateY(100%);
   -moz-transform: translateY(100%);
   -ms-transform: translateY(100%);
   -o-transform: translateY(100%);
 }
-.fg-date .picker ul.pick li.pick-bfr {
+.fg-date .fg-picker ul.pick li.pick-bfr {
   -webkit-transform: translateY(-100%);
   -moz-transform: translateY(-100%);
   -ms-transform: translateY(-100%);
   -o-transform: translateY(-100%);
 }
-.fg-date .picker ul.pick li.pick-sl {
+.fg-date .fg-picker ul.pick li.pick-sl {
   opacity: 1;
   -webkit-transform: translateY(0);
   -moz-transform: translateY(0);
@@ -171,7 +171,7 @@
   -o-transform: translateY(0);
   z-index: 1;
 }
-.fg-date .picker ul.pick li span {
+.fg-date .fg-picker ul.pick li span {
   font-size: 16px;
   position: absolute;
   left: 0;
@@ -179,7 +179,7 @@
   line-height: 0;
   bottom: 24px;
 }
-.fg-date .picker ul.pick .pick-arw {
+.fg-date .fg-picker ul.pick .pick-arw {
   position: absolute;
   top: 0;
   height: 100%;
@@ -199,7 +199,7 @@
   -ms-transform: scale(0);
   -o-transform: scale(0);
 }
-.fg-date .picker ul.pick .pick-arw i {
+.fg-date .fg-picker ul.pick .pick-arw i {
   line-height: 0;
   top: 50%;
   position: relative;
@@ -209,39 +209,39 @@
   -ms-transform: translateY(-50%);
   -o-transform: translateY(-50%);
 }
-.fg-date .picker ul.pick .pick-arw.pick-arw-s1:hover {
+.fg-date .fg-picker ul.pick .pick-arw.pick-arw-s1:hover {
   opacity: 1;
   -webkit-transform: scale(1.2);
   -moz-transform: scale(1.2);
   -ms-transform: scale(1.2);
   -o-transform: scale(1.2);
 }
-.fg-date .picker ul.pick .pick-arw.pick-arw-r {
+.fg-date .fg-picker ul.pick .pick-arw.pick-arw-r {
   right: 0;
 }
-.fg-date .picker ul.pick .pick-arw.pick-arw-r i {
+.fg-date .fg-picker ul.pick .pick-arw.pick-arw-r i {
   right: 0;
 }
-.fg-date .picker ul.pick .pick-arw.pick-arw-l {
+.fg-date .fg-picker ul.pick .pick-arw.pick-arw-l {
   left: 0;
 }
-.fg-date .picker ul.pick .pick-arw.pick-arw-l i {
+.fg-date .fg-picker ul.pick .pick-arw.pick-arw-l i {
   left: 0;
 }
-.fg-date .picker ul.pick .pick-arw.pick-arw-s2.pick-arw-r {
+.fg-date .fg-picker ul.pick .pick-arw.pick-arw-s2.pick-arw-r {
   -webkit-transform: translateX(100%);
   -moz-transform: translateX(100%);
   -ms-transform: translateX(100%);
   -o-transform: translateX(100%);
 }
-.fg-date .picker ul.pick .pick-arw.pick-arw-s2.pick-arw-l {
+.fg-date .fg-picker ul.pick .pick-arw.pick-arw-s2.pick-arw-l {
   -webkit-transform: translateX(-100%);
   -moz-transform: translateX(-100%);
   -ms-transform: translateX(-100%);
   -o-transform: translateX(-100%);
 }
 @media only screen and (max-width: 480px) {
-  .fg-date .picker ul.pick .pick-arw {
+  .fg-date .fg-picker ul.pick .pick-arw {
     -webkit-transform: scale(1);
     -moz-transform: scale(1);
     -ms-transform: scale(1);
@@ -249,44 +249,44 @@
     opacity: 0.4;
   }
 }
-.fg-date .picker ul.pick.pick-m,
-.fg-date .picker ul.pick.pick-y,
-.fg-date .picker ul.pick.pick-l {
+.fg-date .fg-picker ul.pick.pick-m,
+.fg-date .fg-picker ul.pick.pick-y,
+.fg-date .fg-picker ul.pick.pick-l {
   height: 60px;
   line-height: 60px;
 }
-.fg-date .picker ul.pick.pick-m {
+.fg-date .fg-picker ul.pick.pick-m {
   font-size: 32px;
 }
-.fg-date .picker ul.pick.pick-y {
+.fg-date .fg-picker ul.pick.pick-y {
   font-size: 24px;
 }
-.fg-date .picker ul.pick.pick-y.pick-jump .pick-arw.pick-arw-s1.pick-arw-r i {
+.fg-date .fg-picker ul.pick.pick-y.pick-jump .pick-arw.pick-arw-s1.pick-arw-r i {
   right: 16px;
 }
-.fg-date .picker ul.pick.pick-y.pick-jump .pick-arw.pick-arw-s1.pick-arw-l i {
+.fg-date .fg-picker ul.pick.pick-y.pick-jump .pick-arw.pick-arw-s1.pick-arw-l i {
   left: 16px;
 }
-.fg-date .picker ul.pick.pick-y.pick-jump .pick-arw.pick-arw-s2.pick-arw-r,
-.fg-date .picker ul.pick.pick-y.pick-jump .pick-arw.pick-arw-s2.pick-arw-l {
+.fg-date .fg-picker ul.pick.pick-y.pick-jump .pick-arw.pick-arw-s2.pick-arw-r,
+.fg-date .fg-picker ul.pick.pick-y.pick-jump .pick-arw.pick-arw-s2.pick-arw-l {
   -webkit-transform: translateX(0);
   -moz-transform: translateX(0);
   -ms-transform: translateX(0);
   -o-transform: translateX(0);
 }
-.fg-date .picker ul.pick.pick-y.pick-jump .pick-arw:hover {
+.fg-date .fg-picker ul.pick.pick-y.pick-jump .pick-arw:hover {
   -webkit-transform: scale(1.6);
   -moz-transform: scale(1.6);
   -ms-transform: scale(1.6);
   -o-transform: scale(1.6);
 }
-.fg-date .picker ul.pick.pick-d {
+.fg-date .fg-picker ul.pick.pick-d {
   height: 100px;
   line-height: 80px;
   font-size: 64px;
   font-weight: bold;
 }
-.fg-date .picker ul.pick.pick-l {
+.fg-date .fg-picker ul.pick.pick-l {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -305,7 +305,7 @@
   -ms-transition: all 0.4s ease;
   -o-transition: all 0.4s ease;
 }
-.fg-date .picker ul.pick.pick-l.visible {
+.fg-date .fg-picker ul.pick.pick-l.visible {
   opacity: 1;
   visibility: visible;
   -webkit-transform: translateY(0);
@@ -313,35 +313,35 @@
   -ms-transform: translateY(0);
   -o-transform: translateY(0);
 }
-.fg-date .picker ul.pick:hover .pick-arw {
+.fg-date .fg-picker ul.pick:hover .pick-arw {
   opacity: 0.6;
   -webkit-transform: scale(1);
   -moz-transform: scale(1);
   -ms-transform: scale(1);
   -o-transform: scale(1);
 }
-.fg-date .picker ul.pick.pick-d:hover,
-.fg-date .picker ul.pick.pick-y:hover {
+.fg-date .fg-picker ul.pick.pick-d:hover,
+.fg-date .fg-picker ul.pick.pick-y:hover {
   background-color: rgba(0, 0, 0, 0.02);
 }
-.fg-date .picker .pick-lg {
+.fg-date .fg-picker .pick-lg {
   z-index: 1;
   margin: 0 auto;
   max-height: 0;
   overflow: hidden;
 }
-.fg-date .picker .pick-lg.down {
+.fg-date .fg-picker .pick-lg.down {
   animation: down .8s ease;
 }
-.fg-date .picker .pick-lg .pick-h {
+.fg-date .fg-picker .pick-lg .pick-h {
   opacity: 0.4;
 }
-.fg-date .picker .pick-lg ul:after {
+.fg-date .fg-picker .pick-lg ul:after {
   content: "";
   display: table;
   clear: both;
 }
-.fg-date .picker .pick-lg ul li {
+.fg-date .fg-picker .pick-lg ul li {
   float: left;
   text-align: center;
   width: 14.285714286%;
@@ -349,18 +349,18 @@
   height: 36px;
   font-size: 14px;
 }
-.fg-date .picker .pick-lg ul.pick-lg-h {
+.fg-date .fg-picker .pick-lg ul.pick-lg-h {
   padding: 0 16px;
 }
-.fg-date .picker .pick-lg ul.pick-lg-b {
+.fg-date .fg-picker .pick-lg ul.pick-lg-b {
   padding: 16px;
 }
-.fg-date .picker .pick-lg ul.pick-lg-b li {
+.fg-date .fg-picker .pick-lg ul.pick-lg-b li {
   cursor: pointer;
   position: relative;
   z-index: 1;
 }
-.fg-date .picker .pick-lg ul.pick-lg-b li:before {
+.fg-date .fg-picker .pick-lg ul.pick-lg-b li:before {
   content: "";
   position: absolute;
   z-index: -1;
@@ -375,10 +375,10 @@
   -ms-transform: translate(-50%, -50%) scale(0);
   -o-transform: translate(-50%, -50%) scale(0);
 }
-.fg-date .picker .pick-lg ul.pick-lg-b li.pick-v:hover {
+.fg-date .fg-picker .pick-lg ul.pick-lg-b li.pick-v:hover {
   text-decoration: underline;
 }
-.fg-date .picker .pick-lg ul.pick-lg-b li.pick-lk:after {
+.fg-date .fg-picker .pick-lg ul.pick-lg-b li.pick-lk:after {
   content: "";
   position: absolute;
   top: 50%;
@@ -391,26 +391,26 @@
   -ms-transform: rotate(45deg);
   -o-transform: rotate(45deg);
 }
-.fg-date .picker .pick-lg ul.pick-lg-b li.pick-sl {
+.fg-date .fg-picker .pick-lg ul.pick-lg-b li.pick-sl {
   font-size: 24px;
 }
-.fg-date .picker .pick-lg ul.pick-lg-b li.pick-sl:before {
+.fg-date .fg-picker .pick-lg ul.pick-lg-b li.pick-sl:before {
   -webkit-transform: translate(-50%, -50%) scale(1);
   -moz-transform: translate(-50%, -50%) scale(1);
   -ms-transform: translate(-50%, -50%) scale(1);
   -o-transform: translate(-50%, -50%) scale(1);
 }
-.fg-date .picker .pick-btns {
+.fg-date .fg-picker .pick-btns {
   margin: -1px;
   position: relative;
   z-index: 2;
   height: 56px;
 }
-.fg-date .picker .pick-btns div {
+.fg-date .fg-picker .pick-btns div {
   cursor: pointer;
   line-height: 0;
 }
-.fg-date .picker .pick-btns .pick-submit {
+.fg-date .fg-picker .pick-btns .pick-submit {
   margin: 0 auto;
   width: 56px;
   height: 56px;
@@ -424,7 +424,7 @@
   position: relative;
   top: 0;
 }
-.fg-date .picker .pick-btns .pick-submit:after {
+.fg-date .fg-picker .pick-btns .pick-submit:after {
   font-family: "datedropper" !important;
   font-style: normal !important;
   font-weight: normal !important;
@@ -437,11 +437,11 @@
   line-height: 60px;
   content: "\65";
 }
-.fg-date .picker .pick-btns .pick-submit:hover {
+.fg-date .fg-picker .pick-btns .pick-submit:hover {
   top: 4px;
   box-shadow: 0 0 0 16px rgba(0, 0, 0, 0.04), 0 0 0 8px rgba(0, 0, 0, 0.04);
 }
-.fg-date .picker .pick-btns .pick-btn {
+.fg-date .fg-picker .pick-btns .pick-btn {
   position: absolute;
   width: 32px;
   height: 32px;
@@ -453,7 +453,7 @@
   border-radius: 4px;
   background: rgba(0, 0, 0, 0.03);
 }
-.fg-date .picker .pick-btns .pick-btn:hover {
+.fg-date .fg-picker .pick-btns .pick-btn:hover {
   background: #FFF;
   -webkit-box-shadow: 0 0 32px rgba(0, 0, 0, 0.1);
   -moz-box-shadow: 0 0 32px rgba(0, 0, 0, 0.1);
@@ -463,7 +463,7 @@
   -ms-transform: scale(1.2);
   -o-transform: scale(1.2);
 }
-.fg-date .picker .pick-btns .pick-btn:after {
+.fg-date .fg-picker .pick-btns .pick-btn:after {
   font-family: "datedropper" !important;
   font-style: normal !important;
   font-weight: normal !important;
@@ -474,38 +474,38 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.fg-date .picker .pick-btns .pick-btn.pick-btn-sz {
+.fg-date .fg-picker .pick-btns .pick-btn.pick-btn-sz {
   right: 0;
   transform-origin: right bottom;
 }
-.fg-date .picker .pick-btns .pick-btn.pick-btn-sz:after {
+.fg-date .fg-picker .pick-btns .pick-btn.pick-btn-sz:after {
   content: "\63";
 }
-.fg-date .picker .pick-btns .pick-btn.pick-btn-lng {
+.fg-date .fg-picker .pick-btns .pick-btn.pick-btn-lng {
   left: 0;
   transform-origin: left bottom;
 }
-.fg-date .picker .pick-btns .pick-btn.pick-btn-lng:after {
+.fg-date .fg-picker .pick-btns .pick-btn.pick-btn-lng:after {
   content: "\6a";
 }
-.fg-date.picker-lg {
+.fg-date.fg-picker-lg {
   width: 300px!important;
 }
-.fg-date.picker-lg ul.pick.pick-d {
+.fg-date.fg-picker-lg ul.pick.pick-d {
   -webkit-transform: scale(0);
   -moz-transform: scale(0);
   -ms-transform: scale(0);
   -o-transform: scale(0);
   max-height: 0!important;
 }
-.fg-date.picker-lg .pick-lg {
+.fg-date.fg-picker-lg .pick-lg {
   max-height: 320px;
 }
-.fg-date.picker-lg .pick-btns .pick-btn.pick-btn-sz:after {
+.fg-date.fg-picker-lg .pick-btns .pick-btn.pick-btn-sz:after {
   content: "\61";
 }
 @media only screen and (max-width: 480px) {
-  .fg-date.picker-lg {
+  .fg-date.fg-picker-lg {
     position: fixed;
     top: 50%!important;
     left: 50%!important;
@@ -515,7 +515,7 @@
     -o-transform: translate(-50%, -50%);
     margin: 0;
   }
-  .fg-date.picker-lg:before {
+  .fg-date.fg-picker-lg:before {
     display: none;
   }
 }
@@ -687,99 +687,99 @@
     -o-transform: translate(-50%, -50%) translate3d(2px, 0, 0);
   }
 }
-.fg-date.picker-rmbl {
+.fg-date.fg-picker-rmbl {
   -webkit-animation: picker_locked 0.4s ease;
   -moz-animation: picker_locked 0.4s ease;
   animation: picker_locked 0.4s ease;
 }
 @media only screen and (max-width: 480px) {
-  .fg-date.picker-rmbl.picker-lg {
+  .fg-date.fg-picker-rmbl.fg-picker-lg {
     -webkit-animation: picker_locked_large_mobile 0.4s ease;
     -moz-animation: picker_locked_large_mobile 0.4s ease;
     animation: picker_locked_large_mobile 0.4s ease;
   }
 }
-.fg-date.picker-lkd .pick-submit {
+.fg-date.fg-picker-lkd .pick-submit {
   background-color: rgba(0, 0, 0, 0.04) !important;
   color: rgba(0, 0, 0, 0.2) !important;
 }
-.fg-date.picker-lkd .pick-submit:hover {
+.fg-date.fg-picker-lkd .pick-submit:hover {
   -webkit-box-shadow: none !important;
   -moz-box-shadow: none !important;
   box-shadow: none !important;
 }
-.fg-date.picker-lkd .pick-submit:after {
+.fg-date.fg-picker-lkd .pick-submit:after {
   content: "\62" !important;
 }
-.fg-date.picker-fxs {
+.fg-date.fg-picker-fxs {
   -webkit-transition: width 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), opacity 0.2s ease, visibility 0.2s ease, margin 0.2s ease;
   -moz-transition: width 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), opacity 0.2s ease, visibility 0.2s ease, margin 0.2s ease;
   -ms-transition: width 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), opacity 0.2s ease, visibility 0.2s ease, margin 0.2s ease;
   -o-transition: width 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), opacity 0.2s ease, visibility 0.2s ease, margin 0.2s ease;
 }
-.fg-date.picker-fxs ul.pick.pick-d {
+.fg-date.fg-picker-fxs ul.pick.pick-d {
   -webkit-transition: top 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), transform 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), max-height 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), background-color 0.4s ease;
   -moz-transition: top 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), transform 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), max-height 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), background-color 0.4s ease;
   -ms-transition: top 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), transform 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), max-height 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), background-color 0.4s ease;
   -o-transition: top 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), transform 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), max-height 0.8s cubic-bezier(1, -0.55, 0.2, 1.37), background-color 0.4s ease;
 }
-.fg-date.picker-fxs ul.pick.pick-y {
+.fg-date.fg-picker-fxs ul.pick.pick-y {
   -webkit-transition: background-color 0.4s ease;
   -moz-transition: background-color 0.4s ease;
   -ms-transition: background-color 0.4s ease;
   -o-transition: background-color 0.4s ease;
 }
-.fg-date.picker-fxs ul.pick li {
+.fg-date.fg-picker-fxs ul.pick li {
   -webkit-transition: transform 0.4s ease, opacity 0.4s ease;
   -moz-transition: transform 0.4s ease, opacity 0.4s ease;
   -ms-transition: transform 0.4s ease, opacity 0.4s ease;
   -o-transition: transform 0.4s ease, opacity 0.4s ease;
 }
-.fg-date.picker-fxs ul.pick .pick-arw {
+.fg-date.fg-picker-fxs ul.pick .pick-arw {
   -webkit-transition: transform 0.2s ease, opacity 0.2s ease;
   -moz-transition: transform 0.2s ease, opacity 0.2s ease;
   -ms-transition: transform 0.2s ease, opacity 0.2s ease;
   -o-transition: transform 0.2s ease, opacity 0.2s ease;
 }
-.fg-date.picker-fxs ul.pick .pick-arw i {
+.fg-date.fg-picker-fxs ul.pick .pick-arw i {
   -webkit-transition: right 0.2s ease, left 0.2s ease;
   -moz-transition: right 0.2s ease, left 0.2s ease;
   -ms-transition: right 0.2s ease, left 0.2s ease;
   -o-transition: right 0.2s ease, left 0.2s ease;
 }
-.fg-date.picker-fxs .pick-lg {
+.fg-date.fg-picker-fxs .pick-lg {
   -webkit-transition: max-height 0.8s cubic-bezier(1, -0.55, 0.2, 1.37);
   -moz-transition: max-height 0.8s cubic-bezier(1, -0.55, 0.2, 1.37);
   -ms-transition: max-height 0.8s cubic-bezier(1, -0.55, 0.2, 1.37);
   -o-transition: max-height 0.8s cubic-bezier(1, -0.55, 0.2, 1.37);
 }
-.fg-date.picker-fxs .pick-lg .pick-lg-b li:before {
+.fg-date.fg-picker-fxs .pick-lg .pick-lg-b li:before {
   -webkit-transition: transform 0.2s ease;
   -moz-transition: transform 0.2s ease;
   -ms-transition: transform 0.2s ease;
   -o-transition: transform 0.2s ease;
 }
-.fg-date.picker-fxs .pick-btns .pick-submit {
+.fg-date.fg-picker-fxs .pick-btns .pick-submit {
   -webkit-transition: top 0.2s ease, box-shadow 0.4s ease, background-color 0.4s ease;
   -moz-transition: top 0.2s ease, box-shadow 0.4s ease, background-color 0.4s ease;
   -ms-transition: top 0.2s ease, box-shadow 0.4s ease, background-color 0.4s ease;
   -o-transition: top 0.2s ease, box-shadow 0.4s ease, background-color 0.4s ease;
 }
-.fg-date.picker-fxs .pick-btns .pick-btn {
+.fg-date.fg-picker-fxs .pick-btns .pick-btn {
   -webkit-transition: all 0.2s ease;
   -moz-transition: all 0.2s ease;
   -ms-transition: all 0.2s ease;
   -o-transition: all 0.2s ease;
 }
 @media only screen and (max-width: 480px) {
-  .fg-date.picker-fxs {
+  .fg-date.fg-picker-fxs {
     -webkit-transition: opacity 0.2s ease, visibility 0.2s ease, margin 0.2s ease;
     -moz-transition: opacity 0.2s ease, visibility 0.2s ease, margin 0.2s ease;
     -ms-transition: opacity 0.2s ease, visibility 0.2s ease, margin 0.2s ease;
     -o-transition: opacity 0.2s ease, visibility 0.2s ease, margin 0.2s ease;
   }
-  .fg-date.picker-fxs ul.pick.pick-d,
-  .fg-date.picker-fxs .pick-lg {
+  .fg-date.fg-picker-fxs ul.pick.pick-d,
+  .fg-date.fg-picker-fxs .pick-lg {
     -webkit-transition: none;
     -moz-transition: none;
     -ms-transition: none;
@@ -790,7 +790,7 @@
   border-radius: 6px;
   width: 180px;
 }
-.fg-date.vanilla .picker {
+.fg-date.vanilla .fg-picker {
   border-radius: 6px;
   box-shadow: 0 0 32px 0 rgba(0, 0, 0, 0.1);
 }
@@ -811,11 +811,11 @@
 .fg-date.vanilla .pick-btn {
   color: #feac92;
 }
-.fg-date.vanilla .picker,
+.fg-date.vanilla .fg-picker,
 .fg-date.vanilla .pick-l {
   background-color: #ffffff;
 }
-.fg-date.vanilla .picker,
+.fg-date.vanilla .fg-picker,
 .fg-date.vanilla .pick-arw,
 .fg-date.vanilla .pick-l {
   color: #9ed7db;
@@ -827,19 +827,19 @@
 .fg-date.vanilla .pick-submit {
   color: #faf7f4;
 }
-.fg-date.vanilla.picker-tiny:before,
-.fg-date.vanilla.picker-tiny .pick-m {
+.fg-date.vanilla.fg-picker-tiny:before,
+.fg-date.vanilla.fg-picker-tiny .pick-m {
   background-color: #ffffff;
 }
-.fg-date.vanilla.picker-tiny .pick-m,
-.fg-date.vanilla.picker-tiny .pick-m .pick-arw {
+.fg-date.vanilla.fg-picker-tiny .pick-m,
+.fg-date.vanilla.fg-picker-tiny .pick-m .pick-arw {
   color: #9ed7db;
 }
 .fg-date.leaf {
   border-radius: 6px;
   width: 180px;
 }
-.fg-date.leaf .picker {
+.fg-date.leaf .fg-picker {
   border-radius: 6px;
   box-shadow: 0 0 32px 0 rgba(0, 0, 0, 0.1);
 }
@@ -860,11 +860,11 @@
 .fg-date.leaf .pick-btn {
   color: #1ecd80;
 }
-.fg-date.leaf .picker,
+.fg-date.leaf .fg-picker,
 .fg-date.leaf .pick-l {
   background-color: #fefff2;
 }
-.fg-date.leaf .picker,
+.fg-date.leaf .fg-picker,
 .fg-date.leaf .pick-arw,
 .fg-date.leaf .pick-l {
   color: #528971;
@@ -876,19 +876,19 @@
 .fg-date.leaf .pick-submit {
   color: #fefff2;
 }
-.fg-date.leaf.picker-tiny:before,
-.fg-date.leaf.picker-tiny .pick-m {
+.fg-date.leaf.fg-picker-tiny:before,
+.fg-date.leaf.fg-picker-tiny .pick-m {
   background-color: #fefff2;
 }
-.fg-date.leaf.picker-tiny .pick-m,
-.fg-date.leaf.picker-tiny .pick-m .pick-arw {
+.fg-date.leaf.fg-picker-tiny .pick-m,
+.fg-date.leaf.fg-picker-tiny .pick-m .pick-arw {
   color: #528971;
 }
 .fg-date.primary {
   border-radius: 6px;
   width: 180px;
 }
-.fg-date.primary .picker {
+.fg-date.primary .fg-picker {
   border-radius: 6px;
   box-shadow: 0 0 32px 0 rgba(0, 0, 0, 0.1);
 }
@@ -909,11 +909,11 @@
 .fg-date.primary .pick-btn {
   color: #fd4741;
 }
-.fg-date.primary .picker,
+.fg-date.primary .fg-picker,
 .fg-date.primary .pick-l {
   background-color: #ffffff;
 }
-.fg-date.primary .picker,
+.fg-date.primary .fg-picker,
 .fg-date.primary .pick-arw,
 .fg-date.primary .pick-l {
   color: #4d4d4d;
@@ -925,12 +925,12 @@
 .fg-date.primary .pick-submit {
   color: #ffffff;
 }
-.fg-date.primary.picker-tiny:before,
-.fg-date.primary.picker-tiny .pick-m {
+.fg-date.primary.fg-picker-tiny:before,
+.fg-date.primary.fg-picker-tiny .pick-m {
   background-color: #ffffff;
 }
-.fg-date.primary.picker-tiny .pick-m,
-.fg-date.primary.picker-tiny .pick-m .pick-arw {
+.fg-date.primary.fg-picker-tiny .pick-m,
+.fg-date.primary.fg-picker-tiny .pick-m .pick-arw {
   color: #4d4d4d;
 }
 .fg-date .null {

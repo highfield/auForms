@@ -11,14 +11,10 @@
 
     $.fn.fgDateDropper.options = {
         locale: null,
-        //mousewheel: false,
-        //init_animation: "fadein",
-        //primaryColor: "#1977CC",
-        //borderColor: "#1977CC",
-        //backgroundColor: "#FFF",
-        //textColor: '#555',
-        ////overlayContainer: null,
-        //modal: false,
+        modal: true,
+        style: 'sl',
+        fx: true,
+        fxmobile: true,
         title: null
     }
 
@@ -31,7 +27,7 @@
                 t: 'transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd',
                 a: 'webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend'
             };
-            var picker_node_el = '.fg-date.picker-focus';
+            var picker_node_el = '.fg-date.fg-picker-focus';
             var ui_event;
             if (isMobile) {
                 ui_event = {
@@ -49,7 +45,7 @@
             }
 
             $(document)[mode]('click', hClosePicker);
-            $(document)[mode](csse.a, picker_node_el + '.picker-rmbl', hLockAnimation);
+            $(document)[mode](csse.a, picker_node_el + '.fg-picker-rmbl', hLockAnimation);
             $(document)[mode](csse.t, '.fg-date-modal-overlay', hHideModalOverlay);
             $(document)[mode](ui_event.i, picker_node_el + ' .pick-lg li.pick-v', hLargeModeDay);
             $(document)[mode]('click', picker_node_el + ' .pick-btn-sz', hLargeMode);
@@ -80,7 +76,7 @@
         }
 
         function hLockAnimation() {
-            if (picker.hasClass('picker-rmbl')) $(this).removeClass('picker-rmbl');
+            if (picker.hasClass('fg-picker-rmbl')) $(this).removeClass('fg-picker-rmbl');
         }
 
         function hHideModalOverlay() {
@@ -198,9 +194,9 @@
             create();
             is_fx_mobile();
             picker_offset();
-            if (picker.hasClass('picker-lg')) picker_render_calendar();
+            if (picker.hasClass('fg-picker-lg')) picker_render_calendar();
             picker_fills();
-            picker.addClass('picker-focus');
+            picker.addClass('fg-picker-focus');
 
             if (picker.hasClass('fg-date-modal')) {
                 $('body').append('<div class="fg-date-modal-overlay"></div>')
@@ -209,7 +205,7 @@
 
 
         function picker_hide() {
-            if (!is_valid()) {
+            if (is_valid()) {
                 //picker.removeClass('picker-focus');
                 //if (picker.hasClass('fg-date-modal')) {
                 //    $('.fg-date-modal-overlay').remove();
@@ -225,9 +221,9 @@
         function create() {
             picker = $('<div>').addClass('fg-date').addClass(me.options.theme || 'primary').appendTo('body');
             if (me.options.modal) picker.addClass('fg-date-modal');
-            if (me.options.fx) picker.addClass('picker-fxs');
-            if (me.options.large && me.options['large-default']) picker.addClass('picker-lg');
-            var inner = $('<div>').addClass('picker').appendTo(picker);
+            if (me.options.fx) picker.addClass('fg-picker-fxs');
+            if (get_styles()[0] !== 's') picker.addClass('fg-picker-lg');
+            var inner = $('<div>').addClass('fg-picker').appendTo(picker);
 
             if (me.options.modal && me.options.title) {
                 $('<div>').addClass('fg-date-title').text(me.options.title).appendTo(picker);
@@ -238,14 +234,15 @@
                 picker_render_ul(k);
             });
 
-            if (me.options.large) {
+            if (get_styles().indexOf('l') >= 0) {
                 //calendar
                 var cc = $('<div>').addClass('pick-lg').insertBefore(picker.find('.pick-d'));
                 var uh = $('<ul>').addClass('pick-lg-h').appendTo(cc);
                 var ub = $('<ul>').addClass('pick-lg-b').appendTo(cc);
 
+                var wd = dttemp.clone();
                 for (var i = 0; i < 7; i++) {
-                    $('<li>').text(dttemp.localeData().weekdaysShort()[i]).appendTo(uh)
+                    $('<li>').text(dttemp.localeData().weekdaysShort(wd.weekday(i))).appendTo(uh)
                 }
                 for (var i = 0; i < 42; i++) {
                     $('<li>').appendTo(ub)
@@ -255,7 +252,7 @@
             //buttons
             var pb = $('<div>').addClass('pick-btns').appendTo(inner);
             $('<div>').addClass('pick-submit').appendTo(pb);
-            if (me.options.large) {
+            if (get_styles().indexOf('l') >= 0) {
                 $('<div>').addClass('pick-btn pick-btn-sz').appendTo(pb);
             }
 
@@ -276,12 +273,13 @@
 
 
         function picker_render_ul(k) {
+            var fn = picker.hasClass('fg-picker-lg') ? 'months' : 'monthsShort';
             var ul = get_ul(k);
             for (var i = LT[k].min; i <= LT[k].max; i++) {
                 var html = i;
                 switch (k) {
                     case 'd': html += '<span></span>'; break;
-                    case 'm': html = moment.monthsShort()[i - 1]; break;
+                    case 'm': html = dttemp.localeData()[fn](moment({ month: i - 1 })); break;
                 }
                 $('<li>', {
                     value: i,
@@ -332,31 +330,6 @@
 
             var index = 0;
             var dt = dttemp.clone().startOf('month'), cm = dt.month();
-            var dmo = dttemp.daysInMonth();
-            //var
-            //    //_C = new Date(get_current_full()),
-            //    _S = new Date(get_current_full()),
-            //    _L = new Date(get_current_full()),
-            //    _NUM = function (d) {
-            //        var
-            //            m = d.getMonth(),
-            //            y = d.getFullYear();
-            //        var l = ((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0));
-            //        return [31, (l ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m];
-            //    };
-
-            //_L.setMonth(_L.getMonth() - 1);
-            //_S.setDate(1);
-
-            //var
-            //    o = _S.getDay() - 1;
-            //if (o < 0)
-            //    o = 6;
-            //if (i18n[pickers[picker.id].lang].gregorian) {
-            //    o--;
-            //    if (o < 0)
-            //        o = 6;
-            //}
 
             if (dt.weekday() !== 0) {
                 //before
@@ -382,57 +355,58 @@
                 index++;
             }
 
-            if (0 && pickers[picker.id].lock) {
-                if (pickers[picker.id].lock === 'from') {
-                    if (get_current('y') <= get_today('y')) {
-                        if (get_current('m') == get_today('m')) {
-                            get_picker_els('.pick-lg .pick-lg-b li.pick-v[data-value="' + get_today('d') + '"]')
-                                .prevAll('li')
-                                .addClass('pick-lk')
-                        }
-                        else {
-                            if (get_current('m') < get_today('m')) {
-                                get_picker_els('.pick-lg .pick-lg-b li')
-                                    .addClass('pick-lk')
-                            }
-                            else if (get_current('m') > get_today('m') && get_current('y') < get_today('y')) {
-                                get_picker_els('.pick-lg .pick-lg-b li')
-                                    .addClass('pick-lk')
-                            }
-                        }
-                    }
-                }
-                else {
-                    if (get_current('y') >= get_today('y')) {
-                        if (get_current('m') == get_today('m')) {
-                            get_picker_els('.pick-lg .pick-lg-b li.pick-v[data-value="' + get_today('d') + '"]')
-                                .nextAll('li')
-                                .addClass('pick-lk')
-                        }
-                        else {
-                            if (get_current('m') > get_today('m')) {
-                                get_picker_els('.pick-lg .pick-lg-b li')
-                                    .addClass('pick-lk')
-                            }
-                            else if (get_current('m') < get_today('m') && get_current('y') > get_today('y')) {
-                                get_picker_els('.pick-lg .pick-lg-b li')
-                                    .addClass('pick-lk')
-                            }
-                        }
-                    }
-                }
-            }
-            if (0 && pickers[picker.id].disabledays) {
-                $.each(pickers[picker.id].disabledays, function (i, v) {
-                    if (v && is_date(v)) {
-                        var
-                            d = new Date(v * 1000);
-                        if (d.getMonth() + 1 == get_current('m') && d.getFullYear() == get_current('y'))
-                            get_picker_els('.pick-lg .pick-lg-b li.pick-v[data-value="' + d.getDate() + '"]')
-                                .addClass('pick-lk');
-                    }
-                });
-            }
+            //if (pickers[picker.id].lock) {
+            //    if (pickers[picker.id].lock === 'from') {
+            //        if (get_current('y') <= get_today('y')) {
+            //            if (get_current('m') == get_today('m')) {
+            //                get_picker_els('.pick-lg .pick-lg-b li.pick-v[data-value="' + get_today('d') + '"]')
+            //                    .prevAll('li')
+            //                    .addClass('pick-lk')
+            //            }
+            //            else {
+            //                if (get_current('m') < get_today('m')) {
+            //                    get_picker_els('.pick-lg .pick-lg-b li')
+            //                        .addClass('pick-lk')
+            //                }
+            //                else if (get_current('m') > get_today('m') && get_current('y') < get_today('y')) {
+            //                    get_picker_els('.pick-lg .pick-lg-b li')
+            //                        .addClass('pick-lk')
+            //                }
+            //            }
+            //        }
+            //    }
+            //    else {
+            //        if (get_current('y') >= get_today('y')) {
+            //            if (get_current('m') == get_today('m')) {
+            //                get_picker_els('.pick-lg .pick-lg-b li.pick-v[data-value="' + get_today('d') + '"]')
+            //                    .nextAll('li')
+            //                    .addClass('pick-lk')
+            //            }
+            //            else {
+            //                if (get_current('m') > get_today('m')) {
+            //                    get_picker_els('.pick-lg .pick-lg-b li')
+            //                        .addClass('pick-lk')
+            //                }
+            //                else if (get_current('m') < get_today('m') && get_current('y') > get_today('y')) {
+            //                    get_picker_els('.pick-lg .pick-lg-b li')
+            //                        .addClass('pick-lk')
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+
+            //if (pickers[picker.id].disabledays) {
+            //    $.each(pickers[picker.id].disabledays, function (i, v) {
+            //        if (v && is_date(v)) {
+            //            var
+            //                d = new Date(v * 1000);
+            //            if (d.getMonth() + 1 == get_current('m') && d.getFullYear() == get_current('y'))
+            //                get_picker_els('.pick-lg .pick-lg-b li.pick-v[data-value="' + d.getDate() + '"]')
+            //                    .addClass('pick-lk');
+            //        }
+            //    });
+            //}
 
             picker.find('.pick-lg-b li.pick-v[data-value=' + get_current('d') + ']').addClass('pick-sl');
         }
@@ -446,17 +420,17 @@
             picker.find('.pick-d li')
                 .removeClass('pick-wke')
                 .each(function () {
-                    var d = new Date(m + "/" + $(this).attr('value') + "/" + y).getDay();
-                    $(this).find('span').html(moment.weekdays()[d]);
+                    var dt = new Date(m + "/" + $(this).attr('value') + "/" + y), d = dt.getDay();
+                    $(this).find('span').html(dttemp.localeData().weekdays(moment(dt)));
                     if (d === 0 || d === 6) $(this).addClass('pick-wke');
 
                 });
 
-            if (picker.hasClass('picker-lg')) {
+            if (picker.hasClass('fg-picker-lg')) {
                 picker.find('.pick-lg-b li').removeClass('pick-wke');
                 picker.find('.pick-lg-b li.pick-v')
                     .each(function () {
-                        var d = new Date(m + "/" + $(this).attr('data-value') + "/" + y).getDay();
+                        var dt = new Date(m + "/" + $(this).attr('data-value') + "/" + y), d = dt.getDay();
                         if (d == 0 || d == 6) $(this).addClass('pick-wke');
 
                     });
@@ -482,6 +456,14 @@
             ul.find('li[value=' + i + ']').addClass('pick-sl');
             ul.find('li.pick-sl').nextAll('li').addClass('pick-afr');
             ul.find('li.pick-sl').prevAll('li').addClass('pick-bfr');
+
+            if (!tmr) {
+                tmr = setTimeout(function () {
+                    if (picker.hasClass('fg-picker-lg')) picker_render_calendar();
+                    picker_fills();
+                    tmr = null;
+                }, 200);
+            }
         }
 
 
@@ -495,29 +477,27 @@
             ['d', 'm', 'y'].forEach(function (kk) {
                 picker_ul_transition(kk, get_current(kk));
             });
-            console.log(dttemp.toISOString());
+            //console.log(dttemp.toISOString());
         }
 
 
         function picker_alert() {
-            picker.addClass('picker-rmbl');
+            picker.addClass('fg-picker-rmbl');
         }
 
 
         function picker_large_onoff() {
-            if (me.options.large) {
-                picker.toggleClass('picker-lg');
-                picker_render_calendar();
-            }
+            picker.toggleClass('fg-picker-lg');
+            picker_render_calendar();
         }
 
 
         function is_fx_mobile() {
             if (picker && me.options.fx && !me.options.fxmobile) {
                 if ($(window).width() < 480)
-                    picker.removeClass('picker-fxs');
+                    picker.removeClass('fg-picker-fxs');
                 else
-                    picker.addClass('picker-fxs')
+                    picker.addClass('fg-picker-fxs')
             }
         }
 
@@ -528,22 +508,22 @@
             //    if (me.options.lock == 'from') {
             //        if (unix_current < unix_today) {
             //            picker_alert();
-            //            picker.addClass('picker-lkd');
+            //            picker.addClass('fg-picker-lkd');
             //            return true;
             //        }
             //        else {
-            //            picker.removeClass('picker-lkd');
+            //            picker.removeClass('fg-picker-lkd');
             //            return false;
             //        }
             //    }
             //    if (me.options.lock == 'to') {
             //        if (unix_current > unix_today) {
             //            picker_alert();
-            //            picker.addClass('picker-lkd');
+            //            picker.addClass('fg-picker-lkd');
             //            return true;
             //        }
             //        else {
-            //            picker.removeClass('picker-lkd');
+            //            picker.removeClass('fg-picker-lkd');
             //            return false;
             //        }
             //    }
@@ -552,11 +532,11 @@
             //if (pickers[picker.id].disabledays) {
             //    if (pickers[picker.id].disabledays.indexOf(unix_current) != -1) {
             //        picker_alert();
-            //        picker.addClass('picker-lkd');
+            //        picker.addClass('fg-picker-lkd');
             //        return true;
             //    }
             //    else {
-            //        picker.removeClass('picker-lkd');
+            //        picker.removeClass('fg-picker-lkd');
             //        return false;
             //    }
             //}
@@ -622,6 +602,11 @@
         }
 
 
+        function get_styles() {
+            return me.options.style || 's';
+        }
+
+
         function input_change_value(raise) {
             var str = dtcurr.format('ll');
             me.$elem.val(str);
@@ -634,7 +619,7 @@
          */
 
         var me = {}, picker;
-        var is_click = false, drag;
+        var is_click = false, drag, tmr;
         var dtcurr, dttemp, dtmin, dtmax;
         var isMobile = !!(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
         var LT = {
@@ -643,14 +628,31 @@
             y: { min: 1, max: 9999 }
         }
 
+        me.getYear = function () { return dtcurr.year(); }
+        me.setYear = function (v) { dtcurr.year(v); }
+
+        me.getMonth = function () { return dtcurr.month(); }
+        me.setMonth = function (v) { dtcurr.month(v); }
+
+        me.getDate = function () { return dtcurr.date(); }
+        me.setDate = function (v) { dtcurr.date(v); }
+
+        me.from = function (obj) {
+            dtcurr = moment(obj);
+            dtcurr.locale(me.options.locale);
+            input_change_value(false);
+        }
+
         me.init = function (options, elem) {
             me.$elem = $(elem);
             me.options = $.extend({}, $.fn.fgDateDropper.options, options);
 
-            dtmin = moment(me.options.min || { year: 2000 }, null, me.options.lang);
-            dtmax = moment(me.options.max || { year: 2050 }, null, me.options.lang);
+            dtmin = moment(me.options.min || { year: 2000 }, null, me.options.locale);
+            dtmax = moment(me.options.max || { year: 2050 }, null, me.options.locale);
             LT.y.min = dtmin.year();
             LT.y.max = dtmax.year();
+            if (LT.y.min > LT.y.max) throw new Error('Invalid min-max bounds.');
+            if (LT.y.max - LT.y.max > 200) throw new Error('Cannot span more than 200 years.');
 
             me.$elem.prop({
                 'readonly': true
@@ -666,11 +668,11 @@
             });
 
             dtcurr = moment();
-            dtcurr.locale(me.options.lang);
+            dtcurr.locale(me.options.locale);
             input_change_value(false);
         }
 
         return me;
     }
 
-} (jQuery));
+})(jQuery);

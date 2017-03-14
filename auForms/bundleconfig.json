@@ -1,0 +1,40 @@
+[
+  {
+    "outputFileName": "public/libs/fg-datedropper/datedropper.min.js",
+    "inputFiles": [
+      "public/libs/fg-datedropper/datedropper.js"
+    ]
+  },
+  {
+    "outputFileName": "public/libs/fg-datedropper/datedropper.min.css",
+    "inputFiles": [
+      "public/libs/fg-datedropper/datedropper.css"
+    ]
+  },
+  {
+    "outputFileName": "public/libs/fg-timedropper/timedropper.min.js",
+    "inputFiles": [
+      "public/libs/fg-timedropper/timedropper.js"
+    ]
+  },
+  {
+    "outputFileName": "public/libs/fg-timedropper/timedropper.min.css",
+    "inputFiles": [
+      "public/libs/fg-timedropper/timedropper.css"
+    ]
+  },
+  {
+    "outputFileName": "public/libs/auForms2/auForms.min.css",
+    "inputFiles": [
+      "public/libs/auForms2/auForms.css"
+    ]
+  },
+  {
+    "outputFileName": "public/libs/auForms2/auForms.min.js",
+    "inputFiles": [
+      "public/libs/auForms2/auForms.js",
+      "public/libs/auForms2/auForms-validators.js",
+      "public/libs/auForms2/auForms-widgets.js"
+    ]
+  }
+]
