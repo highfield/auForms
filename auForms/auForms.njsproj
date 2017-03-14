@@ -31,9 +31,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.js" />
-    <Compile Include="public\fonts\linecons\lte-ie7.js" />
-    <Compile Include="public\js\site.js" />
-    <Compile Include="public\js\site_old.js" />
     <Compile Include="public\js\site2.js" />
     <Compile Include="public\libs\auForms2\auForms.min.js">
       <SubType>Code</SubType>
@@ -54,8 +51,6 @@
     <Compile Include="public\libs\auDispatcher.js" />
     <Compile Include="public\libs\auForms2\auForms-validators.js" />
     <Compile Include="public\libs\auForms2\auForms-widgets.js" />
-    <Compile Include="public\libs\auForms\auForms.js" />
-    <Compile Include="public\libs\auForms\auForms_old.js" />
     <Compile Include="public\libs\auForms2\auForms.js" />
     <Compile Include="public\libs\bootstrap-3.3.7-dist\js\bootstrap.js" />
     <Compile Include="public\libs\bootstrap-3.3.7-dist\js\bootstrap.min.js" />
@@ -63,7 +58,6 @@
     <Compile Include="public\libs\bootstrap-multiselect-2.0\js\bootstrap-multiselect.js" />
     <Compile Include="public\libs\bootstrap3-dialog\js\bootstrap-dialog.js" />
     <Compile Include="public\libs\bootstrap3-dialog\js\bootstrap-dialog.min.js" />
-    <Compile Include="public\libs\gridstack\gridstack.min.js" />
     <Compile Include="public\libs\perfect-scrollbar\js\perfect-scrollbar.jquery.js" />
     <Compile Include="public\libs\perfect-scrollbar\js\perfect-scrollbar.jquery.min.js" />
     <Compile Include="public\libs\perfect-scrollbar\js\perfect-scrollbar.js" />
@@ -139,17 +133,6 @@
     <None Include="bundleconfig.json" />
     <Content Include="package.json" />
     <Content Include="public\css\styles.css" />
-    <Content Include="public\fonts\codropsicons\codropsicons.svg" />
-    <Content Include="public\fonts\codropsicons\codropsicons.ttf" />
-    <Content Include="public\fonts\codropsicons\codropsicons.woff" />
-    <Content Include="public\fonts\codropsicons\license.txt" />
-    <Content Include="public\fonts\linecons\license.txt" />
-    <Content Include="public\fonts\linecons\linecons.dev.svg" />
-    <Content Include="public\fonts\linecons\linecons.eot" />
-    <Content Include="public\fonts\linecons\linecons.svg" />
-    <Content Include="public\fonts\linecons\linecons.ttf" />
-    <Content Include="public\fonts\linecons\linecons.woff" />
-    <Content Include="public\fonts\linecons\Read Me.txt" />
     <Content Include="public\images\pic-123169078.jpg" />
     <Content Include="public\images\uva-bianca.jpg" />
     <Content Include="public\libs\auForms2\auForms.min.css">
@@ -159,7 +142,6 @@
     <Content Include="public\libs\pick-a-color-1.2.3\css\pick-a-color-1.2.3.min.css" />
     <Content Include="public\libs\pick-a-color-1.2.3\sample.html" />
     <Content Include="public\libs\auForms2\auForms.css" />
-    <Content Include="public\libs\auForms\auForms.css" />
     <Content Include="public\libs\bootstrap-3.3.7-dist\css\bootstrap-theme.css" />
     <Content Include="public\libs\bootstrap-3.3.7-dist\css\bootstrap-theme.css.map" />
     <Content Include="public\libs\bootstrap-3.3.7-dist\css\bootstrap-theme.min.css" />
@@ -178,10 +160,6 @@
     <Content Include="public\libs\bootstrap3-dialog\css\bootstrap-dialog.css" />
     <Content Include="public\libs\bootstrap3-dialog\css\bootstrap-dialog.min.css" />
     <Content Include="public\libs\bootstrap3-dialog\less\bootstrap-dialog.less" />
-    <Content Include="public\libs\gridstack\gridstack-extra.css" />
-    <Content Include="public\libs\gridstack\gridstack-extra.min.css" />
-    <Content Include="public\libs\gridstack\gridstack.min.css" />
-    <Content Include="public\libs\gridstack\gridstack.min.map" />
     <Content Include="public\libs\perfect-scrollbar\css\perfect-scrollbar.css" />
     <Content Include="public\libs\perfect-scrollbar\css\perfect-scrollbar.min.css" />
     <Content Include="public\libs\select2-bootstrap-theme\select2-bootstrap.css" />
@@ -226,9 +204,6 @@
   <ItemGroup>
     <Folder Include="bin\" />
     <Folder Include="public\" />
-    <Folder Include="public\fonts\" />
-    <Folder Include="public\fonts\codropsicons\" />
-    <Folder Include="public\fonts\linecons\" />
     <Folder Include="public\js\" />
     <Folder Include="public\css\" />
     <Folder Include="public\libs\" />
@@ -249,7 +224,6 @@
     <Folder Include="public\libs\bootstrap3-dialog\css\" />
     <Folder Include="public\libs\bootstrap3-dialog\js\" />
     <Folder Include="public\libs\bootstrap3-dialog\less\" />
-    <Folder Include="public\libs\auForms\" />
     <Folder Include="public\libs\auForms2\" />
     <Folder Include="public\libs\jquery-linedtextarea\" />
     <Folder Include="public\libs\perfect-scrollbar\" />
