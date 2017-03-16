@@ -200,6 +200,9 @@ AuFormsWidgets = (function ($) {
     xbag.host = function (form, config) {
         var me = AuForms.FNode(form, config);
 
+        //AuForms.FProp(me, 'overflow-y', config);
+        AuForms.FProp(me, 'height', config);
+
         me.getHost = function () {
             return me._targets.outer;
         }
@@ -215,6 +218,10 @@ AuFormsWidgets = (function ($) {
 
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
+                //var oy = me._props['overflow-y'].get() || 'hidden';
+                //me._targets.outer.css('overflow-y', oy);
+
+                me._targets.outer.css('height', me._props['height'].get());
                 me._targets.outer.css('margin', me._props['margin'].get() || '');
             }
         }
@@ -563,7 +570,7 @@ AuFormsWidgets = (function ($) {
             }).appendTo(grp);
 
             var opts = _.cloneDeep(config.options || {});
-            opts.locale = fmt.locale;
+            opts.locale = fmt && fmt.locale;
             inp.fgTimeDropper(opts);
             api = inp.data('fgTimeDropper');
 
@@ -620,7 +627,7 @@ AuFormsWidgets = (function ($) {
             }).appendTo(grp);
 
             var opts = config.options || {};
-            opts.locale = fmt.locale;
+            opts.locale = fmt && fmt.locale;
             inp.fgDateDropper(opts);
             api = inp.data('fgDateDropper');
 
@@ -702,7 +709,7 @@ AuFormsWidgets = (function ($) {
             }).appendTo(grpd);
 
             var optd = _.cloneDeep(config.options || {});
-            optd.locale = fmt.locale;
+            optd.locale = fmt && fmt.locale;
             if (optd.modal !== false) optd.modal = true;
             inpd.fgDateDropper(optd);
             apid = inpd.data('fgDateDropper');
@@ -716,7 +723,7 @@ AuFormsWidgets = (function ($) {
             }).appendTo(grpt);
 
             var optt = _.cloneDeep(config.options || {});
-            optt.locale = fmt.locale;
+            optt.locale = fmt && fmt.locale;
             if (optt.modal !== false) optt.modal = true;
             inpt.fgTimeDropper(optt);
             apit = inpt.data('fgTimeDropper');

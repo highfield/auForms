@@ -36,7 +36,7 @@
       <SubType>Code</SubType>
       <DependentUpon>public\libs\auForms2\auForms.js</DependentUpon>
     </Compile>
-    <Compile Include="public\libs\auSettings.js" />
+    <Compile Include="public\libs\ausettings.js" />
     <Compile Include="public\libs\fg-datedropper\datedropper.min.js">
       <SubType>Code</SubType>
       <DependentUpon>public\libs\fg-datedropper\datedropper.js</DependentUpon>
@@ -48,7 +48,7 @@
     <Compile Include="public\libs\moment-with-locales.min.js" />
     <Compile Include="public\libs\tinycolor-1.4.1\tinycolor-min.js" />
     <Compile Include="public\libs\pick-a-color-1.2.3\js\pick-a-color-1.2.3.min.js" />
-    <Compile Include="public\libs\auDispatcher.js" />
+    <Compile Include="public\libs\audispatcher.js" />
     <Compile Include="public\libs\auForms2\auForms-validators.js" />
     <Compile Include="public\libs\auForms2\auForms-widgets.js" />
     <Compile Include="public\libs\auForms2\auForms.js" />

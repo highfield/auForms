@@ -217,6 +217,8 @@ namespace Cet.Aurora.Web.PageBuilder
 
         static JObject ConvertHost(ConvContext ctx, XElement xnode, JObject jnode)
         {
+            //ConvertParamString(ctx, xnode, jnode, "overflow-y");
+            ConvertParamString(ctx, xnode, jnode, "height");
             return jnode;
         }
 
