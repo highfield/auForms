@@ -226,6 +226,20 @@ AuFormsWidgets = (function ($) {
             }
         }
 
+        me.xvalidator = function () { return true; }
+        me.validate = function () {
+            var valok = !me.xvalidator || me.xvalidator();
+            if (valok) {
+                delete me._fctx.invalids[me._uid];
+            }
+            else {
+                me._fctx.invalids[me._uid] = 1;
+            }
+
+            var el = me._host.closest('.auForms-row');
+            valok ? el.removeClass('has-error') : el.addClass('has-error');
+        }
+
         return me;
     }
 
@@ -690,7 +704,10 @@ AuFormsWidgets = (function ($) {
 
         me.build = function () {
             me._host.empty();
-            var outer = $('<div>').css({ display: 'table' }).appendTo(me._host);
+            var outer = $('<div>').css({
+                display: 'table',
+                width: '100%'
+            }).appendTo(me._host);
             var celld = $('<div>').css({
                 display: 'table-cell',
                 'padding-right': 2
@@ -700,7 +717,7 @@ AuFormsWidgets = (function ($) {
                 'padding-left': 2
             }).appendTo(outer);
 
-            var grpd = $('<div>').addClass('input-group').appendTo(celld);
+            var grpd = $('<div>').addClass('input-group').css({ 'width': '100%' }).appendTo(celld);
             var inpd = $("<input>").attr({ type: 'text', id: me._uid + '__d' }).addClass('form-control').appendTo(grpd);
             if (config.readonly) inpd.attr("readonly", "");
             $('<span>').addClass('input-group-addon glyphicon glyphicon-calendar').css({
@@ -714,7 +731,7 @@ AuFormsWidgets = (function ($) {
             inpd.fgDateDropper(optd);
             apid = inpd.data('fgDateDropper');
 
-            var grpt = $('<div>').addClass('input-group').appendTo(cellt);
+            var grpt = $('<div>').addClass('input-group').css({ 'width': '100%' }).appendTo(cellt);
             var inpt = $("<input>").attr({ type: 'text', id: me._uid + '__t' }).addClass('form-control').appendTo(grpt);
             if (config.readonly) inpd.attr("readonly", "");
             $('<span>').addClass('input-group-addon glyphicon glyphicon-time').css({

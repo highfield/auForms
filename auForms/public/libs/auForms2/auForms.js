@@ -491,7 +491,7 @@ var AuForms = (function ($) {
 
         me.load = function (data) {
             odata = data || {};
-            me._fctx.data = _.cloneDeep(odata);
+            me._fctx.data = me._fctx.options.updateData ? odata : _.cloneDeep(odata);
             me.render(RenderLevel.update);
         }
 
@@ -799,6 +799,7 @@ var AuForms = (function ($) {
             }
             if (a.destId && a.trim) seq.splice(a.x1 + 1);
             if (a.destId) {
+                eventProxy.trigger('leave', null, { pageId: pgid });
                 pgid = a.destId;
                 update();
                 eventProxy.trigger('enter', null, { pageId: pgid });
@@ -825,6 +826,7 @@ var AuForms = (function ($) {
             }
             if (a.destId && a.trim) seq.splice(x0 + 1);
             if (a.destId) {
+                eventProxy.trigger('leave', null, { pageId: pgid });
                 pgid = a.destId;
                 if (seq.indexOf(a.destId) < 0) seq.push(a.destId);
                 update();
