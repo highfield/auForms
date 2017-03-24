@@ -982,6 +982,165 @@ var AuForms = (function ($) {
     }
 
 
+    function TabPanel(container, options) {
+        function indexOf(arg) {
+            if (typeof arg === 'number') {
+                return arg;
+            }
+            else if (typeof arg === 'string') {
+                var i = items.length;
+                while (--i >= 0) {
+                    if (items[i].getId() === arg) break;
+                }
+                return i;
+            }
+            else {
+                return items.indexOf(arg);
+            }
+        }
+
+
+        function build() {
+            container.empty();
+            header = $('<ul>').addClass('nav nav-pills').appendTo(container);
+            content = $('<div>').addClass('tab-content clearfix').appendTo(container);
+        }
+
+
+        function resize() {
+            if (header && content) {
+                var h = container.height();
+                content.css({
+                    'height': h - header.height(),
+                    'overflow-y':'auto'
+                });
+            }
+        }
+
+
+        options = options || {};
+        var me = {}, items = [], header, content;
+
+        me.add = function (item) {
+            items.push(item);
+            item._attach(me, header, content);
+        }
+
+        me.remove = function (arg) {
+            var ix = indexOf(arg);
+            if (ix >= 0) {
+                items[i]._detach();
+                items.splice(ix, 1);
+            }
+        }
+
+        me.clear = function () {
+            items.forEach(function (x) {
+                x._detach();
+            });
+            items.length = 0;
+        }
+
+        me.getSelected = function () {
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].isSelected()) return items[i];
+            }
+        }
+
+        me.setSelected = function (arg) {
+            var ix = indexOf(arg);
+            if (ix >= 0) {
+                items[ix]._select();
+            }
+            resize();
+        }
+
+        me.getItems = function () {
+            return items.slice(0);
+        }
+
+        build();
+        $(window).on('resize', resize);
+        return me;
+    }
+
+
+    function TabItem(options) {
+        options = options || {};
+        var me = {}, owner = null, ht, pane;
+        var id = options.id || uidgen();
+        var caption = options.caption || '';
+        var icon = options.icon || '';
+        var onshow = options.onshow;
+        var onhide = options.onhide;
+
+        me.getId = function () { return id; }
+
+        me.getCaption = function () { return caption; }
+        me.setCaption = function (v) {
+            caption = v;
+            me._update();
+        }
+
+        me.getIcon = function () { return icon; }
+        me.setIcon = function (v) {
+            icon = v;
+            me._update();
+        }
+
+        me._update = function () {
+            if (!owner) return;
+            ht.find('a').text(caption);
+            //TODO icon
+        }
+
+        me._select = function () {
+            if (!owner) return;
+            ht.find('a').tab('show');
+        }
+
+        me.isSelected = function () {
+            if (!owner) return;
+            return ht.find('.active').length !== 0;
+        }
+
+        me._attach = function (o, h, c) {
+            owner = o;
+            ht = $('<li>').appendTo(h);
+            var a = $('<a>').attr({
+                'href': '#' + id,
+                'role': 'tab',
+                'data-toggle': 'tab'
+            }).appendTo(ht);
+
+            a.on('shown.bs.tab', function (e) {
+                if (onshow && pane.children().length === 0) {
+                    var el = onshow(pane);
+                    if (el) pane.append(el);
+                }
+            });
+
+            a.on('hidden.bs.tab', function (e) {
+                if (onhide) {
+                    onhide(pane);
+                }
+            });
+
+            pane = $('<div>').addClass('tab-pane').attr('id', id).appendTo(c);
+            me._update();
+        }
+
+        me._detach = function () {
+            if (!owner) return;
+            ht.remove();
+            pane.remove();
+            owner = ht = pane = null;
+        }
+
+        return me;
+    }
+
+
     function InhItemPresenterBase() {
         var me = {}, fname;
         var defaultCheckName, defaultHostName, customCheckName, customHostName;
@@ -1109,6 +1268,8 @@ var AuForms = (function ($) {
         dialog: dialog,
         wizard: wizard,
         table: table,
+        TabPanel: TabPanel,
+        TabItem: TabItem,
         InhItemPresenterBase: InhItemPresenterBase,
         controllers: {
             ajax: ajaxController
