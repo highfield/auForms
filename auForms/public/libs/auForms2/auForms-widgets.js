@@ -1294,7 +1294,7 @@ AuFormsWidgets = (function ($) {
         AuForms.FProp(me, 'value', config, { bidi: true });
 
         me.build = function () {
-            me._host.empty();
+            me._host.css({ 'float': 'left' }).empty();
             var grp = $("<ul>").attr({ id: me._uid }).addClass('nav nav-pills').appendTo(me._host);
 
             var items = {};
