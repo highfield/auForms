@@ -482,8 +482,10 @@ AuFormsWidgets = (function ($) {
         me.update = function () {
             if (me._applyVisible(me._targets.outer)) {
                 if (!sem.isBusy()) {
-                    var num = me._props['value'].get();
-                    var t = fmt ? fmt.to(num) : (num || 0).toString();
+                    var t, num = me._props['value'].get();
+                    if (_.isNumber(num)) {
+                        t = fmt ? fmt.to(num) : (num || 0).toString();
+                    }
                     if (!_.isString(t)) t = '';
                     me._targets.inp.val(t);
                 }

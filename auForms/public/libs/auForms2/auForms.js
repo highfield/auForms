@@ -939,7 +939,14 @@ var AuForms = (function ($) {
         layout = layout || {};
         options = options || {};
 
-        var cols = layout.cols || [];
+        //var cols = layout.cols || [];
+        var cols = [];
+        if (_.isArray(layout.cols)) {
+            cols = layout.cols;
+        }
+        else if (_.isInteger(layout.cols) && layout.cols > 0 && layout.cols <= 16) {
+            for (var i = 0; i < layout.cols; i++) cols.push({});
+        }
         var rows = layout.rows || [];
         if (cols.length === 0) return;
         if (!options.showHeader && !rows.length) return;
@@ -959,7 +966,7 @@ var AuForms = (function ($) {
         var tbody = $('<tbody>').appendTo(tbl);
         for (var y = 0; y < rows.length; y++) {
             var r = rows[y], tr = $('<tr>').appendTo(tbody), tcs = [];
-            if (_.isObject(r)) {
+            if (_.isObject(r) && !_.isArray(r)) {
                 if (r.bg) tr.css('background-color', r.bg);
                 var cells = r.cells || {};
                 for (var x = 0; x < cols.length; x++) {
